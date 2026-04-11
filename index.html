@@ -306,6 +306,111 @@
       border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 99;
     }
 
+    /* ── MODO PROVA ── */
+    .upload-zone {
+      border: 2.5px dashed var(--gray-300); border-radius: 14px; padding: 40px 20px;
+      text-align: center; cursor: pointer; transition: all .2s; background: #fff;
+      margin-bottom: 20px;
+    }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--primary); background: var(--primary-light); }
+    .upload-zone .uz-icon { font-size: 40px; margin-bottom: 10px; }
+    .upload-zone .uz-title { font-size: 16px; font-weight: 700; color: var(--gray-800); margin-bottom: 4px; }
+    .upload-zone .uz-sub { font-size: 13px; color: var(--gray-500); }
+    .upload-preview { width: 100%; max-height: 220px; object-fit: contain; border-radius: 10px; margin-top: 12px; border: 1px solid var(--gray-200); display: none; }
+
+    .prova-or { text-align: center; font-size: 13px; color: var(--gray-400); margin: 16px 0; position: relative; }
+    .prova-or::before, .prova-or::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: var(--gray-200); }
+    .prova-or::before { left: 0; }
+    .prova-or::after { right: 0; }
+
+    .prova-loading { text-align: center; padding: 48px 20px; }
+    .prova-loading .spinner { width: 48px; height: 48px; border: 4px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .prova-loading .load-msg { font-size: 15px; font-weight: 600; color: var(--gray-700); }
+    .prova-loading .load-sub { font-size: 13px; color: var(--gray-500); margin-top: 6px; }
+
+    .topicos-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .topico-chip {
+      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 14px 16px; transition: box-shadow .15s;
+    }
+    .topico-chip:hover { box-shadow: var(--shadow-md); }
+    .topico-chip-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .topico-chip-name { font-size: 14px; font-weight: 700; color: var(--gray-800); flex: 1; }
+    .topico-chip-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-gerar {
+      padding: 5px 12px; border-radius: 20px; border: 1.5px solid; font-size: 12px;
+      font-weight: 600; cursor: pointer; transition: all .15s; background: #fff;
+    }
+    .btn-resumo { border-color: var(--primary); color: var(--primary); }
+    .btn-resumo:hover { background: var(--primary); color: #fff; }
+    .btn-flash { border-color: #f59e0b; color: #92400e; background: #fffbeb; }
+    .btn-flash:hover { background: #f59e0b; color: #fff; }
+    .btn-quest { border-color: var(--success); color: var(--success); }
+    .btn-quest:hover { background: var(--success); color: #fff; }
+    .topico-chip-status { font-size: 11px; color: var(--gray-400); margin-top: 6px; display: none; }
+
+    /* Flashcard */
+    .flashcards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .flashcard-wrap { perspective: 1000px; height: 160px; cursor: pointer; }
+    .flashcard-inner {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d; transition: transform .5s ease;
+    }
+    .flashcard-wrap.flipped .flashcard-inner { transform: rotateY(180deg); }
+    .flashcard-face {
+      position: absolute; inset: 0; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; text-align: center; backface-visibility: hidden;
+      box-shadow: var(--shadow);
+    }
+    .flashcard-front { background: #fff; border: 1px solid var(--gray-200); font-size: 14px; font-weight: 600; color: var(--gray-800); }
+    .flashcard-back { background: var(--primary); color: #fff; font-size: 13px; line-height: 1.5; transform: rotateY(180deg); }
+    .flashcard-hint { font-size: 11px; text-align: center; color: var(--gray-400); margin-top: 4px; }
+
+    /* Questões */
+    .questao-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
+    .questao-num { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .questao-enunciado { font-size: 14px; color: var(--gray-800); line-height: 1.6; margin-bottom: 14px; }
+    .alternativas { display: flex; flex-direction: column; gap: 8px; }
+    .alt-btn {
+      padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gray-200);
+      background: #fff; font-size: 13px; color: var(--gray-700); cursor: pointer;
+      text-align: left; transition: all .15s;
+    }
+    .alt-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .alt-btn.correta { border-color: var(--success); background: var(--success-light); color: #065f46; font-weight: 700; }
+    .alt-btn.errada { border-color: var(--danger); background: var(--danger-light); color: var(--danger); }
+    .alt-btn.alt-gabarito { /* hidden initially — only revealed after click */ }
+    .gabarito-block { margin-top: 12px; padding: 14px 16px; background: var(--success-light); border-radius: 8px; border-left: 4px solid var(--success); }
+    .questao-explicacao { margin-top: 14px; padding: 12px 16px; background: var(--gray-50); border-radius: 8px; font-size: 13px; color: var(--gray-700); line-height: 1.6; border-left: 3px solid var(--primary); display: none; }
+
+    /* Resumo */
+    .resumo-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; }
+    .resumo-titulo { font-size: 18px; font-weight: 800; color: var(--gray-900); margin-bottom: 16px; }
+    .resumo-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-400); margin-bottom: 8px; margin-top: 16px; }
+    .pontos-list { display: flex; flex-direction: column; gap: 6px; }
+    .ponto-item { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--gray-700); }
+    .ponto-item::before { content: '✓'; color: var(--success); font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+    .armadilha-item { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--gray-700); }
+    .armadilha-item::before { content: '⚠️'; flex-shrink: 0; }
+    .resumo-texto { font-size: 14px; color: var(--gray-700); line-height: 1.7; }
+
+    .content-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .content-panel-title { font-size: 17px; font-weight: 800; color: var(--gray-900); }
+    .content-tabs { display: flex; gap: 8px; }
+    .content-tab { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-300); background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray-600); transition: all .15s; }
+    .content-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .prova-banner {
+      background: linear-gradient(135deg, #1a56db, #0891b2);
+      border-radius: var(--radius); padding: 18px 22px; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 16px; color: #fff;
+    }
+    .prova-banner-icon { font-size: 32px; flex-shrink: 0; }
+    .prova-banner-title { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+    .prova-banner-sub { font-size: 13px; opacity: .85; }
+
     /* ── MATERIALS ── */
     .material-topic-card {
       background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
@@ -413,6 +518,11 @@
     <button class="nav-item" onclick="navigate('casos')" id="nav-casos">
       <span class="nav-icon">🩺</span> Casos Clínicos
       <span class="nav-badge">3</span>
+    </button>
+
+    <div class="sidebar-section-title">IA</div>
+    <button class="nav-item" onclick="navigate('prova')" id="nav-prova">
+      <span class="nav-icon">🎯</span> Modo Prova IA
     </button>
 
     <div class="sidebar-section-title" style="margin-top:auto">Sessão</div>
@@ -666,6 +776,83 @@
         </div>
       </div>
       <div id="casos-container"></div>
+    </section>
+
+    <!-- ══ MODO PROVA IA ══ -->
+    <section id="section-prova" class="section">
+      <div class="page-title">🎯 Modo Prova — IA</div>
+      <div class="page-subtitle">Envie o print do edital/programação da sua prova e a IA vai gerar resumos, flashcards e questões personalizados</div>
+
+      <div class="prova-banner">
+        <span class="prova-banner-icon">🤖</span>
+        <div>
+          <div class="prova-banner-title">Powered by Claude AI</div>
+          <div class="prova-banner-sub">Conteúdo gerado especificamente para provas de residência brasileira (ENARE, USP, Unifesp, UERJ)</div>
+        </div>
+      </div>
+
+      <!-- Upload Zone -->
+      <div id="prova-upload-area">
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('prova-file-input').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)">
+          <div style="font-size:48px;margin-bottom:12px">📸</div>
+          <div style="font-size:17px;font-weight:700;color:var(--gray-800);margin-bottom:6px">Envie o print do seu edital</div>
+          <div style="font-size:14px;color:var(--gray-500);margin-bottom:16px">Arraste e solte aqui ou clique para selecionar</div>
+          <div style="font-size:12px;color:var(--gray-400)">JPG, PNG, WebP · Máx 5MB</div>
+          <input type="file" id="prova-file-input" accept="image/*" style="display:none" onchange="uploadAndExtract(this.files[0])">
+        </div>
+
+        <div class="prova-or">ou</div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input type="text" id="prova-topico-manual" placeholder="Digite um tópico manualmente (ex: AVC Isquêmico)" style="flex:1;padding:10px 14px;border:1.5px solid var(--gray-300);border-radius:8px;font-size:14px;outline:none;min-width:220px" onkeydown="if(event.key==='Enter') adicionarTopicoManual()">
+          <button onclick="adicionarTopicoManual()" style="padding:10px 18px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">+ Adicionar</button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="prova-loading" class="prova-loading" style="display:none">
+        <div class="spinner"></div>
+        <div class="load-msg">Analisando o print...</div>
+        <div class="load-sub">A IA está identificando os tópicos da sua prova</div>
+      </div>
+
+      <!-- Topics Grid -->
+      <div id="prova-topics-section" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px">
+          <div style="font-size:16px;font-weight:700;color:var(--gray-800)">📋 Tópicos identificados</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="gerarTudoEmMassa('resumo')" style="padding:8px 14px;background:var(--success-light);color:var(--success);border:1px solid #a7f3d0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">📄 Todos os Resumos</button>
+            <button onclick="gerarTudoEmMassa('flashcards')" style="padding:8px 14px;background:var(--accent-light);color:var(--accent);border:1px solid #bae6fd;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">🃏 Todos os Flashcards</button>
+            <button onclick="gerarTudoEmMassa('questoes')" style="padding:8px 14px;background:var(--primary-light);color:var(--primary);border:1px solid #c7d7f8;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">❓ Todas as Questões</button>
+          </div>
+        </div>
+        <div id="prova-topicos-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px"></div>
+        <button onclick="resetProva()" style="padding:8px 16px;background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;cursor:pointer">🔄 Novo edital</button>
+      </div>
+
+      <!-- Content Loading -->
+      <div id="prova-content-loading" class="prova-loading" style="display:none">
+        <div class="spinner"></div>
+        <div class="load-msg" id="content-load-msg">Gerando conteúdo...</div>
+        <div class="load-sub">Aguarde, isso pode levar alguns segundos</div>
+      </div>
+
+      <!-- Content Display Panel -->
+      <div id="prova-content-panel" style="display:none;margin-top:24px">
+        <div class="content-panel-header">
+          <div>
+            <div id="content-panel-title" style="font-size:17px;font-weight:700;color:var(--gray-900)"></div>
+            <div id="content-panel-subtitle" style="font-size:13px;color:var(--gray-500);margin-top:2px"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="btn-switch-resumo" onclick="switchView('resumo')" style="padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-300);background:#fff;color:var(--gray-600)">📄 Resumo</button>
+            <button id="btn-switch-flash" onclick="switchView('flashcards')" style="padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-300);background:#fff;color:var(--gray-600)">🃏 Flashcards</button>
+            <button id="btn-switch-quest" onclick="switchView('questoes')" style="padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-300);background:#fff;color:var(--gray-600)">❓ Questões</button>
+            <button onclick="document.getElementById('prova-content-panel').style.display='none'" style="padding:7px 12px;border-radius:8px;font-size:13px;cursor:pointer;border:1.5px solid var(--gray-300);background:#fff;color:var(--gray-500)">✕</button>
+          </div>
+        </div>
+        <div id="prova-content-body" style="margin-top:16px"></div>
+      </div>
     </section>
 
   </main>
@@ -1036,6 +1223,7 @@ function navigate(id) {
   if (id === 'questoes')   renderQuestions();
   if (id === 'materiais')  renderMateriais();
   if (id === 'casos')      renderCasos();
+  if (id === 'prova')     initProva();
 }
 
 // ─────────────────────────────────────────────
@@ -1604,6 +1792,290 @@ function syncRingText() {
 }
 const origRenderDash = renderDashboard;
 window.renderDashboard = function() { origRenderDash(); syncRingText(); };
+
+// ─────────────────────────────────────────────
+// MODO PROVA IA
+// ─────────────────────────────────────────────
+let provaTopicos = [];
+let provaCache = {}; // { "topico::tipo": data }
+let currentProvaTopico = null;
+let currentProvaView = null;
+
+function initProva() {
+  if (provaTopicos.length > 0) renderProvaTopics();
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) uploadAndExtract(file);
+  else showToast('Por favor, envie uma imagem.');
+}
+
+async function uploadAndExtract(file) {
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('Imagem muito grande (máx 5MB).'); return; }
+
+  document.getElementById('prova-upload-area').style.display = 'none';
+  document.getElementById('prova-loading').style.display = 'block';
+
+  try {
+    const base64 = await fileToBase64(file);
+    const mediaType = file.type || 'image/jpeg';
+
+    const res = await fetch('/api/extract-topics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64, mediaType })
+    });
+    const data = await res.json();
+
+    document.getElementById('prova-loading').style.display = 'none';
+
+    if (data.topicos && data.topicos.length > 0) {
+      provaTopicos = data.topicos;
+      renderProvaTopics();
+    } else {
+      showToast('Não foi possível identificar tópicos. Tente outra imagem.');
+      document.getElementById('prova-upload-area').style.display = 'block';
+    }
+  } catch (e) {
+    document.getElementById('prova-loading').style.display = 'none';
+    document.getElementById('prova-upload-area').style.display = 'block';
+    showToast('Erro ao processar imagem: ' + e.message);
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function adicionarTopicoManual() {
+  const input = document.getElementById('prova-topico-manual');
+  const val = input.value.trim();
+  if (!val) return;
+  if (!provaTopicos.includes(val)) provaTopicos.push(val);
+  input.value = '';
+  renderProvaTopics();
+}
+
+function renderProvaTopics() {
+  document.getElementById('prova-upload-area').style.display = 'none';
+  document.getElementById('prova-loading').style.display = 'none';
+  document.getElementById('prova-topics-section').style.display = 'block';
+
+  const grid = document.getElementById('prova-topicos-grid');
+  grid.innerHTML = provaTopicos.map((t, i) => `
+    <div class="topico-chip">
+      <span class="chip-name">${t}</span>
+      <div class="chip-actions">
+        <button class="btn-resumo" onclick="gerarConteudo('${escHtml(t)}','resumo')" title="Resumo">📄</button>
+        <button class="btn-flash" onclick="gerarConteudo('${escHtml(t)}','flashcards')" title="Flashcards">🃏</button>
+        <button class="btn-quest" onclick="gerarConteudo('${escHtml(t)}','questoes')" title="Questões">❓</button>
+        <button onclick="removerTopico(${i})" title="Remover" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--gray-400);padding:2px 4px">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escHtml(s) {
+  return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function removerTopico(idx) {
+  provaTopicos.splice(idx, 1);
+  if (provaTopicos.length === 0) resetProva();
+  else renderProvaTopics();
+}
+
+function resetProva() {
+  provaTopicos = [];
+  provaCache = {};
+  currentProvaTopico = null;
+  currentProvaView = null;
+  document.getElementById('prova-upload-area').style.display = 'block';
+  document.getElementById('prova-loading').style.display = 'none';
+  document.getElementById('prova-topics-section').style.display = 'none';
+  document.getElementById('prova-content-loading').style.display = 'none';
+  document.getElementById('prova-content-panel').style.display = 'none';
+  document.getElementById('prova-topico-manual').value = '';
+}
+
+async function gerarConteudo(topico, tipo) {
+  const key = topico + '::' + tipo;
+  currentProvaTopico = topico;
+  currentProvaView = tipo;
+
+  // show panel immediately if cached
+  if (provaCache[key]) {
+    mostrarConteudo(topico, tipo, provaCache[key]);
+    return;
+  }
+
+  document.getElementById('prova-content-panel').style.display = 'none';
+  document.getElementById('prova-content-loading').style.display = 'block';
+  const msgs = { resumo: 'Gerando resumo clínico...', flashcards: 'Criando flashcards...', questoes: 'Elaborando questões...' };
+  document.getElementById('content-load-msg').textContent = msgs[tipo] || 'Gerando conteúdo...';
+
+  try {
+    const res = await fetch('/api/generate-content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topico, tipo })
+    });
+    const data = await res.json();
+    provaCache[key] = data;
+    document.getElementById('prova-content-loading').style.display = 'none';
+    mostrarConteudo(topico, tipo, data);
+  } catch (e) {
+    document.getElementById('prova-content-loading').style.display = 'none';
+    showToast('Erro ao gerar conteúdo: ' + e.message);
+  }
+}
+
+function mostrarConteudo(topico, tipo, data) {
+  document.getElementById('prova-content-panel').style.display = 'block';
+  document.getElementById('content-panel-title').textContent = topico;
+  const subtitles = { resumo: '📄 Resumo Clínico', flashcards: '🃏 Flashcards', questoes: '❓ Questões de Prova' };
+  document.getElementById('content-panel-subtitle').textContent = subtitles[tipo];
+
+  // highlight active tab
+  ['resumo','flash','quest'].forEach(k => {
+    const btn = document.getElementById('btn-switch-' + k);
+    const map = { resumo: 'resumo', flash: 'flashcards', quest: 'questoes' };
+    btn.style.background = map[k] === tipo ? 'var(--primary)' : '#fff';
+    btn.style.color = map[k] === tipo ? '#fff' : 'var(--gray-600)';
+    btn.style.borderColor = map[k] === tipo ? 'var(--primary)' : 'var(--gray-300)';
+  });
+
+  const body = document.getElementById('prova-content-body');
+  if (tipo === 'resumo') body.innerHTML = renderResumoHTML(data);
+  else if (tipo === 'flashcards') body.innerHTML = renderFlashcardsHTML(data);
+  else if (tipo === 'questoes') body.innerHTML = renderQuestoesHTML(data);
+
+  document.getElementById('prova-content-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function switchView(tipo) {
+  if (!currentProvaTopico) return;
+  gerarConteudo(currentProvaTopico, tipo);
+}
+
+function renderResumoHTML(data) {
+  if (data.erro) return `<div class="resumo-card"><p style="color:var(--danger)">Erro: ${data.erro}</p></div>`;
+  return `
+    <div class="resumo-card">
+      ${data.pontos_chave?.length ? `
+        <div style="margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--primary);margin-bottom:8px">⚡ Pontos-chave</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+            ${data.pontos_chave.map(p => `<li style="display:flex;gap:8px;font-size:14px;line-height:1.5"><span style="color:var(--primary);flex-shrink:0">▸</span>${p}</li>`).join('')}
+          </ul>
+        </div>` : ''}
+      ${data.resumo_clinico ? `
+        <div style="margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-600);margin-bottom:8px">📋 Resumo Clínico</div>
+          <p style="font-size:14px;line-height:1.7;color:var(--gray-700)">${data.resumo_clinico}</p>
+        </div>` : ''}
+      ${data.armadilhas_prova?.length ? `
+        <div style="margin-bottom:16px;background:var(--warning-light);border-left:4px solid var(--warning);padding:14px;border-radius:0 8px 8px 0">
+          <div style="font-size:13px;font-weight:700;color:var(--warning);margin-bottom:8px">⚠️ Armadilhas de Prova</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+            ${data.armadilhas_prova.map(a => `<li style="font-size:13px;line-height:1.5">• ${a}</li>`).join('')}
+          </ul>
+        </div>` : ''}
+      ${data.mnemônicos?.filter(m=>m).length ? `
+        <div style="margin-bottom:16px;background:var(--accent-light);border-left:4px solid var(--accent);padding:14px;border-radius:0 8px 8px 0">
+          <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px">🧠 Mnemônicos</div>
+          ${data.mnemônicos.filter(m=>m).map(m => `<div style="font-size:13px;font-weight:600;margin-bottom:4px">${m}</div>`).join('')}
+        </div>` : ''}
+      ${data.valores_importantes && Object.keys(data.valores_importantes).length ? `
+        <div>
+          <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-600);margin-bottom:8px">📊 Valores Importantes</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${Object.entries(data.valores_importantes).map(([k,v]) => `
+              <div style="background:var(--primary-light);padding:8px 14px;border-radius:8px;border:1px solid #c7d7f8">
+                <div style="font-size:11px;color:var(--primary);font-weight:700;text-transform:uppercase;margin-bottom:2px">${k}</div>
+                <div style="font-size:14px;font-weight:600;color:var(--gray-800)">${v}</div>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+    </div>`;
+}
+
+function renderFlashcardsHTML(data) {
+  if (data.erro) return `<p style="color:var(--danger)">Erro: ${data.erro}</p>`;
+  if (!data.flashcards?.length) return '<p>Nenhum flashcard gerado.</p>';
+  return `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+      ${data.flashcards.map((f, i) => `
+        <div class="flashcard-wrap" onclick="this.querySelector('.flashcard-inner').classList.toggle('flipped')">
+          <div class="flashcard-inner">
+            <div class="flashcard-front">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--primary);margin-bottom:10px">Pergunta ${i+1}</div>
+              <div style="font-size:15px;font-weight:600;color:var(--gray-800);line-height:1.5">${f.frente}</div>
+              <div style="margin-top:auto;font-size:12px;color:var(--gray-400)">Clique para virar ↩</div>
+            </div>
+            <div class="flashcard-back">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#fff;opacity:.7;margin-bottom:10px">Resposta</div>
+              <div style="font-size:14px;line-height:1.6">${f.verso}</div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderQuestoesHTML(data) {
+  if (data.erro) return `<p style="color:var(--danger)">Erro: ${data.erro}</p>`;
+  if (!data.questoes?.length) return '<p>Nenhuma questão gerada.</p>';
+  return data.questoes.map((q, qi) => `
+    <div class="questao-card">
+      <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:10px">QUESTÃO ${qi+1}</div>
+      <div style="font-size:15px;font-weight:600;color:var(--gray-800);line-height:1.6;margin-bottom:16px">${q.enunciado}</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        ${q.alternativas.map(alt => {
+          const letra = alt.charAt(0);
+          const isGabarito = letra === q.gabarito;
+          return `<button class="alt-btn ${isGabarito ? 'alt-gabarito' : ''}" onclick="revelarGabarito(this, ${qi})">${alt}</button>`;
+        }).join('')}
+      </div>
+      <div class="gabarito-block" id="gabarito-${qi}" style="display:none">
+        <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:6px">✅ Gabarito: ${q.gabarito}</div>
+        <div style="font-size:13px;color:var(--gray-700);line-height:1.6">${q.explicacao}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function revelarGabarito(btn, qi) {
+  const block = document.getElementById('gabarito-' + qi);
+  if (block) block.style.display = block.style.display === 'none' ? 'block' : 'none';
+}
+
+async function gerarTudoEmMassa(tipo) {
+  if (!provaTopicos.length) return;
+  showToast(`Gerando ${tipo} para todos os tópicos... aguarde.`);
+  for (const topico of provaTopicos) {
+    const key = topico + '::' + tipo;
+    if (!provaCache[key]) {
+      try {
+        const res = await fetch('/api/generate-content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topico, tipo })
+        });
+        provaCache[key] = await res.json();
+      } catch(e) { /* skip errors silently */ }
+    }
+  }
+  showToast('Pronto! Clique em qualquer tópico para ver o conteúdo.');
+}
 </script>
 </body>
 </html>
