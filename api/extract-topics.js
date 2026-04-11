@@ -1,5 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -10,97 +8,82 @@ export default async function handler(req, res) {
   const { image, mediaType = 'image/jpeg' } = req.body;
   if (!image) return res.status(400).json({ erro: 'Imagem não fornecida' });
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ erro: 'GEMINI_API_KEY não configurada' });
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return res.status(500).json({ erro: 'ANTHROPIC_API_KEY não configurada' });
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      systemInstruction: `Você é um especialista em educação médica. Sua tarefa é transformar imagens de cronogramas, editais e roteiros de provas de residência médica em dados estruturados.
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mediaType, data: image }
+            },
+            {
+              type: 'text',
+              text: `Você é um especialista em educação médica. Analise esta imagem e extraia TODOS os tópicos médicos listados.
 
 Instruções:
-1. Realize o OCR da imagem com máxima precisão técnica.
-2. Identifique apenas os tópicos médicos (ignore datas, nomes de professores ou locais de prova).
-3. Padronize os termos: se o texto disser "HDA", converta para "Hemorragia Digestiva Alta"; se disser "IAM", converta para "Infarto Agudo do Miocárdio".
-4. Retorne ESTRITAMENTE um JSON válido (sem textos introdutórios) no formato: {"topicos": ["Tema 1", "Tema 2"]}
-5. Não invente tópicos. Se algo estiver ilegível, ignore.
-6. Se a imagem não contiver tópicos médicos identificáveis, retorne: {"topicos": []}
-7. Foco na precisão dos termos da nomenclatura de residência médica (SUS, semiologia, especialidades clínicas).`
-    });
+1. Identifique tópicos de estudo, aulas, disciplinas ou conteúdos médicos
+2. Ignore: datas, nomes de professores, locais, horários
+3. Padronize nomes: "HDA" → "Hemorragia Digestiva Alta", "IAM" → "Infarto Agudo do Miocárdio"
+4. Retorne APENAS um JSON válido, sem explicações:
 
-    const imagePart = {
-      inlineData: {
-        data: image,
-        mimeType: mediaType
-      }
-    };
+{"topicos": ["Tópico 1", "Tópico 2", "Tópico 3"]}
 
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            imagePart,
-            {
-              text: "Extraia os tópicos médicos desta imagem e retorne um JSON com o array de tópicos normalizados."
+Se não houver tópicos, retorne: {"topicos": []}`
             }
           ]
-        }
-      ],
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.1,
-        maxOutputTokens: 2048
-      }
+        }]
+      })
     });
 
-    const response = result.response;
-    const text = response.text().trim();
+    if (!response.ok) {
+      const err = await response.text();
+      return res.status(500).json({ erro: 'Erro na API Claude', detalhe: err });
+    }
 
-    console.log('[DEBUG] Resposta Gemini:', text.substring(0, 500));
+    const data = await response.json();
+    const text = data.content?.[0]?.text?.trim() || '';
 
-    // Try to parse the JSON response
+    console.log('[DEBUG] Resposta Claude:', text.substring(0, 500));
+
     try {
       const parsed = JSON.parse(text);
-      console.log('[DEBUG] JSON parsed successfully:', parsed);
-
       if (Array.isArray(parsed.topicos) && parsed.topicos.length > 0) {
         return res.json({ topicos: parsed.topicos });
-      } else if (Array.isArray(parsed.topicos) && parsed.topicos.length === 0) {
-        return res.json({ topicos: [], erro: 'Nenhum tópico encontrado na imagem' });
+      } else if (Array.isArray(parsed.topicos)) {
+        return res.json({ topicos: [], erro: 'Nenhum tópico encontrado' });
       }
-      // If it's just an array, wrap it
       if (Array.isArray(parsed)) {
-        if (parsed.length > 0) {
-          return res.json({ topicos: parsed });
-        } else {
-          return res.json({ topicos: [], erro: 'Array vazio retornado' });
-        }
+        return res.json({ topicos: parsed.length > 0 ? parsed : [] });
       }
-      // Otherwise return as is
       return res.json(parsed);
     } catch (parseError) {
-      console.log('[DEBUG] JSON parse failed, raw text:', text);
-
-      // If JSON parsing fails, try to extract array from text
+      console.log('[DEBUG] Parse error, raw:', text);
       const arrayMatch = text.match(/\[[\s\S]*\]/);
       if (arrayMatch) {
         try {
           const array = JSON.parse(arrayMatch[0]);
-          if (Array.isArray(array) && array.length > 0) {
-            console.log('[DEBUG] Extracted array from text:', array);
-            return res.json({ topicos: array });
-          }
+          return res.json({ topicos: Array.isArray(array) ? array : [] });
         } catch (e) {
-          console.log('[DEBUG] Array extraction failed:', e.message);
+          // ignore
         }
       }
-
-      return res.json({ topicos: [], raw: text, parseError: parseError.message });
+      return res.json({ topicos: [], raw: text });
     }
   } catch (error) {
-    console.error('[ERROR] Exception:', error.message);
-    return res.status(500).json({ erro: error.message, tipo: error.constructor.name });
+    console.error('[ERROR]', error.message);
+    return res.status(500).json({ erro: error.message });
   }
 }
