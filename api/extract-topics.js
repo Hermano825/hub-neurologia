@@ -15,78 +15,51 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ erro: 'GEMINI_API_KEY não configurada' });
 
   try {
-    // Direct REST API call to v1 (not v1beta)
-    const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    const genAI = new GoogleGenerativeAI(apiKey);
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [
-            {
-              text: `Você é um especialista em educação médica e residência médica brasileira. Sua tarefa é transformar imagens de cronogramas, editais e roteiros de provas em dados estruturados.
+    // Simple model initialization without extra parameters
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-Instruções:
+    // Image part
+    const imagePart = {
+      inlineData: {
+        mimeType: mediaType,
+        data: image
+      }
+    };
+
+    // Prompt with all instructions embedded
+    const promptPart = {
+      text: `Você é um especialista em educação médica e residência médica brasileira. Sua tarefa é extrair tópicos médicos de imagens de cronogramas, editais e roteiros de provas.
+
+INSTRUÇÕES:
 1. Realize OCR da imagem com máxima precisão técnica.
-2. Identifique APENAS tópicos médicos (ignore datas, nomes de professores, locais de prova).
-3. Normalize os termos médicos:
+2. Identifique APENAS tópicos médicos (ignore datas, nomes de professores, locais de prova, horários).
+3. Normalize os termos médicos conforme nomenclatura de residência:
    - "HDA" → "Hemorragia Digestiva Alta"
    - "IAM" → "Infarto Agudo do Miocárdio"
    - "DRGE" → "Doença do Refluxo Gastroesofágico"
    - "ICC" → "Insuficiência Cardíaca Congestiva"
-4. Retorne um JSON válido com este formato exato (como texto puro, não em markdown):
+   - "AVE" → "Acidente Vascular Encefálico"
+   - Qualquer sigla: expanda para nome completo
+4. Retorne APENAS um JSON válido com este formato exato (sem markdown, sem explicações adicionais):
    {"topicos": ["Tópico 1", "Tópico 2", "Tópico 3"]}
 5. Se não houver tópicos identificáveis, retorne: {"topicos": []}
-6. Não invente tópicos. Foco em nomenclatura de residência médica.`
-            }
-          ]
-        },
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                inlineData: {
-                  mimeType: mediaType,
-                  data: image
-                }
-              },
-              {
-                text: "Extraia os tópicos médicos desta imagem e retorne um JSON com o array de tópicos normalizados."
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 1024
-        }
-      })
-    });
+6. Não invente tópicos que não estejam na imagem.`
+    };
 
-    console.log('[DEBUG] API Status:', response.status);
+    // Call API with both image and prompt as array
+    const result = await model.generateContent([imagePart, promptPart]);
 
-    if (!response.ok) {
-      const errData = await response.json();
-      console.error('[ERROR] API Response:', errData);
-      return res.status(response.status).json({
-        erro: errData.error?.message || `Erro ${response.status}`,
-        detalhe: errData.error?.details?.[0]?.reason || ''
-      });
-    }
-
-    const data = await response.json();
-    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    console.log('[DEBUG] Gemini response:', responseText.substring(0, 400));
+    const responseText = result.response.text().trim();
+    console.log('[DEBUG] Gemini response:', responseText.substring(0, 500));
 
     if (!responseText) {
       return res.json({ topicos: [], erro: 'Resposta vazia do Gemini' });
     }
 
     try {
-      // Parse JSON from response text
+      // Parse JSON from response
       const parsed = JSON.parse(responseText);
 
       if (parsed.topicos && Array.isArray(parsed.topicos)) {
@@ -104,7 +77,7 @@ Instruções:
     } catch (parseError) {
       console.log('[DEBUG] JSON parse error, attempting extraction');
 
-      // Try to extract JSON object from response
+      // Try to extract JSON from response text
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
@@ -118,7 +91,7 @@ Instruções:
         }
       }
 
-      return res.json({ topicos: [], raw: responseText, erro: 'Falha no parsing JSON' });
+      return res.json({ topicos: [], raw: responseText });
     }
 
   } catch (error) {
