@@ -6,6 +6,6 @@
     "node": "20.x"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0"
+    "@google/generative-ai": "^0.22.0"
   }
 }
