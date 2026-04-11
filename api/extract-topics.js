@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-pro-vision",
       systemInstruction: `Você é um especialista em educação médica. Sua tarefa é transformar imagens de cronogramas, editais e roteiros de provas de residência médica em dados estruturados.
 
 Instruções:
@@ -49,7 +49,6 @@ Instruções:
         }
       ],
       generationConfig: {
-        responseMimeType: "application/json",
         temperature: 0.1,
         maxOutputTokens: 2048
       }
@@ -63,44 +62,47 @@ Instruções:
     // Try to parse the JSON response
     try {
       const parsed = JSON.parse(text);
-      console.log('[DEBUG] JSON parsed successfully:', parsed);
+      console.log('[DEBUG] JSON parsed successfully');
 
       if (Array.isArray(parsed.topicos) && parsed.topicos.length > 0) {
         return res.json({ topicos: parsed.topicos });
-      } else if (Array.isArray(parsed.topicos) && parsed.topicos.length === 0) {
+      } else if (Array.isArray(parsed.topicos)) {
         return res.json({ topicos: [], erro: 'Nenhum tópico encontrado na imagem' });
       }
-      // If it's just an array, wrap it
       if (Array.isArray(parsed)) {
-        if (parsed.length > 0) {
-          return res.json({ topicos: parsed });
-        } else {
-          return res.json({ topicos: [], erro: 'Array vazio retornado' });
-        }
+        return res.json({ topicos: parsed.length > 0 ? parsed : [] });
       }
-      // Otherwise return as is
       return res.json(parsed);
     } catch (parseError) {
-      console.log('[DEBUG] JSON parse failed, raw text:', text);
+      console.log('[DEBUG] JSON parse failed, attempting extraction');
 
-      // If JSON parsing fails, try to extract array from text
       const arrayMatch = text.match(/\[[\s\S]*\]/);
       if (arrayMatch) {
         try {
           const array = JSON.parse(arrayMatch[0]);
           if (Array.isArray(array) && array.length > 0) {
-            console.log('[DEBUG] Extracted array from text:', array);
+            console.log('[DEBUG] Extracted array successfully');
             return res.json({ topicos: array });
           }
         } catch (e) {
-          console.log('[DEBUG] Array extraction failed:', e.message);
+          console.log('[DEBUG] Array extraction failed');
         }
       }
 
-      return res.json({ topicos: [], raw: text, parseError: parseError.message });
+      // Last resort: split by lines
+      const lines = text.split('\n')
+        .map(l => l.replace(/^[-•*\d.)\s"]+/, '').trim())
+        .filter(l => l.length > 3 && l.length < 200 && !l.includes('topicos') && !l.includes('{') && !l.includes('}'));
+
+      if (lines.length > 0) {
+        console.log('[DEBUG] Fallback: extracted lines as topics');
+        return res.json({ topicos: lines });
+      }
+
+      return res.json({ topicos: [], raw: text });
     }
   } catch (error) {
-    console.error('[ERROR] Exception:', error.message);
-    return res.status(500).json({ erro: error.message, tipo: error.constructor.name });
+    console.error('[ERROR]', error.message);
+    return res.status(500).json({ erro: error.message });
   }
 }
