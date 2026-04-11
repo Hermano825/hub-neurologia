@@ -15,19 +15,9 @@ export default async function handler(req, res) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-pro-vision",
-      systemInstruction: `Você é um especialista em educação médica. Sua tarefa é transformar imagens de cronogramas, editais e roteiros de provas de residência médica em dados estruturados.
 
-Instruções:
-1. Realize o OCR da imagem com máxima precisão técnica.
-2. Identifique apenas os tópicos médicos (ignore datas, nomes de professores ou locais de prova).
-3. Padronize os termos: se o texto disser "HDA", converta para "Hemorragia Digestiva Alta"; se disser "IAM", converta para "Infarto Agudo do Miocárdio".
-4. Retorne ESTRITAMENTE um JSON válido (sem textos introdutórios) no formato: {"topicos": ["Tema 1", "Tema 2"]}
-5. Não invente tópicos. Se algo estiver ilegível, ignore.
-6. Se a imagem não contiver tópicos médicos identificáveis, retorne: {"topicos": []}
-7. Foco na precisão dos termos da nomenclatura de residência médica (SUS, semiologia, especialidades clínicas).`
-    });
+    // Use gemini-1.5-flash - cheapest model for vision tasks
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const imagePart = {
       inlineData: {
@@ -43,66 +33,59 @@ Instruções:
           parts: [
             imagePart,
             {
-              text: "Extraia os tópicos médicos desta imagem e retorne um JSON com o array de tópicos normalizados."
+              text: `Você é um especialista em educação médica. Analise esta imagem e extraia TODOS os tópicos médicos listados.
+
+Instruções:
+1. Identifique tópicos de estudo, aulas, disciplinas ou conteúdos médicos
+2. Ignore: datas, nomes de professores, locais, horários
+3. Padronize nomes: "HDA" → "Hemorragia Digestiva Alta", "IAM" → "Infarto Agudo do Miocárdio"
+4. Retorne APENAS um JSON válido, sem explicações:
+
+{"topicos": ["Tópico 1", "Tópico 2", "Tópico 3"]}
+
+Se não houver tópicos, retorne: {"topicos": []}`
             }
           ]
         }
       ],
       generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 2048
+        temperature: 0.2,
+        maxOutputTokens: 1024
       }
     });
 
-    const response = result.response;
-    const text = response.text().trim();
+    const responseText = result.response.text().trim();
+    console.log('[DEBUG] Gemini response:', responseText.substring(0, 300));
 
-    console.log('[DEBUG] Resposta Gemini:', text.substring(0, 500));
-
-    // Try to parse the JSON response
     try {
-      const parsed = JSON.parse(text);
-      console.log('[DEBUG] JSON parsed successfully');
-
-      if (Array.isArray(parsed.topicos) && parsed.topicos.length > 0) {
+      const parsed = JSON.parse(responseText);
+      if (parsed.topicos && Array.isArray(parsed.topicos)) {
         return res.json({ topicos: parsed.topicos });
-      } else if (Array.isArray(parsed.topicos)) {
-        return res.json({ topicos: [], erro: 'Nenhum tópico encontrado na imagem' });
       }
-      if (Array.isArray(parsed)) {
-        return res.json({ topicos: parsed.length > 0 ? parsed : [] });
-      }
-      return res.json(parsed);
-    } catch (parseError) {
-      console.log('[DEBUG] JSON parse failed, attempting extraction');
-
-      const arrayMatch = text.match(/\[[\s\S]*\]/);
-      if (arrayMatch) {
+    } catch (e) {
+      console.log('[DEBUG] JSON parse error, trying extraction');
+      // Try to extract JSON from response
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
         try {
-          const array = JSON.parse(arrayMatch[0]);
-          if (Array.isArray(array) && array.length > 0) {
-            console.log('[DEBUG] Extracted array successfully');
-            return res.json({ topicos: array });
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (parsed.topicos && Array.isArray(parsed.topicos)) {
+            return res.json({ topicos: parsed.topicos });
           }
-        } catch (e) {
-          console.log('[DEBUG] Array extraction failed');
+        } catch (e2) {
+          // ignore
         }
       }
-
-      // Last resort: split by lines
-      const lines = text.split('\n')
-        .map(l => l.replace(/^[-•*\d.)\s"]+/, '').trim())
-        .filter(l => l.length > 3 && l.length < 200 && !l.includes('topicos') && !l.includes('{') && !l.includes('}'));
-
-      if (lines.length > 0) {
-        console.log('[DEBUG] Fallback: extracted lines as topics');
-        return res.json({ topicos: lines });
-      }
-
-      return res.json({ topicos: [], raw: text });
     }
+
+    // Fallback: return raw response with error
+    return res.json({ topicos: [], raw: responseText });
+
   } catch (error) {
     console.error('[ERROR]', error.message);
-    return res.status(500).json({ erro: error.message });
+    return res.status(500).json({
+      erro: error.message,
+      dica: 'Verifique se a GEMINI_API_KEY está correta e se o billing está ativo'
+    });
   }
 }
