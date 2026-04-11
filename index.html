@@ -818,40 +818,21 @@
 
       <!-- Topics Grid -->
       <div id="prova-topics-section" style="display:none">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px">
-          <div style="font-size:16px;font-weight:700;color:var(--gray-800)">📋 Tópicos identificados</div>
-          <div style="display:flex;gap:8px">
-            <button onclick="gerarTudoEmMassa('resumo')" style="padding:8px 14px;background:var(--success-light);color:var(--success);border:1px solid #a7f3d0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">📄 Todos os Resumos</button>
-            <button onclick="gerarTudoEmMassa('flashcards')" style="padding:8px 14px;background:var(--accent-light);color:var(--accent);border:1px solid #bae6fd;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">🃏 Todos os Flashcards</button>
-            <button onclick="gerarTudoEmMassa('questoes')" style="padding:8px 14px;background:var(--primary-light);color:var(--primary);border:1px solid #c7d7f8;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">❓ Todas as Questões</button>
-          </div>
+        <div style="margin:24px 0 12px">
+          <div style="font-size:16px;font-weight:700;color:var(--gray-800);margin-bottom:12px">📋 Tópicos identificados</div>
+          <div id="prova-topicos-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px"></div>
+          <button onclick="resetProva()" style="padding:8px 16px;background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;cursor:pointer">🔄 Novo edital</button>
         </div>
-        <div id="prova-topicos-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px"></div>
-        <button onclick="resetProva()" style="padding:8px 16px;background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;cursor:pointer">🔄 Novo edital</button>
-      </div>
-
-      <!-- Content Loading -->
-      <div id="prova-content-loading" class="prova-loading" style="display:none">
-        <div class="spinner"></div>
-        <div class="load-msg" id="content-load-msg">Gerando conteúdo...</div>
-        <div class="load-sub">Aguarde, isso pode levar alguns segundos</div>
-      </div>
-
-      <!-- Content Display Panel -->
-      <div id="prova-content-panel" style="display:none;margin-top:24px">
-        <div class="content-panel-header">
-          <div>
-            <div id="content-panel-title" style="font-size:17px;font-weight:700;color:var(--gray-900)"></div>
-            <div id="content-panel-subtitle" style="font-size:13px;color:var(--gray-500);margin-top:2px"></div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button id="btn-switch-resumo" onclick="switchView('resumo')" style="padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-300);background:#fff;color:var(--gray-600)">📄 Resumo</button>
-            <button id="btn-switch-flash" onclick="switchView('flashcards')" style="padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-300);background:#fff;color:var(--gray-600)">🃏 Flashcards</button>
-            <button id="btn-switch-quest" onclick="switchView('questoes')" style="padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-300);background:#fff;color:var(--gray-600)">❓ Questões</button>
-            <button onclick="document.getElementById('prova-content-panel').style.display='none'" style="padding:7px 12px;border-radius:8px;font-size:13px;cursor:pointer;border:1.5px solid var(--gray-300);background:#fff;color:var(--gray-500)">✕</button>
-          </div>
+        <div style="margin-top:24px;padding:16px;background:var(--primary-light);border-left:4px solid var(--primary);border-radius:0 8px 8px 0">
+          <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px">💡 Próximo passo</div>
+          <p style="font-size:13px;color:var(--gray-700);line-height:1.6">
+            Os tópicos foram extraídos com sucesso! Você pode usar esta lista para:
+            <br>• 📊 Organizar seu estudo por tema
+            <br>• 📝 Criar resumos e flashcards manualmente
+            <br>• 🎯 Focar nos assuntos que mais caem em provas
+            <br><br>Os conteúdos (resumos, flashcards, questões) serão adicionados ao hub em breve!
+          </p>
         </div>
-        <div id="prova-content-body" style="margin-top:16px"></div>
       </div>
     </section>
 
@@ -1875,13 +1856,16 @@ function renderProvaTopics() {
     <div class="topico-chip">
       <span class="chip-name">${t}</span>
       <div class="chip-actions">
-        <button class="btn-resumo" onclick="gerarConteudo('${escHtml(t)}','resumo')" title="Resumo">📄</button>
-        <button class="btn-flash" onclick="gerarConteudo('${escHtml(t)}','flashcards')" title="Flashcards">🃏</button>
-        <button class="btn-quest" onclick="gerarConteudo('${escHtml(t)}','questoes')" title="Questões">❓</button>
+        <button onclick="copiarTopico('${escHtml(t)}')" title="Copiar" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--primary);padding:2px 4px">📋</button>
         <button onclick="removerTopico(${i})" title="Remover" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--gray-400);padding:2px 4px">✕</button>
       </div>
     </div>
   `).join('');
+}
+
+function copiarTopico(topico) {
+  navigator.clipboard.writeText(topico);
+  showToast('✅ Copiado: ' + topico);
 }
 
 function escHtml(s) {
@@ -1907,175 +1891,6 @@ function resetProva() {
   document.getElementById('prova-topico-manual').value = '';
 }
 
-async function gerarConteudo(topico, tipo) {
-  const key = topico + '::' + tipo;
-  currentProvaTopico = topico;
-  currentProvaView = tipo;
-
-  // show panel immediately if cached
-  if (provaCache[key]) {
-    mostrarConteudo(topico, tipo, provaCache[key]);
-    return;
-  }
-
-  document.getElementById('prova-content-panel').style.display = 'none';
-  document.getElementById('prova-content-loading').style.display = 'block';
-  const msgs = { resumo: 'Gerando resumo clínico...', flashcards: 'Criando flashcards...', questoes: 'Elaborando questões...' };
-  document.getElementById('content-load-msg').textContent = msgs[tipo] || 'Gerando conteúdo...';
-
-  try {
-    const res = await fetch('/api/generate-content', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topico, tipo })
-    });
-    const data = await res.json();
-    provaCache[key] = data;
-    document.getElementById('prova-content-loading').style.display = 'none';
-    mostrarConteudo(topico, tipo, data);
-  } catch (e) {
-    document.getElementById('prova-content-loading').style.display = 'none';
-    showToast('Erro ao gerar conteúdo: ' + e.message);
-  }
-}
-
-function mostrarConteudo(topico, tipo, data) {
-  document.getElementById('prova-content-panel').style.display = 'block';
-  document.getElementById('content-panel-title').textContent = topico;
-  const subtitles = { resumo: '📄 Resumo Clínico', flashcards: '🃏 Flashcards', questoes: '❓ Questões de Prova' };
-  document.getElementById('content-panel-subtitle').textContent = subtitles[tipo];
-
-  // highlight active tab
-  ['resumo','flash','quest'].forEach(k => {
-    const btn = document.getElementById('btn-switch-' + k);
-    const map = { resumo: 'resumo', flash: 'flashcards', quest: 'questoes' };
-    btn.style.background = map[k] === tipo ? 'var(--primary)' : '#fff';
-    btn.style.color = map[k] === tipo ? '#fff' : 'var(--gray-600)';
-    btn.style.borderColor = map[k] === tipo ? 'var(--primary)' : 'var(--gray-300)';
-  });
-
-  const body = document.getElementById('prova-content-body');
-  if (tipo === 'resumo') body.innerHTML = renderResumoHTML(data);
-  else if (tipo === 'flashcards') body.innerHTML = renderFlashcardsHTML(data);
-  else if (tipo === 'questoes') body.innerHTML = renderQuestoesHTML(data);
-
-  document.getElementById('prova-content-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function switchView(tipo) {
-  if (!currentProvaTopico) return;
-  gerarConteudo(currentProvaTopico, tipo);
-}
-
-function renderResumoHTML(data) {
-  if (data.erro) return `<div class="resumo-card"><p style="color:var(--danger)">Erro: ${data.erro}</p></div>`;
-  return `
-    <div class="resumo-card">
-      ${data.pontos_chave?.length ? `
-        <div style="margin-bottom:16px">
-          <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--primary);margin-bottom:8px">⚡ Pontos-chave</div>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
-            ${data.pontos_chave.map(p => `<li style="display:flex;gap:8px;font-size:14px;line-height:1.5"><span style="color:var(--primary);flex-shrink:0">▸</span>${p}</li>`).join('')}
-          </ul>
-        </div>` : ''}
-      ${data.resumo_clinico ? `
-        <div style="margin-bottom:16px">
-          <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-600);margin-bottom:8px">📋 Resumo Clínico</div>
-          <p style="font-size:14px;line-height:1.7;color:var(--gray-700)">${data.resumo_clinico}</p>
-        </div>` : ''}
-      ${data.armadilhas_prova?.length ? `
-        <div style="margin-bottom:16px;background:var(--warning-light);border-left:4px solid var(--warning);padding:14px;border-radius:0 8px 8px 0">
-          <div style="font-size:13px;font-weight:700;color:var(--warning);margin-bottom:8px">⚠️ Armadilhas de Prova</div>
-          <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
-            ${data.armadilhas_prova.map(a => `<li style="font-size:13px;line-height:1.5">• ${a}</li>`).join('')}
-          </ul>
-        </div>` : ''}
-      ${data.mnemônicos?.filter(m=>m).length ? `
-        <div style="margin-bottom:16px;background:var(--accent-light);border-left:4px solid var(--accent);padding:14px;border-radius:0 8px 8px 0">
-          <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px">🧠 Mnemônicos</div>
-          ${data.mnemônicos.filter(m=>m).map(m => `<div style="font-size:13px;font-weight:600;margin-bottom:4px">${m}</div>`).join('')}
-        </div>` : ''}
-      ${data.valores_importantes && Object.keys(data.valores_importantes).length ? `
-        <div>
-          <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-600);margin-bottom:8px">📊 Valores Importantes</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
-            ${Object.entries(data.valores_importantes).map(([k,v]) => `
-              <div style="background:var(--primary-light);padding:8px 14px;border-radius:8px;border:1px solid #c7d7f8">
-                <div style="font-size:11px;color:var(--primary);font-weight:700;text-transform:uppercase;margin-bottom:2px">${k}</div>
-                <div style="font-size:14px;font-weight:600;color:var(--gray-800)">${v}</div>
-              </div>`).join('')}
-          </div>
-        </div>` : ''}
-    </div>`;
-}
-
-function renderFlashcardsHTML(data) {
-  if (data.erro) return `<p style="color:var(--danger)">Erro: ${data.erro}</p>`;
-  if (!data.flashcards?.length) return '<p>Nenhum flashcard gerado.</p>';
-  return `
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
-      ${data.flashcards.map((f, i) => `
-        <div class="flashcard-wrap" onclick="this.querySelector('.flashcard-inner').classList.toggle('flipped')">
-          <div class="flashcard-inner">
-            <div class="flashcard-front">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--primary);margin-bottom:10px">Pergunta ${i+1}</div>
-              <div style="font-size:15px;font-weight:600;color:var(--gray-800);line-height:1.5">${f.frente}</div>
-              <div style="margin-top:auto;font-size:12px;color:var(--gray-400)">Clique para virar ↩</div>
-            </div>
-            <div class="flashcard-back">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#fff;opacity:.7;margin-bottom:10px">Resposta</div>
-              <div style="font-size:14px;line-height:1.6">${f.verso}</div>
-            </div>
-          </div>
-        </div>`).join('')}
-    </div>`;
-}
-
-function renderQuestoesHTML(data) {
-  if (data.erro) return `<p style="color:var(--danger)">Erro: ${data.erro}</p>`;
-  if (!data.questoes?.length) return '<p>Nenhuma questão gerada.</p>';
-  return data.questoes.map((q, qi) => `
-    <div class="questao-card">
-      <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:10px">QUESTÃO ${qi+1}</div>
-      <div style="font-size:15px;font-weight:600;color:var(--gray-800);line-height:1.6;margin-bottom:16px">${q.enunciado}</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-        ${q.alternativas.map(alt => {
-          const letra = alt.charAt(0);
-          const isGabarito = letra === q.gabarito;
-          return `<button class="alt-btn ${isGabarito ? 'alt-gabarito' : ''}" onclick="revelarGabarito(this, ${qi})">${alt}</button>`;
-        }).join('')}
-      </div>
-      <div class="gabarito-block" id="gabarito-${qi}" style="display:none">
-        <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:6px">✅ Gabarito: ${q.gabarito}</div>
-        <div style="font-size:13px;color:var(--gray-700);line-height:1.6">${q.explicacao}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function revelarGabarito(btn, qi) {
-  const block = document.getElementById('gabarito-' + qi);
-  if (block) block.style.display = block.style.display === 'none' ? 'block' : 'none';
-}
-
-async function gerarTudoEmMassa(tipo) {
-  if (!provaTopicos.length) return;
-  showToast(`Gerando ${tipo} para todos os tópicos... aguarde.`);
-  for (const topico of provaTopicos) {
-    const key = topico + '::' + tipo;
-    if (!provaCache[key]) {
-      try {
-        const res = await fetch('/api/generate-content', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ topico, tipo })
-        });
-        provaCache[key] = await res.json();
-      } catch(e) { /* skip errors silently */ }
-    }
-  }
-  showToast('Pronto! Clique em qualquer tópico para ver o conteúdo.');
-}
 </script>
 </body>
 </html>
