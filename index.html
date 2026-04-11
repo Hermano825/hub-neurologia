@@ -797,8 +797,8 @@
           <div style="font-size:48px;margin-bottom:12px">📸</div>
           <div style="font-size:17px;font-weight:700;color:var(--gray-800);margin-bottom:6px">Envie o print do seu edital</div>
           <div style="font-size:14px;color:var(--gray-500);margin-bottom:16px">Arraste e solte aqui ou clique para selecionar</div>
-          <div style="font-size:12px;color:var(--gray-400)">JPG, PNG, WebP · Máx 5MB</div>
-          <input type="file" id="prova-file-input" accept="image/*" style="display:none" onchange="uploadAndExtract(this.files[0])">
+          <div style="font-size:12px;color:var(--gray-400)">JPG, PNG, WebP · Máx 5MB por imagem · Várias imagens permitidas</div>
+          <input type="file" id="prova-file-input" accept="image/*" multiple style="display:none" onchange="uploadAndExtractMultiple(this.files)">
         </div>
 
         <div class="prova-or">ou</div>
@@ -1789,42 +1789,72 @@ function initProva() {
 function handleDrop(event) {
   event.preventDefault();
   document.getElementById('upload-zone').classList.remove('drag-over');
-  const file = event.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) uploadAndExtract(file);
-  else showToast('Por favor, envie uma imagem.');
+  const files = [...event.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+  if (files.length > 0) uploadAndExtractMultiple(files);
+  else showToast('Por favor, envie imagens (JPG, PNG, WebP).');
 }
 
-async function uploadAndExtract(file) {
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) { showToast('Imagem muito grande (máx 5MB).'); return; }
+async function uploadAndExtractMultiple(files) {
+  if (!files || files.length === 0) return;
+  const fileList = [...files];
+
+  // Validate sizes
+  const tooBig = fileList.filter(f => f.size > 5 * 1024 * 1024);
+  if (tooBig.length > 0) {
+    showToast(`${tooBig.length} imagem(ns) acima de 5MB foram ignoradas.`);
+  }
+  const validFiles = fileList.filter(f => f.size <= 5 * 1024 * 1024);
+  if (validFiles.length === 0) return;
 
   document.getElementById('prova-upload-area').style.display = 'none';
   document.getElementById('prova-loading').style.display = 'block';
 
-  try {
-    const base64 = await fileToBase64(file);
-    const mediaType = file.type || 'image/jpeg';
+  const loadMsg = document.querySelector('#prova-loading .load-msg');
+  const loadSub = document.querySelector('#prova-loading .load-sub');
 
-    const res = await fetch('/api/extract-topics', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: base64, mediaType })
-    });
-    const data = await res.json();
+  let allTopicos = [];
+  let erros = 0;
 
-    document.getElementById('prova-loading').style.display = 'none';
+  for (let i = 0; i < validFiles.length; i++) {
+    const file = validFiles[i];
+    if (loadMsg) loadMsg.textContent = `Analisando imagem ${i + 1} de ${validFiles.length}...`;
+    if (loadSub) loadSub.textContent = file.name || 'processando...';
 
-    if (data.topicos && data.topicos.length > 0) {
-      provaTopicos = data.topicos;
-      renderProvaTopics();
-    } else {
-      showToast('Não foi possível identificar tópicos. Tente outra imagem.');
-      document.getElementById('prova-upload-area').style.display = 'block';
+    try {
+      const base64 = await fileToBase64(file);
+      const mediaType = file.type || 'image/jpeg';
+
+      const res = await fetch('/api/extract-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, mediaType })
+      });
+      const data = await res.json();
+
+      if (data.topicos && data.topicos.length > 0) {
+        // Add only unique topics
+        data.topicos.forEach(t => {
+          if (!allTopicos.includes(t)) allTopicos.push(t);
+        });
+      } else {
+        erros++;
+      }
+    } catch (e) {
+      erros++;
+      console.error('Erro na imagem', i + 1, e.message);
     }
-  } catch (e) {
-    document.getElementById('prova-loading').style.display = 'none';
+  }
+
+  document.getElementById('prova-loading').style.display = 'none';
+
+  if (allTopicos.length > 0) {
+    provaTopicos = allTopicos;
+    renderProvaTopics();
+    if (erros > 0) showToast(`✅ ${allTopicos.length} tópicos extraídos (${erros} imagem(ns) sem tópicos).`);
+    else showToast(`✅ ${allTopicos.length} tópicos extraídos de ${validFiles.length} imagem(ns)!`);
+  } else {
+    showToast('Não foi possível identificar tópicos. Tente outras imagens.');
     document.getElementById('prova-upload-area').style.display = 'block';
-    showToast('Erro ao processar imagem: ' + e.message);
   }
 }
 
