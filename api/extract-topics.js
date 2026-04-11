@@ -8,30 +8,28 @@ export default async function handler(req, res) {
   const { image, mediaType = 'image/jpeg' } = req.body;
   if (!image) return res.status(400).json({ erro: 'Imagem não fornecida' });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return res.status(500).json({ erro: 'ANTHROPIC_API_KEY não configurada' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ erro: 'GEMINI_API_KEY não configurada' });
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-6',
-        max_tokens: 1024,
-        messages: [{
-          role: 'user',
-          content: [
+    // Call Google Gemini REST API directly
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
             {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: image }
-            },
-            {
-              type: 'text',
-              text: `Você é um especialista em educação médica. Analise esta imagem e extraia TODOS os tópicos médicos listados.
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: mediaType,
+                    data: image
+                  }
+                },
+                {
+                  text: `Você é um especialista em educação médica. Analise esta imagem e extraia TODOS os tópicos médicos listados.
 
 Instruções:
 1. Identifique tópicos de estudo, aulas, disciplinas ou conteúdos médicos
@@ -42,22 +40,30 @@ Instruções:
 {"topicos": ["Tópico 1", "Tópico 2", "Tópico 3"]}
 
 Se não houver tópicos, retorne: {"topicos": []}`
+                }
+              ]
             }
-          ]
-        }]
-      })
-    });
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 1024
+          }
+        })
+      }
+    );
 
     if (!response.ok) {
-      const err = await response.text();
-      console.error('[ERROR]', response.status, err);
-      return res.status(500).json({ erro: 'Erro na API Claude', status: response.status });
+      const errData = await response.json();
+      console.error('[ERROR]', response.status, errData);
+      return res.status(response.status).json({
+        erro: errData.error?.message || `Erro ${response.status}`
+      });
     }
 
     const data = await response.json();
-    const responseText = data.content?.[0]?.text?.trim() || '';
+    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-    console.log('[DEBUG] Claude response:', responseText.substring(0, 300));
+    console.log('[DEBUG] Gemini response:', responseText.substring(0, 300));
 
     if (!responseText) {
       return res.json({ topicos: [], erro: 'Resposta vazia' });
