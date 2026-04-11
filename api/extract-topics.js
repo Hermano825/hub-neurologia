@@ -1,3 +1,5 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -8,76 +10,81 @@ export default async function handler(req, res) {
   const { image, mediaType = 'image/jpeg' } = req.body;
   if (!image) return res.status(400).json({ erro: 'Imagem não fornecida' });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return res.status(500).json({ erro: 'API key não configurada no servidor' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ erro: 'GEMINI_API_KEY não configurada no servidor' });
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: image }
-            },
-            {
-              type: 'text',
-              text: `Analise esta imagem e extraia todos os tópicos, aulas, assuntos ou itens de estudo listados.
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      systemInstruction: `Você é um especialista em educação médica. Sua tarefa é transformar imagens de cronogramas, editais e roteiros de provas de residência médica em dados estruturados.
 
-Pode ser: um edital de prova, uma lista de aulas, uma grade curricular, um índice de apostila, ou qualquer lista de conteúdos de medicina.
-
-Seja generoso na extração — se houver qualquer texto que pareça um tópico de estudo, inclua.
-
-Retorne SOMENTE um JSON válido, sem markdown nem explicações:
-{"topicos": ["Tópico 1", "Tópico 2", "Tópico 3"]}
-
-Se a imagem não contiver texto ou tópicos identificáveis, retorne:
-{"topicos": [], "erro": "Imagem não contém lista de tópicos"}`
-            }
-          ]
-        }]
-      })
+Instruções:
+1. Realize o OCR da imagem com máxima precisão técnica.
+2. Identifique apenas os tópicos médicos (ignore datas, nomes de professores ou locais de prova).
+3. Padronize os termos: se o texto disser "HDA", converta para "Hemorragia Digestiva Alta"; se disser "IAM", converta para "Infarto Agudo do Miocárdio".
+4. Retorne ESTRITAMENTE um JSON válido (sem textos introdutórios) no formato: {"topicos": ["Tema 1", "Tema 2"]}
+5. Não invente tópicos. Se algo estiver ilegível, ignore.
+6. Foco na precisão dos termos da nomenclatura de residência médica (SUS, semiologia, especialidades clínicas).`
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      return res.status(500).json({ erro: 'Erro na API Claude: ' + response.status, detalhe: err });
-    }
-
-    const data = await response.json();
-    const text = data.content?.[0]?.text?.trim() || '';
-
-    // Try to extract JSON from the response
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-      try {
-        return res.json(JSON.parse(match[0]));
-      } catch (e) {
-        // JSON parse failed, fall through
+    const imagePart = {
+      inlineData: {
+        data: image,
+        mimeType: mediaType
       }
-    }
+    };
 
-    // If no JSON found but there's text, try to extract lines as topics
-    if (text && text.length > 0) {
-      const lines = text.split('\n')
-        .map(l => l.replace(/^[-•*\d.)\s]+/, '').trim())
-        .filter(l => l.length > 3 && l.length < 200);
-      if (lines.length > 0) {
-        return res.json({ topicos: lines });
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            imagePart,
+            {
+              text: "Extraia os tópicos médicos desta imagem e retorne um JSON com o array de tópicos normalizados."
+            }
+          ]
+        }
+      ],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.1,
+        maxOutputTokens: 1024
       }
-    }
+    });
 
-    return res.json({ topicos: [], raw: text });
+    const response = result.response;
+    const text = response.text().trim();
+
+    // Try to parse the JSON response
+    try {
+      const parsed = JSON.parse(text);
+      // Ensure it has the expected structure
+      if (Array.isArray(parsed.topicos)) {
+        return res.json({ topicos: parsed.topicos });
+      }
+      // If it's just an array, wrap it
+      if (Array.isArray(parsed)) {
+        return res.json({ topicos: parsed });
+      }
+      // Otherwise return as is
+      return res.json(parsed);
+    } catch (parseError) {
+      // If JSON parsing fails, try to extract array from text
+      const arrayMatch = text.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        try {
+          const array = JSON.parse(arrayMatch[0]);
+          return res.json({ topicos: array });
+        } catch (e) {
+          // Fall through
+        }
+      }
+      return res.json({ topicos: [], raw: text });
+    }
   } catch (error) {
+    console.error('Erro ao processar:', error);
     return res.status(500).json({ erro: error.message });
   }
 }
