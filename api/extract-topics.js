@@ -15,24 +15,15 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ erro: 'GEMINI_API_KEY não configurada' });
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
+    // Direct REST API call to v1 (not v1beta)
+    const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
-    // Use gemini-1.5-flash - multimodal model that replaces old vision models
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash"
-    });
-
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: {
           parts: [
-            {
-              inlineData: {
-                mimeType: mediaType,
-                data: image
-              }
-            },
             {
               text: `Você é um especialista em educação médica e residência médica brasileira. Sua tarefa é transformar imagens de cronogramas, editais e roteiros de provas em dados estruturados.
 
@@ -44,60 +35,86 @@ Instruções:
    - "IAM" → "Infarto Agudo do Miocárdio"
    - "DRGE" → "Doença do Refluxo Gastroesofágico"
    - "ICC" → "Insuficiência Cardíaca Congestiva"
-4. Retorne ESTRITAMENTE um JSON válido com este formato exato:
+4. Retorne um JSON válido com este formato exato (como texto puro, não em markdown):
    {"topicos": ["Tópico 1", "Tópico 2", "Tópico 3"]}
 5. Se não houver tópicos identificáveis, retorne: {"topicos": []}
-6. Não invente tópicos. Foco em nomenclatura de residência médica (SUS, semiologia, especialidades).`
+6. Não invente tópicos. Foco em nomenclatura de residência médica.`
             }
           ]
+        },
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                inlineData: {
+                  mimeType: mediaType,
+                  data: image
+                }
+              },
+              {
+                text: "Extraia os tópicos médicos desta imagem e retorne um JSON com o array de tópicos normalizados."
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 1024
         }
-      ],
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.2,
-        maxOutputTokens: 1024
-      }
+      })
     });
 
-    const responseText = result.response.text().trim();
-    console.log('[DEBUG] Gemini 1.5 Flash response:', responseText.substring(0, 300));
+    console.log('[DEBUG] API Status:', response.status);
+
+    if (!response.ok) {
+      const errData = await response.json();
+      console.error('[ERROR] API Response:', errData);
+      return res.status(response.status).json({
+        erro: errData.error?.message || `Erro ${response.status}`,
+        detalhe: errData.error?.details?.[0]?.reason || ''
+      });
+    }
+
+    const data = await response.json();
+    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    console.log('[DEBUG] Gemini response:', responseText.substring(0, 400));
 
     if (!responseText) {
       return res.json({ topicos: [], erro: 'Resposta vazia do Gemini' });
     }
 
     try {
+      // Parse JSON from response text
       const parsed = JSON.parse(responseText);
 
-      // Validate structure
       if (parsed.topicos && Array.isArray(parsed.topicos)) {
-        // Filter out empty strings
-        const validTopicos = parsed.topicos.filter(t => t && t.trim().length > 0);
+        const validTopicos = parsed.topicos.filter(t => t && String(t).trim().length > 0);
         return res.json({ topicos: validTopicos });
       }
 
-      // If response is just an array
       if (Array.isArray(parsed)) {
-        const validTopicos = parsed.filter(t => t && t.trim().length > 0);
+        const validTopicos = parsed.filter(t => t && String(t).trim().length > 0);
         return res.json({ topicos: validTopicos });
       }
 
       return res.json(parsed);
 
     } catch (parseError) {
-      console.log('[DEBUG] JSON parse failed, attempting fallback extraction');
+      console.log('[DEBUG] JSON parse error, attempting extraction');
 
-      // Fallback: try to extract JSON object from response
+      // Try to extract JSON object from response
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
           const parsed = JSON.parse(jsonMatch[0]);
           if (parsed.topicos && Array.isArray(parsed.topicos)) {
-            const validTopicos = parsed.topicos.filter(t => t && t.trim().length > 0);
+            const validTopicos = parsed.topicos.filter(t => t && String(t).trim().length > 0);
             return res.json({ topicos: validTopicos });
           }
         } catch (e2) {
-          console.log('[DEBUG] Fallback extraction failed');
+          console.log('[DEBUG] Extraction failed');
         }
       }
 
@@ -107,8 +124,7 @@ Instruções:
   } catch (error) {
     console.error('[ERROR]', error.message);
     return res.status(500).json({
-      erro: error.message,
-      tipo: error.constructor.name
+      erro: error.message
     });
   }
 }
