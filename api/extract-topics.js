@@ -1,5 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -10,25 +8,29 @@ export default async function handler(req, res) {
   const { image, mediaType = 'image/jpeg' } = req.body;
   if (!image) return res.status(400).json({ erro: 'Imagem não fornecida' });
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ erro: 'GEMINI_API_KEY não configurada' });
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return res.status(500).json({ erro: 'ANTHROPIC_API_KEY não configurada' });
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: [
             {
-              inlineData: {
-                mimeType: mediaType,
-                data: image
-              }
+              type: 'image',
+              source: { type: 'base64', media_type: mediaType, data: image }
             },
             {
+              type: 'text',
               text: `Você é um especialista em educação médica. Analise esta imagem e extraia TODOS os tópicos médicos listados.
 
 Instruções:
@@ -42,19 +44,23 @@ Instruções:
 Se não houver tópicos, retorne: {"topicos": []}`
             }
           ]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 1024
-      }
+        }]
+      })
     });
 
-    const responseText = result.response.text().trim();
-    console.log('[DEBUG] Gemini response:', responseText.substring(0, 300));
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('[ERROR]', response.status, err);
+      return res.status(500).json({ erro: 'Erro na API Claude', status: response.status });
+    }
+
+    const data = await response.json();
+    const responseText = data.content?.[0]?.text?.trim() || '';
+
+    console.log('[DEBUG] Claude response:', responseText.substring(0, 300));
 
     if (!responseText) {
-      return res.json({ topicos: [], erro: 'Resposta vazia do Gemini' });
+      return res.json({ topicos: [], erro: 'Resposta vazia' });
     }
 
     try {
@@ -81,8 +87,6 @@ Se não houver tópicos, retorne: {"topicos": []}`
 
   } catch (error) {
     console.error('[ERROR]', error.message);
-    return res.status(500).json({
-      erro: error.message
-    });
+    return res.status(500).json({ erro: error.message });
   }
 }
