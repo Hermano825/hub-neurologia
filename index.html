@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hub de Estudos · Neurologia · Estratégia Med</title>
+  <style>
+    :root {
+      --primary: #1a56db;
+      --primary-dark: #1341a8;
+      --primary-light: #e8f0fe;
+      --accent: #0891b2;
+      --accent-light: #e0f2fe;
+      --success: #059669;
+      --success-light: #d1fae5;
+      --warning: #d97706;
+      --warning-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --sidebar-w: 240px;
+      --header-h: 64px;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 10px 25px rgba(0,0,0,.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--header-h); background: #fff; border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; padding: 0 24px; gap: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .header-logo .logo-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px;
+    }
+    .header-logo .logo-text { font-size: 16px; font-weight: 700; color: var(--gray-900); line-height: 1.1; }
+    .header-logo .logo-sub { font-size: 11px; color: var(--gray-500); font-weight: 400; }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .header-badge {
+      background: var(--primary-light); color: var(--primary);
+      padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #c7d7f8;
+    }
+    .overall-progress-mini { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600); }
+    .bar-mini { width: 120px; height: 6px; background: var(--gray-200); border-radius: 99px; overflow: hidden; }
+    .bar-mini-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width .5s; }
+
+    /* ── LAYOUT ── */
+    .layout { display: flex; margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--gray-200);
+      position: fixed; top: var(--header-h); bottom: 0; left: 0; overflow-y: auto;
+      padding: 16px 12px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .sidebar-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-400); padding: 8px 8px 4px; margin-top: 8px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px;
+      cursor: pointer; font-size: 14px; font-weight: 500; color: var(--gray-600);
+      transition: all .15s; user-select: none; border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: var(--gray-100); color: var(--gray-900); }
+    .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 20px; text-align: center; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 28px 32px; max-width: 1200px; }
+
+    /* ── TABS/SECTIONS ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── PAGE TITLE ── */
+    .page-title { font-size: 22px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+    .page-subtitle { font-size: 14px; color: var(--gray-500); margin-bottom: 24px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+      border: 1px solid var(--gray-200); padding: 20px;
+    }
+    .card-title { font-size: 15px; font-weight: 700; color: var(--gray-800); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+    /* ── GRID ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    /* ── PROGRESS BAR ── */
+    .prog-bar { height: 8px; background: var(--gray-200); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+    .prog-fill { height: 100%; border-radius: 99px; transition: width .6s ease; }
+    .prog-fill.blue  { background: linear-gradient(90deg, var(--primary), #3b82f6); }
+    .prog-fill.green { background: linear-gradient(90deg, var(--success), #10b981); }
+    .prog-fill.amber { background: linear-gradient(90deg, var(--warning), #f59e0b); }
+    .prog-fill.teal  { background: linear-gradient(90deg, var(--accent), #06b6d4); }
+    .prog-fill.purple{ background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+
+    /* ── STAT CARD ── */
+    .stat-card { display: flex; flex-direction: column; gap: 8px; }
+    .stat-num { font-size: 32px; font-weight: 800; line-height: 1; }
+    .stat-label { font-size: 13px; color: var(--gray-500); }
+    .stat-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+    .stat-icon { font-size: 28px; }
+
+    /* ── TOPIC SECTIONS ── */
+    .topic-group { margin-bottom: 20px; }
+    .topic-group-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: #fff; border: 1px solid var(--gray-200);
+      border-radius: var(--radius); cursor: pointer; user-select: none;
+      transition: all .15s;
+    }
+    .topic-group-header:hover { background: var(--gray-50); }
+    .topic-group-header.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; }
+    .topic-group-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: var(--gray-800); }
+    .topic-group-emoji { font-size: 18px; }
+    .topic-group-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-500); }
+    .topic-group-prog { font-weight: 700; color: var(--primary); }
+    .chevron { font-size: 12px; transition: transform .2s; }
+    .chevron.open { transform: rotate(90deg); }
+    .topic-list {
+      border: 1px solid var(--gray-200); border-top: none;
+      border-bottom-left-radius: var(--radius); border-bottom-right-radius: var(--radius);
+      overflow: hidden; display: none;
+    }
+    .topic-list.open { display: block; }
+    .topic-item {
+      display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px;
+      border-bottom: 1px solid var(--gray-100); background: #fff; transition: background .1s;
+    }
+    .topic-item:last-child { border-bottom: none; }
+    .topic-item:hover { background: var(--gray-50); }
+    .topic-check { margin-top: 2px; width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; }
+    .topic-content { flex: 1; }
+    .topic-name { font-size: 14px; font-weight: 500; color: var(--gray-800); }
+    .topic-name.done { text-decoration: line-through; color: var(--gray-400); }
+    .topic-tags { display: flex; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
+    .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+    .tag-alta { background: var(--danger-light); color: var(--danger); }
+    .tag-media { background: var(--warning-light); color: var(--warning); }
+    .tag-baixa { background: var(--success-light); color: var(--success); }
+    .tag-prova { background: var(--primary-light); color: var(--primary); }
+    .tag-base { background: var(--gray-100); color: var(--gray-500); }
+    .topic-actions { display: flex; gap: 6px; align-items: center; margin-left: auto; }
+    .btn-icon { border: none; background: none; cursor: pointer; font-size: 16px; padding: 4px; border-radius: 4px; transition: background .1s; opacity: .6; }
+    .btn-icon:hover { background: var(--gray-200); opacity: 1; }
+
+    /* ── PROGRESS RING ── */
+    .ring-container { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ring-label { font-size: 12px; font-weight: 600; color: var(--gray-600); text-align: center; }
+    svg.ring { transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: var(--gray-200); }
+    .ring-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset .8s ease; }
+
+    /* ── SCHEDULE ── */
+    .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .day-col { display: flex; flex-direction: column; gap: 6px; }
+    .day-header { text-align: center; font-size: 12px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; padding-bottom: 6px; border-bottom: 2px solid var(--gray-200); }
+    .day-header.today { color: var(--primary); border-bottom-color: var(--primary); }
+    .session-card {
+      padding: 8px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; border: none;
+      text-align: left; transition: all .15s; line-height: 1.3;
+    }
+    .session-card:hover { filter: brightness(.95); }
+    .session-add {
+      padding: 8px; border-radius: 8px; border: 2px dashed var(--gray-300);
+      background: none; font-size: 12px; color: var(--gray-400); cursor: pointer; width: 100%; transition: all .15s;
+    }
+    .session-add:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .sc-blue   { background: var(--primary-light); color: var(--primary-dark); }
+    .sc-green  { background: var(--success-light); color: #065f46; }
+    .sc-amber  { background: var(--warning-light); color: #92400e; }
+    .sc-teal   { background: var(--accent-light); color: #0c4a6e; }
+    .sc-purple { background: #ede9fe; color: #4c1d95; }
+
+    /* ── NOTES ── */
+    .notes-sidebar { min-width: 220px; max-width: 220px; }
+    .notes-layout { display: flex; gap: 20px; }
+    .note-list-item {
+      padding: 10px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--gray-200);
+      margin-bottom: 6px; background: #fff; transition: all .15s;
+    }
+    .note-list-item:hover, .note-list-item.active { background: var(--primary-light); border-color: #c7d7f8; }
+    .note-list-title { font-size: 13px; font-weight: 600; color: var(--gray-800); }
+    .note-list-date { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+    .notes-editor { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .note-title-input {
+      width: 100%; border: 1px solid var(--gray-300); border-radius: 8px;
+      padding: 10px 14px; font-size: 16px; font-weight: 700; outline: none; transition: border .15s;
+    }
+    .note-title-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px #dbeafe; }
+    .note-body-input {
+      width: 100%; border: 1px solid var(--gray-300); border-radius: 8px;
+      padding: 14px; font-size: 14px; outline: none; resize: vertical; min-height: 320px;
+      font-family: inherit; line-height: 1.7; transition: border .15s;
+    }
+    .note-body-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px #dbeafe; }
+    .note-topic-select {
+      border: 1px solid var(--gray-300); border-radius: 8px; padding: 8px 12px;
+      font-size: 13px; outline: none; background: #fff; color: var(--gray-700); cursor: pointer;
+    }
+    .note-topic-select:focus { border-color: var(--primary); }
+
+    /* ── QUESTÕES ── */
+    .q-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+    input[type="text"], textarea, select {
+      border: 1px solid var(--gray-300); border-radius: 8px; padding: 9px 12px;
+      font-size: 14px; outline: none; font-family: inherit; transition: border .15s; color: var(--gray-800);
+    }
+    input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px #dbeafe; }
+    .btn {
+      padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px;
+      font-weight: 600; transition: all .15s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #047857; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-ghost { background: var(--gray-100); color: var(--gray-700); }
+    .btn-ghost:hover { background: var(--gray-200); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    .q-card {
+      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 10px; transition: box-shadow .15s;
+    }
+    .q-card:hover { box-shadow: var(--shadow-md); }
+    .q-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .q-text { font-size: 14px; color: var(--gray-800); line-height: 1.5; font-weight: 500; flex: 1; }
+    .q-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .q-result { display: flex; gap: 8px; margin-left: auto; align-items: center; }
+    .q-result-btn {
+      padding: 5px 14px; border-radius: 20px; border: 2px solid; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s;
+    }
+    .q-result-btn.correct { border-color: var(--success); color: var(--success); background: none; }
+    .q-result-btn.correct.active { background: var(--success); color: #fff; }
+    .q-result-btn.wrong { border-color: var(--danger); color: var(--danger); background: none; }
+    .q-result-btn.wrong.active { background: var(--danger); color: #fff; }
+
+    /* ── FILTER BAR ── */
+    .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-chip {
+      padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--gray-300);
+      background: #fff; font-size: 13px; font-weight: 500; color: var(--gray-600); cursor: pointer; transition: all .15s;
+    }
+    .filter-chip.active, .filter-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      display: none;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 14px; padding: 28px; max-width: 480px; width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2); animation: slideUp .2s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; color: var(--gray-900); }
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+    /* ── DIVIDER ── */
+    .divider { border: none; border-top: 1px solid var(--gray-200); margin: 20px 0; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-400); }
+    .empty-state .emoji { font-size: 40px; margin-bottom: 10px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ── SEARCH ── */
+    .search-input {
+      border: 1px solid var(--gray-300); border-radius: 8px; padding: 9px 14px 9px 36px;
+      font-size: 14px; outline: none; width: 260px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") 10px center/16px no-repeat;
+    }
+    .search-input:focus { border-color: var(--primary); }
+
+    /* ── TOOLTIP ── */
+    [data-tip] { position: relative; }
+    [data-tip]:hover::after {
+      content: attr(data-tip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+      background: var(--gray-800); color: #fff; font-size: 11px; padding: 4px 8px;
+      border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 99;
+    }
+
+    /* ── MATERIALS ── */
+    .material-topic-card {
+      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 18px; transition: box-shadow .15s; margin-bottom: 12px;
+    }
+    .material-topic-card:hover { box-shadow: var(--shadow-md); }
+    .material-topic-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .material-num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .material-topic-title { font-size: 15px; font-weight: 700; color: var(--gray-800); flex: 1; }
+    .material-files { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mfb {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 13px; border-radius: 20px; border: 1.5px solid;
+      font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all .15s;
+    }
+    .mfb-pdf   { border-color: #fca5a5; color: #dc2626; background: #fff5f5; }
+    .mfb-pdf:hover   { background: #fee2e2; }
+    .mfb-slide { border-color: #93c5fd; color: #1d4ed8; background: #eff6ff; }
+    .mfb-slide:hover { background: #dbeafe; }
+    .mfb-map   { border-color: #6ee7b7; color: #065f46; background: #f0fdf4; }
+    .mfb-map:hover   { background: #d1fae5; }
+    .mfb-flash { border-color: #fde68a; color: #92400e; background: #fffbeb; }
+    .mfb-flash:hover { background: #fef3c7; }
+    .mfb-folder { border-color: var(--gray-300); color: var(--gray-600); background: var(--gray-50); }
+    .mfb-folder:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .drive-banner {
+      background: linear-gradient(135deg, #e8f0fe, #e0f2fe); border: 1px solid #c7d7f8;
+      border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-700);
+    }
+    /* ── CASOS CLÍNICOS ── */
+    .caso-card {
+      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 20px; transition: box-shadow .15s; margin-bottom: 14px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .caso-card:hover { box-shadow: var(--shadow-md); }
+    .caso-num { width: 44px; height: 44px; border-radius: 12px; background: var(--primary-light); color: var(--primary); font-size: 18px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .caso-content { flex: 1; }
+    .caso-title { font-size: 16px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+    .caso-meta { font-size: 13px; color: var(--gray-500); margin-bottom: 12px; }
+    .caso-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .caso-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .caso-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .grid-4 { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+      .q-form  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <a class="header-logo" href="#" onclick="navigate('dashboard')">
+    <div class="logo-icon">🧠</div>
+    <div>
+      <div class="logo-text">Hub de Estudos</div>
+      <div class="logo-sub">Estratégia Med · Ciclo Clínico</div>
+    </div>
+  </a>
+  <div class="header-badge">📚 Módulo: Neurologia</div>
+  <div class="header-right">
+    <div class="overall-progress-mini">
+      <span id="header-pct">0%</span>
+      <div class="bar-mini"><div class="bar-mini-fill" id="header-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ LAYOUT ══ -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section-title">Principal</div>
+    <button class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+      <span class="nav-icon">🏠</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="navigate('topicos')" id="nav-topicos">
+      <span class="nav-icon">📋</span> Tópicos
+      <span class="nav-badge" id="badge-topicos">0</span>
+    </button>
+    <button class="nav-item" onclick="navigate('cronograma')" id="nav-cronograma">
+      <span class="nav-icon">🗓️</span> Cronograma
+    </button>
+
+    <div class="sidebar-section-title">Conteúdo</div>
+    <button class="nav-item" onclick="navigate('resumos')" id="nav-resumos">
+      <span class="nav-icon">📝</span> Resumos
+      <span class="nav-badge" id="badge-resumos">0</span>
+    </button>
+    <button class="nav-item" onclick="navigate('questoes')" id="nav-questoes">
+      <span class="nav-icon">❓</span> Questões
+      <span class="nav-badge" id="badge-questoes">0</span>
+    </button>
+
+    <div class="sidebar-section-title">Materiais</div>
+    <button class="nav-item" onclick="navigate('materiais')" id="nav-materiais">
+      <span class="nav-icon">📁</span> Materiais Drive
+      <span class="nav-badge">12</span>
+    </button>
+    <button class="nav-item" onclick="navigate('casos')" id="nav-casos">
+      <span class="nav-icon">🩺</span> Casos Clínicos
+      <span class="nav-badge">3</span>
+    </button>
+
+    <div class="sidebar-section-title" style="margin-top:auto">Sessão</div>
+    <div style="padding:12px;font-size:12px;color:var(--gray-400);line-height:1.5">
+      💾 Dados salvos localmente<br>
+      <span id="last-saved">—</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══ DASHBOARD ══ -->
+    <section id="section-dashboard" class="section active">
+      <div class="page-title">Olá, Hermano! 👋</div>
+      <div class="page-subtitle">Módulo de Neurologia · Estratégia Med · <span id="today-date"></span></div>
+
+      <!-- STAT CARDS -->
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="card stat-card">
+          <div class="stat-icon">✅</div>
+          <div>
+            <div class="stat-num" id="stat-done" style="color:var(--success)">0</div>
+            <div class="stat-label">Tópicos concluídos</div>
+            <div class="stat-sub" id="stat-done-pct">de 0 total</div>
+          </div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">📝</div>
+          <div>
+            <div class="stat-num" id="stat-notes" style="color:var(--primary)">0</div>
+            <div class="stat-label">Resumos salvos</div>
+            <div class="stat-sub">em todas as matérias</div>
+          </div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">❓</div>
+          <div>
+            <div class="stat-num" id="stat-q-total" style="color:var(--accent)">0</div>
+            <div class="stat-label">Questões registradas</div>
+            <div class="stat-sub" id="stat-q-pct">—</div>
+          </div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">🗓️</div>
+          <div>
+            <div class="stat-num" id="stat-sessions" style="color:var(--warning)">0</div>
+            <div class="stat-label">Sessões programadas</div>
+            <div class="stat-sub">esta semana</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS PER AREA -->
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">📊 Progresso por Área</div>
+          <div id="area-progress-list" style="display:flex;flex-direction:column;gap:14px"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🎯 Progresso Geral</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 0">
+            <svg class="ring" width="140" height="140" viewBox="0 0 140 140">
+              <circle class="ring-bg" cx="70" cy="70" r="56" stroke-width="12"/>
+              <circle class="ring-fill" cx="70" cy="70" r="56" stroke-width="12"
+                stroke="url(#prog-grad)" stroke-dasharray="351.86"
+                stroke-dashoffset="351.86" id="ring-fill-main"/>
+              <defs>
+                <linearGradient id="prog-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#1a56db"/>
+                  <stop offset="100%" stop-color="#0891b2"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div style="position:absolute;font-size:24px;font-weight:800;color:var(--gray-900)" id="ring-pct-text">0%</div>
+            <div style="text-align:center;color:var(--gray-500);font-size:13px">dos tópicos estudados</div>
+            <div style="display:flex;gap:20px;font-size:13px">
+              <div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block"></span><span style="color:var(--gray-600)">Concluído</span></div>
+              <div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:var(--gray-300);display:inline-block"></span><span style="color:var(--gray-600)">Pendente</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRIORITY TOPICS -->
+      <div class="card">
+        <div class="card-title">🔥 Tópicos Prioritários para Provas</div>
+        <div id="priority-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </section>
+
+    <!-- ══ TÓPICOS ══ -->
+    <section id="section-topicos" class="section">
+      <div class="page-title">📋 Tópicos de Neurologia</div>
+      <div class="page-subtitle">Marque os tópicos conforme for estudando · Baseado no Estratégia Med</div>
+
+      <div class="filter-bar">
+        <input class="search-input" type="text" placeholder="Buscar tópico…" oninput="filterTopics(this.value)"/>
+        <button class="filter-chip active" onclick="setFilter('all', this)">Todos</button>
+        <button class="filter-chip" onclick="setFilter('pendente', this)">Pendentes</button>
+        <button class="filter-chip" onclick="setFilter('feito', this)">Concluídos</button>
+        <button class="filter-chip" onclick="setFilter('alta', this)">🔴 Alta prioridade</button>
+      </div>
+
+      <div id="topics-container"></div>
+    </section>
+
+    <!-- ══ CRONOGRAMA ══ -->
+    <section id="section-cronograma" class="section">
+      <div class="page-title">🗓️ Cronograma Semanal</div>
+      <div class="page-subtitle">Organize suas sessões de estudo da semana</div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn btn-ghost btn-sm" onclick="moveWeek(-1)">← Anterior</button>
+            <span id="week-label" style="font-weight:700;font-size:15px;color:var(--gray-800)"></span>
+            <button class="btn btn-ghost btn-sm" onclick="moveWeek(1)">Próxima →</button>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openSessionModal()">+ Nova Sessão</button>
+        </div>
+        <div class="week-grid" id="week-grid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📈 Horas esta semana</div>
+        <div id="week-hours-display" style="font-size:28px;font-weight:800;color:var(--primary)">0h</div>
+        <div style="font-size:13px;color:var(--gray-500);margin-top:4px">de sessões programadas</div>
+      </div>
+    </section>
+
+    <!-- ══ RESUMOS ══ -->
+    <section id="section-resumos" class="section">
+      <div class="page-title">📝 Resumos & Anotações</div>
+      <div class="page-subtitle">Suas anotações por tópico, salvas automaticamente</div>
+
+      <div class="notes-layout">
+        <div class="notes-sidebar">
+          <button class="btn btn-primary" style="width:100%;margin-bottom:12px" onclick="newNote()">+ Nova nota</button>
+          <div id="note-list"></div>
+        </div>
+        <div class="notes-editor card" style="flex:1">
+          <div id="note-empty" class="empty-state">
+            <div class="emoji">📝</div>
+            <p>Selecione ou crie uma nota</p>
+          </div>
+          <div id="note-editor" style="display:none;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;align-items:center">
+              <select class="note-topic-select" id="note-topic"></select>
+              <button class="btn btn-danger btn-sm" onclick="deleteNote()">🗑️ Excluir</button>
+              <button class="btn btn-success btn-sm" onclick="saveNote()">💾 Salvar</button>
+            </div>
+            <input class="note-title-input" type="text" placeholder="Título da nota…" id="note-title"/>
+            <textarea class="note-body-input" placeholder="Escreva seu resumo aqui…&#10;&#10;Dicas de formatação:&#10;• Use • para listas&#10;• MAIÚSCULAS para ênfase&#10;• → para setas de raciocínio clínico" id="note-body"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ QUESTÕES ══ -->
+    <section id="section-questoes" class="section">
+      <div class="page-title">❓ Banco de Questões</div>
+      <div class="page-subtitle">Registre questões, erros e pontos para revisar</div>
+
+      <!-- FORM -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">➕ Adicionar Questão</div>
+        <div class="q-form">
+          <div class="form-group full">
+            <label>Enunciado / Tema da Questão</label>
+            <textarea id="q-text" rows="2" placeholder="Ex: Paciente com cefaleia em trovão súbita — qual diagnóstico?"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Tópico</label>
+            <select id="q-topic"></select>
+          </div>
+          <div class="form-group">
+            <label>Fonte</label>
+            <input type="text" id="q-source" placeholder="Ex: Estratégia Med, Residência USP 2024…"/>
+          </div>
+          <div class="form-group">
+            <label>Resultado</label>
+            <select id="q-result">
+              <option value="">— Selecione —</option>
+              <option value="correct">✅ Acertei</option>
+              <option value="wrong">❌ Errei</option>
+              <option value="blank">⬜ Não respondi</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Comentário / Ponto de atenção</label>
+            <input type="text" id="q-comment" placeholder="Ex: Lembrar critérios de Ottawa, confundi com meningite…"/>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addQuestion()">➕ Adicionar Questão</button>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="grid-3" style="margin-bottom:20px" id="q-stats-row">
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--success)" id="q-correct-count">0</div>
+          <div style="font-size:13px;color:var(--gray-500)">✅ Acertos</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--danger)" id="q-wrong-count">0</div>
+          <div style="font-size:13px;color:var(--gray-500)">❌ Erros</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--primary)" id="q-pct-display">—</div>
+          <div style="font-size:13px;color:var(--gray-500)">% de aproveitamento</div>
+        </div>
+      </div>
+
+      <!-- FILTER + LIST -->
+      <div class="filter-bar">
+        <input class="search-input" type="text" placeholder="Buscar questão…" oninput="filterQuestions(this.value)"/>
+        <button class="filter-chip active" onclick="setQFilter('all', this)">Todas</button>
+        <button class="filter-chip" onclick="setQFilter('correct', this)">✅ Acertos</button>
+        <button class="filter-chip" onclick="setQFilter('wrong', this)">❌ Erros</button>
+        <button class="filter-chip" onclick="setQFilter('blank', this)">⬜ Não respondidas</button>
+      </div>
+
+      <div id="q-list"></div>
+    </section>
+
+    <!-- ══ MATERIAIS ══ -->
+    <section id="section-materiais" class="section">
+      <div class="page-title">📁 Materiais do Google Drive</div>
+      <div class="page-subtitle">Acervo Estratégia Med 2025 — APOSTILAS Neurologia · Clique nos botões para abrir no Drive</div>
+      <div class="drive-banner">
+        <span style="font-size:22px">☁️</span>
+        <div>
+          <strong>Arquivos hospedados no Google Drive</strong> — nenhum conteúdo é armazenado localmente.<br>
+          Clique em qualquer botão para abrir o arquivo diretamente na sua conta Google.
+          <a href="https://drive.google.com/drive/u/0/folders/16UQnTvqeCcBfpnr7m1pOFNmAmmrQChFH" target="_blank" style="margin-left:8px;color:var(--primary);font-weight:700;text-decoration:none">→ Abrir pasta completa ↗</a>
+        </div>
+      </div>
+      <div id="materiais-container"></div>
+    </section>
+
+    <!-- ══ CASOS CLÍNICOS ══ -->
+    <section id="section-casos" class="section">
+      <div class="page-title">🩺 Casos Clínicos — S2T2</div>
+      <div class="page-subtitle">Casos clínicos do ciclo · Abril 2026 · Clique para abrir no Google Drive</div>
+      <div class="drive-banner">
+        <span style="font-size:22px">📋</span>
+        <div>
+          <strong>3 casos clínicos disponíveis</strong> — Neurologia (Cefaleias e Doença Cerebrovascular).<br>
+          <a href="https://drive.google.com/drive/folders/1S31WtEw2t3lbAFmPWxmrQgvxenh7YIxA" target="_blank" style="color:var(--primary);font-weight:700;text-decoration:none">→ Abrir pasta S2T2 no Drive ↗</a>
+        </div>
+      </div>
+      <div id="casos-container"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ SESSION MODAL ══ -->
+<div class="modal-overlay" id="session-modal">
+  <div class="modal">
+    <div class="modal-title">🗓️ Nova Sessão de Estudo</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group">
+        <label>Tópico / Matéria</label>
+        <select id="sess-topic"></select>
+      </div>
+      <div class="form-group">
+        <label>Dia da semana</label>
+        <select id="sess-day">
+          <option value="0">Segunda-feira</option>
+          <option value="1">Terça-feira</option>
+          <option value="2">Quarta-feira</option>
+          <option value="3">Quinta-feira</option>
+          <option value="4">Sexta-feira</option>
+          <option value="5">Sábado</option>
+          <option value="6">Domingo</option>
+        </select>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Horário início</label>
+          <input type="text" id="sess-start" placeholder="Ex: 08:00"/>
+        </div>
+        <div class="form-group">
+          <label>Horário fim</label>
+          <input type="text" id="sess-end" placeholder="Ex: 10:00"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cor</label>
+        <select id="sess-color">
+          <option value="sc-blue">🔵 Azul</option>
+          <option value="sc-teal">🟦 Teal</option>
+          <option value="sc-green">🟢 Verde</option>
+          <option value="sc-amber">🟡 Âmbar</option>
+          <option value="sc-purple">🟣 Roxo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeSessionModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSession()">Salvar sessão</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCRIPT ══ -->
+<script>
+// ─────────────────────────────────────────────
+// DRIVE MATERIALS DATA
+// ─────────────────────────────────────────────
+const DRIVE_FOLDER_ROOT = 'https://drive.google.com/drive/u/0/folders/16UQnTvqeCcBfpnr7m1pOFNmAmmrQChFH';
+const DRIVE_CASOS_ROOT  = 'https://drive.google.com/drive/folders/1S31WtEw2t3lbAFmPWxmrQgvxenh7YIxA';
+
+const DRIVE_MATERIAIS = [
+  {
+    num: '01', title: 'Coma e Alterações da Consciência', emoji: '💤',
+    color: '#fee2e2', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '02', title: 'Anatomia, Fisiologia e Semiologia Neurológica', emoji: '🔬',
+    color: '#dbeafe', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '03', title: 'Cefaleias', emoji: '💢',
+    color: '#ede9fe', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '04', title: 'Demências', emoji: '🧩',
+    color: '#fef3c7', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '05', title: 'Epilepsias', emoji: '⚡',
+    color: '#fef3c7', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '06', title: 'Acidentes Vasculares Cerebrais (AVC)', emoji: '🫀',
+    color: '#d1fae5', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '07', title: 'Doenças Neuromusculares', emoji: '💪',
+    color: '#ede9fe', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '08', title: 'Distúrbios do Movimento', emoji: '🌀',
+    color: '#fef3c7', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '09', title: 'Traumatismo Cranioencefálico (TCE)', emoji: '🪖',
+    color: '#e0f2fe', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '10', title: 'Distúrbios do Sono', emoji: '😴',
+    color: '#dbeafe', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '11', title: 'Doenças Desmielinizantes e Encefalites Autoimunes', emoji: '🔵',
+    color: '#d1fae5', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  },
+  {
+    num: '12', title: 'Tumores Intracranianos', emoji: '🔎',
+    color: '#fee2e2', files: [
+      { label: '📄 LD (Guia de Estudos)', type: 'pdf' },
+      { label: '🃏 Flashcard', type: 'flash' },
+      { label: '🗺️ Mapa Mental', type: 'map' },
+      { label: '📊 Material de Aula (Extensivo)', type: 'slide' },
+      { label: '📝 Revisão (RE)', type: 'pdf' },
+    ]
+  }
+];
+
+const DRIVE_CASOS = [
+  {
+    num: 1, emoji: '💢',
+    title: 'Cefaleias Primárias',
+    paciente: 'João José', data: '31/03/2026', professor: 'João José',
+    topico: 'Cefaleias', tamanho: '3.3 MB',
+    tags: [{ label: 'Cefaleia', color: '#ede9fe', text: '#7c3aed' }, { label: 'Primária', color: '#d1fae5', text: '#065f46' }],
+    desc: 'Caso clínico abordando diagnóstico diferencial e manejo das cefaleias primárias (migrânea, tensional, cluster).'
+  },
+  {
+    num: 2, emoji: '🫀',
+    title: 'Doença Cerebrovascular Isquêmica',
+    paciente: 'João José', data: '31/03/2026', professor: 'João José',
+    topico: 'AVC / Doença Cerebrovascular', tamanho: '3.7 MB',
+    tags: [{ label: 'AVC', color: '#dbeafe', text: '#1d4ed8' }, { label: 'Isquêmico', color: '#fee2e2', text: '#dc2626' }],
+    desc: 'Caso clínico de AVC isquêmico — fisiopatologia, reconhecimento, trombólise e trombectomia mecânica.'
+  },
+  {
+    num: 3, emoji: '🚨',
+    title: 'Cefaleias Secundárias e na Emergência',
+    paciente: 'Renata C', data: '07/04/2026', professor: 'Renata C',
+    topico: 'Cefaleias / Emergência Neurológica', tamanho: '7.5 MB',
+    tags: [{ label: 'Cefaleia', color: '#ede9fe', text: '#7c3aed' }, { label: 'Secundária', color: '#fef3c7', text: '#92400e' }, { label: 'Emergência', color: '#fee2e2', text: '#dc2626' }],
+    desc: 'Caso clínico de cefaleia secundária com sinais de alarme — abordagem na emergência, diagnóstico diferencial com HSA e meningite.'
+  }
+];
+
+// ─────────────────────────────────────────────
+// DATA DEFINITIONS
+// ─────────────────────────────────────────────
+const TOPICS_DATA = [
+  {
+    id: 'bases', emoji: '🔬', title: 'Bases da Neurologia Clínica',
+    color: 'blue', subtopics: [
+      { id: 'neuro-exam', name: 'Exame Neurológico Completo', tags: ['base'] },
+      { id: 'neuro-semiologia', name: 'Semiologia Neurológica — Sinais e Sintomas', tags: ['alta', 'prova'] },
+      { id: 'neuro-localiz', name: 'Localização Topográfica da Lesão', tags: ['alta', 'prova'] },
+      { id: 'neuro-imagem', name: 'Neuroimagem — TC e RM básicas', tags: ['media'] },
+      { id: 'neuro-liqor', name: 'Análise do Líquor (LCR)', tags: ['alta', 'prova'] },
+    ]
+  },
+  {
+    id: 'vasc', emoji: '🫀', title: 'Doenças Cerebrovasculares',
+    color: 'teal', subtopics: [
+      { id: 'avc-isq', name: 'AVC Isquêmico — Fisiopatologia e Tipos', tags: ['alta', 'prova'] },
+      { id: 'avc-isq-tx', name: 'AVC Isquêmico — Tratamento (trombólise, trombectomia)', tags: ['alta', 'prova'] },
+      { id: 'avc-hem', name: 'Hemorragia Intracerebral (HIC)', tags: ['alta', 'prova'] },
+      { id: 'hsa', name: 'Hemorragia Subaracnoidea (HSA)', tags: ['alta', 'prova'] },
+      { id: 'ait', name: 'Ataque Isquêmico Transitório (AIT)', tags: ['media', 'prova'] },
+      { id: 'trombose-seio', name: 'Trombose de Seio Venoso Cerebral', tags: ['media'] },
+    ]
+  },
+  {
+    id: 'epi', emoji: '⚡', title: 'Epilepsia e Crises Convulsivas',
+    color: 'amber', subtopics: [
+      { id: 'epilepsia-classif', name: 'Classificação das Crises Epilépticas (ILAE)', tags: ['alta', 'prova'] },
+      { id: 'epilepsia-dx', name: 'Diagnóstico — EEG e Neuroimagem', tags: ['media'] },
+      { id: 'epilepsia-tx', name: 'Tratamento — DAEs (drogas antiepilépticas)', tags: ['alta', 'prova'] },
+      { id: 'status-epilepticus', name: 'Estado de Mal Epiléptico — Protocolo', tags: ['alta', 'prova'] },
+      { id: 'crise-febril', name: 'Crise Febril na Criança', tags: ['media'] },
+    ]
+  },
+  {
+    id: 'cefaleia', emoji: '💢', title: 'Cefaleia',
+    color: 'purple', subtopics: [
+      { id: 'cef-classif', name: 'Classificação das Cefaleias (ICHD-3)', tags: ['media', 'base'] },
+      { id: 'migrania', name: 'Migrânea — Diagnóstico e Tratamento', tags: ['alta', 'prova'] },
+      { id: 'cef-tensional', name: 'Cefaleia Tensional', tags: ['media'] },
+      { id: 'cluster', name: 'Cefaleia em Cluster (Histamínica)', tags: ['alta', 'prova'] },
+      { id: 'cef-secundaria', name: 'Cefaleias Secundárias — Sinais de Alarme', tags: ['alta', 'prova'] },
+      { id: 'hsa-cefaleia', name: 'Cefaleia em Trovão — Diagnóstico Diferencial', tags: ['alta', 'prova'] },
+    ]
+  },
+  {
+    id: 'infec', emoji: '🦠', title: 'Infecções do SNC',
+    color: 'green', subtopics: [
+      { id: 'meningite-bact', name: 'Meningite Bacteriana — Diagnóstico e Tratamento', tags: ['alta', 'prova'] },
+      { id: 'meningite-viral', name: 'Meningite Viral (Asséptica)', tags: ['media', 'prova'] },
+      { id: 'encefalite', name: 'Encefalite Herpética (HSV)', tags: ['alta', 'prova'] },
+      { id: 'neuro-aids', name: 'Neurológicas relacionadas ao HIV/AIDS', tags: ['media'] },
+      { id: 'neurocisticercose', name: 'Neurocisticercose', tags: ['media', 'prova'] },
+      { id: 'abscesso', name: 'Abscesso Cerebral', tags: ['media'] },
+    ]
+  },
+  {
+    id: 'degen', emoji: '🌀', title: 'Doenças Neurodegenerativas',
+    color: 'amber', subtopics: [
+      { id: 'parkinson', name: 'Doença de Parkinson — Clínica e Tratamento', tags: ['alta', 'prova'] },
+      { id: 'parkinson-plus', name: 'Síndromes Parkinsonianas (PSP, MSA, DLB)', tags: ['media'] },
+      { id: 'alzheimer', name: 'Doença de Alzheimer', tags: ['alta', 'prova'] },
+      { id: 'demencias', name: 'Diagnóstico Diferencial das Demências', tags: ['media', 'prova'] },
+      { id: 'huntington', name: 'Doença de Huntington', tags: ['baixa'] },
+      { id: 'ela', name: 'Esclerose Lateral Amiotrófica (ELA)', tags: ['media'] },
+    ]
+  },
+  {
+    id: 'desm', emoji: '🔵', title: 'Doenças Desmielinizantes',
+    color: 'teal', subtopics: [
+      { id: 'em-classif', name: 'Esclerose Múltipla — Classificação e Critérios McDonald', tags: ['alta', 'prova'] },
+      { id: 'em-tx', name: 'Esclerose Múltipla — Tratamento (imunomoduladores)', tags: ['alta', 'prova'] },
+      { id: 'nmo', name: 'Neuromielite Óptica (NMOSD / Devic)', tags: ['media', 'prova'] },
+      { id: 'gbarre', name: 'Síndrome de Guillain-Barré', tags: ['alta', 'prova'] },
+    ]
+  },
+  {
+    id: 'trauma', emoji: '🪖', title: 'Trauma e Emergências Neurológicas',
+    color: 'blue', subtopics: [
+      { id: 'tce', name: 'Trauma Crânioencefálico (TCE) — Classificação e Manejo', tags: ['alta', 'prova'] },
+      { id: 'lesao-medular', name: 'Lesão Medular — Síndromes e Tratamento', tags: ['alta', 'prova'] },
+      { id: 'htic', name: 'Hipertensão Intracraniana (HIC) — Manejo', tags: ['alta', 'prova'] },
+      { id: 'coma', name: 'Avaliação do Nível de Consciência — Escalas (GCS)', tags: ['alta', 'prova'] },
+      { id: 'morte-enc', name: 'Morte Encefálica — Diagnóstico e Protocolo', tags: ['media'] },
+    ]
+  },
+  {
+    id: 'neuromusc', emoji: '💪', title: 'Doenças Neuromusculares',
+    color: 'purple', subtopics: [
+      { id: 'miastenia', name: 'Miastenia Gravis — Diagnóstico e Tratamento', tags: ['alta', 'prova'] },
+      { id: 'neuropatia-periferica', name: 'Neuropatias Periféricas — Classificação', tags: ['media'] },
+      { id: 'polineuropatia', name: 'Polineuropatia Diabética e Alcoólica', tags: ['media', 'prova'] },
+      { id: 'miopatia', name: 'Miopatias — Diagnóstico Diferencial', tags: ['baixa'] },
+    ]
+  },
+  {
+    id: 'sono', emoji: '😴', title: 'Distúrbios do Sono',
+    color: 'blue', subtopics: [
+      { id: 'apneia', name: 'Síndrome de Apneia Obstrutiva do Sono (SAOS)', tags: ['alta', 'prova'] },
+      { id: 'insonia', name: 'Insônia — Classificação e Tratamento', tags: ['media'] },
+      { id: 'narcolepsia', name: 'Narcolepsia e Hipersonia', tags: ['media'] },
+      { id: 'parassonias', name: 'Parassonias (Sonambulismo, Terror Noturno)', tags: ['baixa'] },
+      { id: 'sindrome-pernas', name: 'Síndrome das Pernas Inquietas', tags: ['media'] },
+    ]
+  },
+  {
+    id: 'outros', emoji: '🔎', title: 'Outros Tópicos Importantes',
+    color: 'green', subtopics: [
+      { id: 'vertigem', name: 'Vertigem — VPPB, Ménière, Labirintite', tags: ['alta', 'prova'] },
+      { id: 'sincope', name: 'Síncope — Diagnóstico Diferencial', tags: ['alta', 'prova'] },
+      { id: 'tumores-snc', name: 'Tumores do SNC — Principais tipos', tags: ['media', 'prova'] },
+      { id: 'dor-neuropatica', name: 'Dor Neuropática — Classificação e Tratamento', tags: ['media'] },
+      { id: 'neuro-critica', name: 'Neurologia em UTI — Encefalopatia metabólica', tags: ['media'] },
+    ]
+  }
+];
+
+// ─────────────────────────────────────────────
+// STATE & STORAGE
+// ─────────────────────────────────────────────
+let state = {
+  checked: {},
+  notes: [],
+  questions: [],
+  sessions: [],
+  currentWeekOffset: 0,
+  activeNote: null,
+  topicFilter: 'all',
+  qFilter: 'all',
+  searchTerm: '',
+  qSearchTerm: ''
+};
+
+function loadState() {
+  const s = localStorage.getItem('neuro-hub-v2');
+  if (s) state = { ...state, ...JSON.parse(s) };
+}
+function saveState() {
+  localStorage.setItem('neuro-hub-v2', JSON.stringify(state));
+  document.getElementById('last-saved').textContent = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function navigate(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  if (id === 'dashboard')  renderDashboard();
+  if (id === 'topicos')    renderTopics();
+  if (id === 'cronograma') renderWeek();
+  if (id === 'resumos')    renderNotes();
+  if (id === 'questoes')   renderQuestions();
+  if (id === 'materiais')  renderMateriais();
+  if (id === 'casos')      renderCasos();
+}
+
+// ─────────────────────────────────────────────
+// RENDER MATERIAIS
+// ─────────────────────────────────────────────
+function renderMateriais() {
+  const container = document.getElementById('materiais-container');
+  const typeClass = { pdf: 'mfb-pdf', flash: 'mfb-flash', map: 'mfb-map', slide: 'mfb-slide' };
+  container.innerHTML = DRIVE_MATERIAIS.map(m => `
+    <div class="material-topic-card" style="border-left:4px solid ${m.color === '#fee2e2' ? '#ef4444' : m.color === '#dbeafe' ? '#3b82f6' : m.color === '#ede9fe' ? '#8b5cf6' : m.color === '#fef3c7' ? '#f59e0b' : m.color === '#d1fae5' ? '#10b981' : m.color === '#e0f2fe' ? '#06b6d4' : '#9ca3af'}">
+      <div class="material-topic-header">
+        <div class="material-num">${m.num}</div>
+        <span style="font-size:20px">${m.emoji}</span>
+        <div class="material-topic-title">${m.title}</div>
+        <a href="${DRIVE_FOLDER_ROOT}" target="_blank" class="mfb mfb-folder" style="margin-left:auto;white-space:nowrap">
+          📂 Abrir pasta ↗
+        </a>
+      </div>
+      <div class="material-files">
+        ${m.files.map(f => `
+          <a href="${DRIVE_FOLDER_ROOT}" target="_blank" class="mfb mfb-${f.type}">${f.label}</a>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+// RENDER CASOS CLÍNICOS
+// ─────────────────────────────────────────────
+function renderCasos() {
+  const container = document.getElementById('casos-container');
+  container.innerHTML = DRIVE_CASOS.map(c => `
+    <div class="caso-card">
+      <div class="caso-num">${c.emoji}</div>
+      <div class="caso-content">
+        <div class="caso-title">Caso ${c.num} — ${c.title}</div>
+        <div class="caso-meta">
+          📅 ${c.data} &nbsp;·&nbsp; 👩‍⚕️ Prof. ${c.professor} &nbsp;·&nbsp; 🏷️ ${c.topico} &nbsp;·&nbsp; 📦 ${c.tamanho}
+        </div>
+        <div class="caso-tags">
+          ${c.tags.map(t => `<span class="caso-tag" style="background:${t.color};color:${t.text}">${t.label}</span>`).join('')}
+        </div>
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:14px;line-height:1.6">${c.desc}</div>
+        <div class="caso-actions">
+          <a href="${DRIVE_CASOS_ROOT}" target="_blank" class="btn btn-primary btn-sm">📄 Abrir no Drive ↗</a>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('resumos')">📝 Criar resumo do caso</button>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('questoes')">❓ Adicionar questão</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+// PROGRESS UTILS
+// ─────────────────────────────────────────────
+function getAllTopics() {
+  return TOPICS_DATA.flatMap(g => g.subtopics.map(t => ({ ...t, group: g.id, groupTitle: g.title, groupColor: g.color })));
+}
+function countDone(groupId) {
+  const group = TOPICS_DATA.find(g => g.id === groupId);
+  if (!group) return { done: 0, total: 0 };
+  const done = group.subtopics.filter(t => state.checked[t.id]).length;
+  return { done, total: group.subtopics.length };
+}
+function totalProgress() {
+  const all = getAllTopics();
+  const done = all.filter(t => state.checked[t.id]).length;
+  return { done, total: all.length, pct: all.length ? Math.round(done / all.length * 100) : 0 };
+}
+function updateHeaderProgress() {
+  const { pct } = totalProgress();
+  document.getElementById('header-pct').textContent = pct + '%';
+  document.getElementById('header-bar').style.width = pct + '%';
+}
+function updateBadges() {
+  const { done, total } = totalProgress();
+  document.getElementById('badge-topicos').textContent = (total - done);
+  document.getElementById('badge-resumos').textContent = state.notes.length;
+  document.getElementById('badge-questoes').textContent = state.questions.length;
+}
+
+// ─────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────
+const COLOR_FILLS = { blue: 'blue', teal: 'teal', amber: 'amber', green: 'green', purple: 'purple' };
+
+function renderDashboard() {
+  // date
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  // stats
+  const { done, total, pct } = totalProgress();
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-done-pct').textContent = `de ${total} total`;
+  document.getElementById('stat-notes').textContent = state.notes.length;
+  const qs = state.questions;
+  document.getElementById('stat-q-total').textContent = qs.length;
+  const correct = qs.filter(q => q.result === 'correct').length;
+  const wrong   = qs.filter(q => q.result === 'wrong').length;
+  const answered = correct + wrong;
+  document.getElementById('stat-q-pct').textContent = answered ? Math.round(correct/answered*100)+'% de acerto' : '—';
+  const sessions = state.sessions;
+  document.getElementById('stat-sessions').textContent = sessions.length;
+
+  // ring
+  const circumference = 351.86;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('ring-fill-main').style.strokeDashoffset = offset;
+  const ringPctEl = document.getElementById('ring-pct-text');
+  ringPctEl.textContent = pct + '%';
+  // position ring text absolutely in center
+  const ringParent = document.getElementById('ring-fill-main').closest('div');
+
+  // area progress
+  const apl = document.getElementById('area-progress-list');
+  apl.innerHTML = '';
+  TOPICS_DATA.forEach(g => {
+    const { done: d, total: t } = countDone(g.id);
+    const p = t ? Math.round(d/t*100) : 0;
+    apl.innerHTML += `
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span style="font-weight:600;color:var(--gray-700)">${g.emoji} ${g.title}</span>
+          <span style="color:var(--gray-500)">${d}/${t} · <b>${p}%</b></span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill ${COLOR_FILLS[g.color]}" style="width:${p}%"></div></div>
+      </div>`;
+  });
+
+  // priority list
+  const pl = document.getElementById('priority-list');
+  const priority = getAllTopics().filter(t => t.tags.includes('alta') && t.tags.includes('prova') && !state.checked[t.id]).slice(0, 6);
+  if (priority.length === 0) {
+    pl.innerHTML = '<div style="color:var(--success);font-weight:600;padding:10px">🎉 Todos os tópicos prioritários foram estudados!</div>';
+  } else {
+    pl.innerHTML = priority.map(t => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100)">
+        <span style="font-size:18px">🔴</span>
+        <span style="font-size:14px;font-weight:500;color:var(--gray-800)">${t.name}</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--gray-500)">${TOPICS_DATA.find(g=>g.id===t.group)?.title}</span>
+        <button class="btn btn-primary btn-sm" onclick="navigate('topicos')">Estudar</button>
+      </div>`).join('');
+  }
+}
+
+// ─────────────────────────────────────────────
+// TOPICS
+// ─────────────────────────────────────────────
+let topicFilter = 'all';
+let topicSearch = '';
+
+function renderTopics() {
+  const container = document.getElementById('topics-container');
+  container.innerHTML = '';
+  TOPICS_DATA.forEach(g => {
+    const { done, total } = countDone(g.id);
+    const pct = total ? Math.round(done / total * 100) : 0;
+    let filtered = g.subtopics;
+    if (topicSearch) filtered = filtered.filter(t => t.name.toLowerCase().includes(topicSearch.toLowerCase()));
+    if (topicFilter === 'feito') filtered = filtered.filter(t => state.checked[t.id]);
+    if (topicFilter === 'pendente') filtered = filtered.filter(t => !state.checked[t.id]);
+    if (topicFilter === 'alta') filtered = filtered.filter(t => t.tags.includes('alta'));
+    if (filtered.length === 0) return;
+
+    const items = filtered.map(t => {
+      const isDone = state.checked[t.id];
+      const tagHTML = t.tags.map(tag => {
+        const cls = tag === 'alta' ? 'tag-alta' : tag === 'media' ? 'tag-media' : tag === 'baixa' ? 'tag-baixa' : tag === 'prova' ? 'tag-prova' : 'tag-base';
+        const label = { alta: '🔴 Alta', media: '🟡 Média', baixa: '🟢 Baixa', prova: '📋 Prova', base: '📖 Base' }[tag] || tag;
+        return `<span class="tag ${cls}">${label}</span>`;
+      }).join('');
+      return `
+        <div class="topic-item" id="ti-${t.id}">
+          <input type="checkbox" class="topic-check" ${isDone ? 'checked' : ''} onchange="toggleTopic('${t.id}')"/>
+          <div class="topic-content">
+            <div class="topic-name ${isDone ? 'done' : ''}">${t.name}</div>
+            <div class="topic-tags">${tagHTML}</div>
+          </div>
+          <div class="topic-actions">
+            <button class="btn-icon" data-tip="Criar resumo" onclick="createNoteFor('${t.name}')">📝</button>
+            <button class="btn-icon" data-tip="Adicionar questão" onclick="addQFor('${t.name}')">❓</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    const groupEl = document.createElement('div');
+    groupEl.className = 'topic-group';
+    groupEl.innerHTML = `
+      <div class="topic-group-header" onclick="toggleGroup(this)">
+        <div class="topic-group-title">
+          <span class="topic-group-emoji">${g.emoji}</span>
+          ${g.title}
+        </div>
+        <div class="topic-group-meta">
+          <span class="topic-group-prog">${pct}%</span>
+          <span>${done}/${total}</span>
+          <span class="chevron">▶</span>
+        </div>
+      </div>
+      <div class="topic-list">${items}</div>`;
+    container.appendChild(groupEl);
+  });
+}
+
+function toggleGroup(header) {
+  const list = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  const isOpen = list.classList.contains('open');
+  list.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+
+function toggleTopic(id) {
+  state.checked[id] = !state.checked[id];
+  saveState();
+  updateHeaderProgress();
+  updateBadges();
+  // update the item in place
+  const el = document.getElementById('ti-' + id);
+  if (el) {
+    const nameEl = el.querySelector('.topic-name');
+    if (state.checked[id]) nameEl.classList.add('done'); else nameEl.classList.remove('done');
+  }
+  // update group progress
+  renderTopics();
+}
+
+function setFilter(f, btn) {
+  topicFilter = f;
+  document.querySelectorAll('#section-topicos .filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderTopics();
+}
+function filterTopics(val) {
+  topicSearch = val;
+  renderTopics();
+}
+
+// ─────────────────────────────────────────────
+// SCHEDULE
+// ─────────────────────────────────────────────
+const DAYS_PT = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
+function getWeekDates(offset) {
+  const now = new Date();
+  const day = now.getDay(); // 0=sun
+  const diff = day === 0 ? -6 : 1 - day; // Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff + offset * 7);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+function renderWeek() {
+  const dates = getWeekDates(state.currentWeekOffset);
+  const today = new Date().toDateString();
+  const start = dates[0].toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+  const end   = dates[6].toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+  document.getElementById('week-label').textContent = `${start} – ${end}`;
+
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+  let totalHours = 0;
+
+  dates.forEach((date, i) => {
+    const dateStr = date.toISOString().split('T')[0];
+    const isToday = date.toDateString() === today;
+    const daySessions = state.sessions.filter(s => s.date === dateStr);
+
+    // count hours
+    daySessions.forEach(s => {
+      if (s.start && s.end) {
+        const [h1,m1] = s.start.split(':').map(Number);
+        const [h2,m2] = s.end.split(':').map(Number);
+        totalHours += (h2*60+m2 - h1*60-m1) / 60;
+      }
+    });
+
+    const col = document.createElement('div');
+    col.className = 'day-col';
+    col.innerHTML = `<div class="day-header ${isToday ? 'today' : ''}">${DAYS_PT[i]}<br><small style="font-weight:400">${date.getDate()}</small></div>`;
+    daySessions.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = `session-card ${s.color}`;
+      btn.textContent = `${s.topic}\n${s.start}–${s.end}`;
+      btn.title = `${s.topic} · ${s.start}–${s.end}`;
+      btn.onclick = () => { if (confirm(`Remover sessão "${s.topic}"?`)) { state.sessions = state.sessions.filter(x => x.id !== s.id); saveState(); renderWeek(); } };
+      col.appendChild(btn);
+    });
+    const addBtn = document.createElement('button');
+    addBtn.className = 'session-add';
+    addBtn.textContent = '+ Adicionar';
+    addBtn.onclick = () => openSessionModal(dateStr, i);
+    col.appendChild(addBtn);
+    grid.appendChild(col);
+  });
+
+  document.getElementById('week-hours-display').textContent = totalHours.toFixed(1) + 'h';
+}
+
+function moveWeek(dir) {
+  state.currentWeekOffset += dir;
+  renderWeek();
+}
+
+let _sessDateStr = null;
+function openSessionModal(dateStr, dayIdx) {
+  _sessDateStr = dateStr || null;
+  if (dayIdx !== undefined) document.getElementById('sess-day').value = dayIdx;
+  populateTopicSelects();
+  document.getElementById('session-modal').classList.add('open');
+}
+function closeSessionModal() {
+  document.getElementById('session-modal').classList.remove('open');
+  document.getElementById('sess-start').value = '';
+  document.getElementById('sess-end').value = '';
+}
+function saveSession() {
+  const topic  = document.getElementById('sess-topic').value;
+  const dayIdx = parseInt(document.getElementById('sess-day').value);
+  const start  = document.getElementById('sess-start').value;
+  const end    = document.getElementById('sess-end').value;
+  const color  = document.getElementById('sess-color').value;
+  if (!topic) return alert('Selecione um tópico.');
+  let dateStr = _sessDateStr;
+  if (!dateStr) {
+    const dates = getWeekDates(state.currentWeekOffset);
+    dateStr = dates[dayIdx].toISOString().split('T')[0];
+  }
+  state.sessions.push({ id: Date.now(), topic, date: dateStr, start, end, color });
+  saveState();
+  closeSessionModal();
+  renderWeek();
+  updateBadges();
+}
+
+// ─────────────────────────────────────────────
+// NOTES
+// ─────────────────────────────────────────────
+function renderNotes() {
+  populateTopicSelects();
+  const list = document.getElementById('note-list');
+  list.innerHTML = '';
+  if (state.notes.length === 0) {
+    list.innerHTML = '<div style="color:var(--gray-400);font-size:13px;padding:10px">Nenhuma nota ainda.</div>';
+    return;
+  }
+  state.notes.forEach(n => {
+    const el = document.createElement('div');
+    el.className = `note-list-item ${state.activeNote === n.id ? 'active' : ''}`;
+    el.innerHTML = `<div class="note-list-title">${n.title || '(sem título)'}</div><div class="note-list-date">${n.topic} · ${n.date}</div>`;
+    el.onclick = () => openNote(n.id);
+    list.appendChild(el);
+  });
+  if (state.activeNote) openNote(state.activeNote);
+}
+
+function openNote(id) {
+  state.activeNote = id;
+  const note = state.notes.find(n => n.id === id);
+  if (!note) return;
+  document.getElementById('note-empty').style.display = 'none';
+  const ed = document.getElementById('note-editor');
+  ed.style.display = 'flex';
+  document.getElementById('note-title').value = note.title || '';
+  document.getElementById('note-body').value = note.body || '';
+  document.getElementById('note-topic').value = note.topic || '';
+  document.querySelectorAll('.note-list-item').forEach((el, i) => el.classList.toggle('active', state.notes[i]?.id === id));
+}
+
+function newNote() {
+  const n = { id: Date.now(), title: '', body: '', topic: TOPICS_DATA[0].title, date: new Date().toLocaleDateString('pt-BR') };
+  state.notes.unshift(n);
+  state.activeNote = n.id;
+  saveState();
+  renderNotes();
+  updateBadges();
+}
+
+function saveNote() {
+  const note = state.notes.find(n => n.id === state.activeNote);
+  if (!note) return;
+  note.title  = document.getElementById('note-title').value;
+  note.body   = document.getElementById('note-body').value;
+  note.topic  = document.getElementById('note-topic').value;
+  note.date   = new Date().toLocaleDateString('pt-BR');
+  saveState();
+  renderNotes();
+  showToast('Nota salva!');
+}
+
+function deleteNote() {
+  if (!state.activeNote) return;
+  if (!confirm('Excluir esta nota?')) return;
+  state.notes = state.notes.filter(n => n.id !== state.activeNote);
+  state.activeNote = null;
+  document.getElementById('note-empty').style.display = 'block';
+  document.getElementById('note-editor').style.display = 'none';
+  saveState();
+  renderNotes();
+  updateBadges();
+}
+
+function createNoteFor(topicName) {
+  const n = { id: Date.now(), title: topicName, body: '', topic: topicName, date: new Date().toLocaleDateString('pt-BR') };
+  state.notes.unshift(n);
+  state.activeNote = n.id;
+  saveState();
+  navigate('resumos');
+  updateBadges();
+}
+
+// ─────────────────────────────────────────────
+// QUESTIONS
+// ─────────────────────────────────────────────
+let qFilter = 'all';
+let qSearch = '';
+
+function renderQuestions() {
+  populateTopicSelects();
+  const correct = state.questions.filter(q => q.result === 'correct').length;
+  const wrong   = state.questions.filter(q => q.result === 'wrong').length;
+  const answered = correct + wrong;
+  document.getElementById('q-correct-count').textContent = correct;
+  document.getElementById('q-wrong-count').textContent = wrong;
+  document.getElementById('q-pct-display').textContent = answered ? Math.round(correct/answered*100) + '%' : '—';
+
+  let qs = [...state.questions];
+  if (qFilter === 'correct') qs = qs.filter(q => q.result === 'correct');
+  if (qFilter === 'wrong')   qs = qs.filter(q => q.result === 'wrong');
+  if (qFilter === 'blank')   qs = qs.filter(q => !q.result || q.result === 'blank');
+  if (qSearch) qs = qs.filter(q => q.text.toLowerCase().includes(qSearch.toLowerCase()) || (q.topic||'').toLowerCase().includes(qSearch.toLowerCase()));
+
+  const list = document.getElementById('q-list');
+  if (qs.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="emoji">❓</div><p>${state.questions.length ? 'Nenhuma questão neste filtro.' : 'Nenhuma questão cadastrada ainda.'}</p></div>`;
+    return;
+  }
+  list.innerHTML = qs.map(q => {
+    const resIcons = { correct: '✅ Acertei', wrong: '❌ Errei', blank: '⬜ Sem resposta', '': '— Sem resposta' };
+    const resCls   = { correct: 'tag-baixa', wrong: 'tag-alta', blank: 'tag-base', '': 'tag-base' };
+    return `
+      <div class="q-card" id="qcard-${q.id}">
+        <div class="q-header">
+          <div class="q-text">${q.text}</div>
+          <button class="btn-icon" onclick="removeQuestion(${q.id})" title="Remover">🗑️</button>
+        </div>
+        <div class="q-meta">
+          ${q.topic ? `<span class="tag tag-prova">${q.topic}</span>` : ''}
+          ${q.source ? `<span class="tag tag-base">📚 ${q.source}</span>` : ''}
+          <span class="tag ${resCls[q.result||'']}">${resIcons[q.result||'']}</span>
+          ${q.comment ? `<span style="font-size:12px;color:var(--gray-500)">💬 ${q.comment}</span>` : ''}
+          <div class="q-result" style="margin-left:auto">
+            <button class="q-result-btn correct ${q.result==='correct'?'active':''}" onclick="setResult(${q.id},'correct')">✅</button>
+            <button class="q-result-btn wrong ${q.result==='wrong'?'active':''}" onclick="setResult(${q.id},'wrong')">❌</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function addQuestion() {
+  const text = document.getElementById('q-text').value.trim();
+  if (!text) return alert('Digite o enunciado.');
+  state.questions.unshift({
+    id: Date.now(),
+    text,
+    topic:   document.getElementById('q-topic').value,
+    source:  document.getElementById('q-source').value,
+    result:  document.getElementById('q-result').value,
+    comment: document.getElementById('q-comment').value,
+    date: new Date().toLocaleDateString('pt-BR')
+  });
+  ['q-text','q-source','q-comment'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('q-result').value = '';
+  saveState();
+  renderQuestions();
+  updateBadges();
+  showToast('Questão adicionada!');
+}
+
+function removeQuestion(id) {
+  if (!confirm('Remover esta questão?')) return;
+  state.questions = state.questions.filter(q => q.id !== id);
+  saveState();
+  renderQuestions();
+  updateBadges();
+}
+
+function setResult(id, result) {
+  const q = state.questions.find(q => q.id === id);
+  if (!q) return;
+  q.result = q.result === result ? '' : result;
+  saveState();
+  renderQuestions();
+}
+
+function setQFilter(f, btn) {
+  qFilter = f;
+  document.querySelectorAll('#section-questoes .filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderQuestions();
+}
+function filterQuestions(val) {
+  qSearch = val;
+  renderQuestions();
+}
+
+function addQFor(topicName) {
+  navigate('questoes');
+  setTimeout(() => { document.getElementById('q-text').value = topicName + ' — '; document.getElementById('q-text').focus(); }, 100);
+}
+
+// ─────────────────────────────────────────────
+// POPULATE SELECTS
+// ─────────────────────────────────────────────
+function populateTopicSelects() {
+  const allTitles = TOPICS_DATA.flatMap(g => g.subtopics.map(t => t.name));
+  const selects = ['q-topic', 'note-topic', 'sess-topic'];
+  selects.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = TOPICS_DATA.map(g =>
+      `<optgroup label="${g.emoji} ${g.title}">${g.subtopics.map(t => `<option value="${t.name}">${t.name}</option>`).join('')}</optgroup>`
+    ).join('');
+    if (cur) sel.value = cur;
+  });
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;z-index:9999;animation:slideUp .2s ease;';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+loadState();
+updateHeaderProgress();
+updateBadges();
+renderDashboard();
+
+// ring text centering (manual overlay)
+const ringWrap = document.querySelector('#section-dashboard svg.ring').parentElement;
+ringWrap.style.position = 'relative';
+const overlay = document.createElement('div');
+overlay.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px;font-weight:800;color:var(--gray-900);pointer-events:none;';
+overlay.id = 'ring-pct-text-2';
+ringWrap.appendChild(overlay);
+// sync overlay
+function syncRingText() {
+  document.getElementById('ring-pct-text-2').textContent = document.getElementById('ring-pct-text').textContent;
+}
+const origRenderDash = renderDashboard;
+window.renderDashboard = function() { origRenderDash(); syncRingText(); };
+</script>
+</body>
+</html>
