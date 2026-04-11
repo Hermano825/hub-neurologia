@@ -8,16 +8,19 @@ export default async function handler(req, res) {
   const { image, mediaType = 'image/jpeg' } = req.body;
   if (!image) return res.status(400).json({ erro: 'Imagem não fornecida' });
 
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return res.status(500).json({ erro: 'API key não configurada no servidor' });
+
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1024,
         messages: [{
           role: 'user',
@@ -28,15 +31,17 @@ export default async function handler(req, res) {
             },
             {
               type: 'text',
-              text: `Esta imagem contém uma lista de tópicos ou aulas de medicina para uma prova (provavelmente neurologia).
+              text: `Analise esta imagem e extraia todos os tópicos, aulas, assuntos ou itens de estudo listados.
 
-Extraia TODOS os nomes dos tópicos/aulas listados. Seja preciso e mantenha os nomes originais.
+Pode ser: um edital de prova, uma lista de aulas, uma grade curricular, um índice de apostila, ou qualquer lista de conteúdos de medicina.
 
-Retorne APENAS um JSON válido neste formato exato, sem markdown:
-{"topicos": ["Nome do Tópico 1", "Nome do Tópico 2", "Nome do Tópico 3"]}
+Seja generoso na extração — se houver qualquer texto que pareça um tópico de estudo, inclua.
 
-Se não houver tópicos identificáveis, retorne:
-{"topicos": [], "erro": "Não foi possível identificar tópicos"}`
+Retorne SOMENTE um JSON válido, sem markdown nem explicações:
+{"topicos": ["Tópico 1", "Tópico 2", "Tópico 3"]}
+
+Se a imagem não contiver texto ou tópicos identificáveis, retorne:
+{"topicos": [], "erro": "Imagem não contém lista de tópicos"}`
             }
           ]
         }]
@@ -44,16 +49,33 @@ Se não houver tópicos identificáveis, retorne:
     });
 
     if (!response.ok) {
-      const err = await response.json();
-      return res.status(500).json({ erro: 'Erro na API Claude', detalhe: err.error?.message });
+      const err = await response.text();
+      return res.status(500).json({ erro: 'Erro na API Claude: ' + response.status, detalhe: err });
     }
 
     const data = await response.json();
-    const text = data.content[0].text.trim();
+    const text = data.content?.[0]?.text?.trim() || '';
+
+    // Try to extract JSON from the response
     const match = text.match(/\{[\s\S]*\}/);
     if (match) {
-      return res.json(JSON.parse(match[0]));
+      try {
+        return res.json(JSON.parse(match[0]));
+      } catch (e) {
+        // JSON parse failed, fall through
+      }
     }
+
+    // If no JSON found but there's text, try to extract lines as topics
+    if (text && text.length > 0) {
+      const lines = text.split('\n')
+        .map(l => l.replace(/^[-•*\d.)\s]+/, '').trim())
+        .filter(l => l.length > 3 && l.length < 200);
+      if (lines.length > 0) {
+        return res.json({ topicos: lines });
+      }
+    }
+
     return res.json({ topicos: [], raw: text });
   } catch (error) {
     return res.status(500).json({ erro: error.message });
