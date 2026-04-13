@@ -645,6 +645,11 @@
 
     <div id="login-form">
       <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- Nome — só no cadastro -->
+        <div id="field-nome" style="display:none">
+          <label class="login-label" for="auth-nome">Seu nome</label>
+          <input class="login-input" type="text" id="auth-nome" placeholder="Ex: Hermano" onkeydown="if(event.key==='Enter') authSubmit()">
+        </div>
         <div>
           <label class="login-label" for="auth-email">E-mail</label>
           <input class="login-input" type="email" id="auth-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter') authSubmit()">
@@ -652,6 +657,11 @@
         <div>
           <label class="login-label" for="auth-password">Senha</label>
           <input class="login-input" type="password" id="auth-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') authSubmit()">
+        </div>
+        <!-- Confirmação de senha — só no cadastro -->
+        <div id="field-confirm" style="display:none">
+          <label class="login-label" for="auth-confirm">Confirmar senha</label>
+          <input class="login-input" type="password" id="auth-confirm" placeholder="••••••••" onkeydown="if(event.key==='Enter') authSubmit()">
         </div>
       </div>
       <button class="login-btn-primary" id="auth-submit-btn" onclick="authSubmit()" style="margin-top:4px">Entrar</button>
@@ -2065,24 +2075,43 @@ async function initAuth() {
 }
 
 async function authSubmit() {
+  const nome     = document.getElementById('auth-nome').value.trim();
   const email    = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
+  const confirm  = document.getElementById('auth-confirm').value;
   const btn      = document.getElementById('auth-submit-btn');
   const errEl    = document.getElementById('login-error');
   const okEl     = document.getElementById('login-success-msg');
   errEl.style.display = 'none';
   okEl.style.display  = 'none';
+
   if (!email || !password) { showLoginError('Preencha e-mail e senha.'); return; }
-  btn.disabled = true; btn.textContent = 'Aguarde...';
+
+  if (authMode === 'signup') {
+    if (!nome)              { showLoginError('Informe seu nome.'); return; }
+    if (password.length < 6){ showLoginError('A senha deve ter pelo menos 6 caracteres.'); return; }
+    if (password !== confirm){ showLoginError('As senhas não coincidem.'); return; }
+  }
+
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Entrando...' : 'Criando conta...';
 
   if (authMode === 'login') {
     const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) { showLoginError('E-mail ou senha incorretos.'); btn.disabled = false; btn.textContent = 'Entrar'; }
+    if (error) {
+      showLoginError('E-mail ou senha incorretos.');
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
   } else {
-    const { error } = await sb.auth.signUp({ email, password });
-    if (error) { showLoginError(error.message); btn.disabled = false; btn.textContent = 'Criar conta'; }
-    else {
-      okEl.textContent = '✅ Conta criada! Verifique seu e-mail e clique no link de confirmação.';
+    const { error } = await sb.auth.signUp({
+      email, password,
+      options: { data: { full_name: nome } }
+    });
+    if (error) {
+      showLoginError(error.message);
+      btn.disabled = false; btn.textContent = 'Criar conta';
+    } else {
+      okEl.textContent = '✅ Conta criada! Verifique seu e-mail para confirmar o cadastro.';
       okEl.style.display = 'block';
       btn.disabled = false; btn.textContent = 'Criar conta';
     }
@@ -2091,14 +2120,27 @@ async function authSubmit() {
 
 function toggleAuthMode() {
   authMode = authMode === 'login' ? 'signup' : 'login';
-  const btn  = document.getElementById('auth-submit-btn');
-  const tog  = document.getElementById('login-toggle-text');
+  const btn     = document.getElementById('auth-submit-btn');
+  const tog     = document.getElementById('login-toggle-text');
+  const fNome   = document.getElementById('field-nome');
+  const fConf   = document.getElementById('field-confirm');
+  const errEl   = document.getElementById('login-error');
+  const okEl    = document.getElementById('login-success-msg');
+  errEl.style.display = 'none';
+  okEl.style.display  = 'none';
+
   if (authMode === 'signup') {
     btn.textContent = 'Criar conta';
-    tog.innerHTML = 'Já tem conta? <a onclick="toggleAuthMode()">Entrar</a>';
+    tog.innerHTML   = 'Já tem conta? <a onclick="toggleAuthMode()">Entrar</a>';
+    fNome.style.display = 'block';
+    fConf.style.display = 'block';
+    document.getElementById('auth-nome').focus();
   } else {
     btn.textContent = 'Entrar';
-    tog.innerHTML = 'Primeira vez? <a onclick="toggleAuthMode()">Criar conta</a>';
+    tog.innerHTML   = 'Primeira vez? <a onclick="toggleAuthMode()">Criar conta</a>';
+    fNome.style.display = 'none';
+    fConf.style.display = 'none';
+    document.getElementById('auth-email').focus();
   }
 }
 
