@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hub de Estudos · Neurologia · Estratégia Med</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     :root {
       --primary: #1a56db;
@@ -36,6 +37,62 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── LOGIN OVERLAY ── */
+    #login-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #1a56db 0%, #0891b2 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: #fff; border-radius: 16px; padding: 40px;
+      width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+    .login-logo-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px;
+    }
+    .login-title { font-size: 20px; font-weight: 800; color: var(--gray-900); }
+    .login-sub { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+    .login-label { font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 5px; display: block; }
+    .login-input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-300);
+      border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box;
+      transition: border-color .15s;
+    }
+    .login-input:focus { border-color: var(--primary); }
+    .login-btn-primary {
+      width: 100%; padding: 12px; background: var(--primary); color: #fff;
+      border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background .15s;
+    }
+    .login-btn-primary:hover { background: var(--primary-dark); }
+    .login-btn-primary:disabled { background: var(--gray-300); cursor: not-allowed; }
+    .login-toggle { font-size: 13px; color: var(--gray-500); text-align: center; }
+    .login-toggle a { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: none; }
+    .login-toggle a:hover { text-decoration: underline; }
+    .login-error { background: #fee2e2; color: #b91c1c; border-radius: 8px; padding: 10px 14px; font-size: 13px; display: none; }
+    .login-success { background: var(--success-light); color: var(--success); border-radius: 8px; padding: 10px 14px; font-size: 13px; display: none; }
+
+    /* User pill in header */
+    .user-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--gray-100); border-radius: 20px; padding: 4px 12px 4px 6px;
+      font-size: 13px; color: var(--gray-700);
+    }
+    .user-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 700;
+    }
+    .logout-btn {
+      background: none; border: none; cursor: pointer; font-size: 12px;
+      color: var(--gray-400); padding: 0 0 0 6px; transition: color .15s;
+    }
+    .logout-btn:hover { color: var(--danger); }
 
     /* ── HEADER ── */
     header {
@@ -562,8 +619,48 @@
       <span id="header-pct">0%</span>
       <div class="bar-mini"><div class="bar-mini-fill" id="header-bar" style="width:0%"></div></div>
     </div>
+    <div class="user-pill" id="user-pill" style="display:none">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <span id="user-email-short"></span>
+      <button class="logout-btn" onclick="signOut()" title="Sair">Sair</button>
+    </div>
   </div>
 </header>
+
+<!-- ══ LOGIN OVERLAY ══ -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div>
+      <div class="login-logo">
+        <div class="login-logo-icon">🧠</div>
+        <div>
+          <div class="login-title">Hub de Neurologia</div>
+          <div class="login-sub">Estratégia Med · Acesso pessoal</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="login-error" class="login-error"></div>
+    <div id="login-success-msg" class="login-success"></div>
+
+    <div id="login-form">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label class="login-label" for="auth-email">E-mail</label>
+          <input class="login-input" type="email" id="auth-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter') authSubmit()">
+        </div>
+        <div>
+          <label class="login-label" for="auth-password">Senha</label>
+          <input class="login-input" type="password" id="auth-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') authSubmit()">
+        </div>
+      </div>
+      <button class="login-btn-primary" id="auth-submit-btn" onclick="authSubmit()" style="margin-top:4px">Entrar</button>
+      <div class="login-toggle" id="login-toggle-text">
+        Primeira vez? <a onclick="toggleAuthMode()">Criar conta</a>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ LAYOUT ══ -->
 <div class="layout">
@@ -1947,50 +2044,165 @@ window.renderDashboard = function() { origRenderDash(); syncRingText(); };
 // ─────────────────────────────────────────────
 // MODO PROVA IA
 // ─────────────────────────────────────────────
+// ── Supabase ──────────────────────────────────
+const SUPA_URL  = 'https://bkbpprtxenltxsjfkzhr.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrYnBwcnR4ZW5sdHhzamZremhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwOTExNjUsImV4cCI6MjA5MTY2NzE2NX0.F_im4aby2b_z8qNXwCoAuCnjEoA_LjRh58sONh9yvf8';
+const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
+let currentUser = null;
+
+// ── Auth ──────────────────────────────────────
+let authMode = 'login'; // 'login' | 'signup'
+
+async function initAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) await onLogin(session.user);
+  else showLoginOverlay();
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN'  && session) await onLogin(session.user);
+    if (event === 'SIGNED_OUT')             showLoginOverlay();
+  });
+}
+
+async function authSubmit() {
+  const email    = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const btn      = document.getElementById('auth-submit-btn');
+  const errEl    = document.getElementById('login-error');
+  const okEl     = document.getElementById('login-success-msg');
+  errEl.style.display = 'none';
+  okEl.style.display  = 'none';
+  if (!email || !password) { showLoginError('Preencha e-mail e senha.'); return; }
+  btn.disabled = true; btn.textContent = 'Aguarde...';
+
+  if (authMode === 'login') {
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) { showLoginError('E-mail ou senha incorretos.'); btn.disabled = false; btn.textContent = 'Entrar'; }
+  } else {
+    const { error } = await sb.auth.signUp({ email, password });
+    if (error) { showLoginError(error.message); btn.disabled = false; btn.textContent = 'Criar conta'; }
+    else {
+      okEl.textContent = '✅ Conta criada! Verifique seu e-mail e clique no link de confirmação.';
+      okEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Criar conta';
+    }
+  }
+}
+
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  const btn  = document.getElementById('auth-submit-btn');
+  const tog  = document.getElementById('login-toggle-text');
+  if (authMode === 'signup') {
+    btn.textContent = 'Criar conta';
+    tog.innerHTML = 'Já tem conta? <a onclick="toggleAuthMode()">Entrar</a>';
+  } else {
+    btn.textContent = 'Entrar';
+    tog.innerHTML = 'Primeira vez? <a onclick="toggleAuthMode()">Criar conta</a>';
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function showLoginOverlay() {
+  document.getElementById('login-overlay').style.display = 'flex';
+  document.getElementById('user-pill').style.display = 'none';
+}
+
+function hideLoginOverlay() {
+  document.getElementById('login-overlay').style.display = 'none';
+}
+
+async function onLogin(user) {
+  currentUser = user;
+  hideLoginOverlay();
+  // Show user pill in header
+  const pill  = document.getElementById('user-pill');
+  const email = document.getElementById('user-email-short');
+  const avatar = document.getElementById('user-avatar');
+  const initial = user.email ? user.email[0].toUpperCase() : '?';
+  avatar.textContent = initial;
+  email.textContent  = user.email.split('@')[0];
+  pill.style.display = 'flex';
+  // Load provas from DB
+  await carregarTodasProvas();
+  renderProvasList();
+  const badge = document.getElementById('badge-provas');
+  if (badge) badge.textContent = provas.length;
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  provas = []; provaAtualId = null;
+  currentUser = null;
+}
+
 // ── Multi-prova state ─────────────────────────
-let provas = [];          // array of all saved provas
-let provaAtualId = null;  // id of the currently open prova
+let provas = [];
+let provaAtualId = null;
 let provaCache = {};
 let currentProvaTopico = null;
 let currentProvaView = null;
 
 const LS_PROVAS = 'hub_provas';
 
-// Accessors for the currently open prova
 function provaAtual() { return provas.find(p => p.id === provaAtualId) || null; }
 function provaTopicos()   { return (provaAtual() || {}).topicos   || []; }
 function provaConcluidos(){ return new Set((provaAtual() || {}).concluidos || []); }
 function provaDataProva() { return (provaAtual() || {}).data || ''; }
 
-// ── localStorage ──────────────────────────────
-function salvarTodosProvas() {
-  try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
-}
+function gerarId() { return 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6); }
 
-function carregarTodasProvas() {
+// ── Supabase DB ───────────────────────────────
+async function carregarTodasProvas() {
+  // Try Supabase first
+  if (currentUser) {
+    const { data, error } = await sb.from('provas').select('*').order('criada_em');
+    if (!error && data) {
+      provas = data.map(r => ({
+        id: r.id, nome: r.nome, data: r.data,
+        topicos: r.topicos || [], concluidos: r.concluidos || [],
+        criadaEm: r.criada_em
+      }));
+      // Update localStorage cache
+      try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
+      return;
+    }
+  }
+  // Fallback: localStorage
   try {
     const raw = localStorage.getItem(LS_PROVAS);
     if (raw) provas = JSON.parse(raw);
-    // Migrate old single-prova format
-    const oldT = localStorage.getItem('hub_prova_topicos');
-    if (oldT && provas.length === 0) {
-      const topicos = JSON.parse(oldT);
-      if (topicos.length > 0) {
-        const concluidos = JSON.parse(localStorage.getItem('hub_prova_concluidos') || '[]');
-        const data = localStorage.getItem('hub_prova_data') || '';
-        provas.push({ id: gerarId(), nome: 'Minha Prova', data, topicos, concluidos, criadaEm: new Date().toISOString() });
-        salvarTodosProvas();
-      }
-      localStorage.removeItem('hub_prova_topicos');
-      localStorage.removeItem('hub_prova_concluidos');
-      localStorage.removeItem('hub_prova_data');
-    }
   } catch(e) {}
 }
 
-function salvarEstadoProva() { salvarTodosProvas(); }
+async function upsertProvaNoDB(prova) {
+  if (!currentUser) return;
+  await sb.from('provas').upsert({
+    id: prova.id, user_id: currentUser.id,
+    nome: prova.nome, data: prova.data || null,
+    topicos: prova.topicos, concluidos: prova.concluidos,
+    criada_em: prova.criadaEm || new Date().toISOString()
+  }, { onConflict: 'id' });
+}
 
-function gerarId() { return 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6); }
+async function deleteProvaFromDB(id) {
+  if (!currentUser) return;
+  await sb.from('provas').delete().eq('id', id);
+}
+
+function salvarTodosProvas() {
+  // Always update localStorage as fast cache
+  try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
+  // Fire-and-forget DB sync for current prova
+  const p = provaAtual();
+  if (p) upsertProvaNoDB(p).catch(console.error);
+}
+
+function salvarEstadoProva() { salvarTodosProvas(); }
 
 // ── Provas list (section-provas) ──────────────
 function renderProvasList() {
@@ -2059,12 +2271,13 @@ function fecharFormNovaProva() {
   document.getElementById('nova-prova-data').value = '';
 }
 
-function criarNovaProva() {
+async function criarNovaProva() {
   const nome = document.getElementById('nova-prova-nome').value.trim() || 'Nova Prova';
   const data = document.getElementById('nova-prova-data').value;
   const prova = { id: gerarId(), nome, data, topicos: [], concluidos: [], criadaEm: new Date().toISOString() };
   provas.push(prova);
-  salvarTodosProvas();
+  try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
+  await upsertProvaNoDB(prova);
   fecharFormNovaProva();
   abrirProva(prova.id);
 }
@@ -2098,10 +2311,11 @@ function voltarParaProvas() {
   navigate('provas');
 }
 
-function deletarProva(id) {
+async function deletarProva(id) {
   if (!confirm('Excluir esta prova? Os dados serão perdidos.')) return;
   provas = provas.filter(p => p.id !== id);
-  salvarTodosProvas();
+  try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
+  await deleteProvaFromDB(id);
   renderProvasList();
 }
 
@@ -2433,10 +2647,7 @@ function resetProva() {
 
 // ── Init on page load ─────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  carregarTodasProvas();
-  // Update badge count
-  const badge = document.getElementById('badge-provas');
-  if (badge) badge.textContent = provas.length;
+  initAuth();
 });
 
 </script>
