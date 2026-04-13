@@ -598,15 +598,14 @@
     /* ── HAMBURGER ── */
     .hamburger {
       display: none; background: none; border: none; cursor: pointer;
-      font-size: 22px; color: var(--gray-700); padding: 6px; border-radius: 6px;
+      font-size: 24px; color: var(--gray-700); padding: 6px 8px; border-radius: 6px;
       line-height: 1; flex-shrink: 0;
     }
-    .hamburger:hover { background: var(--gray-100); }
 
     /* Sidebar backdrop overlay (mobile) */
     #sidebar-backdrop {
       display: none; position: fixed; inset: 0; z-index: 99;
-      background: rgba(0,0,0,.35); backdrop-filter: blur(2px);
+      background: rgba(0,0,0,.4);
     }
     #sidebar-backdrop.visible { display: block; }
 
@@ -615,45 +614,48 @@
       .grid-4 { grid-template-columns: 1fr 1fr; }
       .grid-3 { grid-template-columns: 1fr 1fr; }
       .q-form  { grid-template-columns: 1fr; }
-      .main { padding: 20px 20px; }
+      .main { padding: 20px; }
       .overall-progress-mini .bar-mini { width: 80px; }
     }
 
-    /* ── MOBILE (≤ 640px) ── */
-    @media (max-width: 640px) {
-      :root { --sidebar-w: 260px; --header-h: 56px; }
+    /* ── MOBILE (≤ 768px) ── */
+    @media (max-width: 768px) {
+      :root { --header-h: 56px; }
+
+      body { overflow-x: hidden; }
 
       /* Header */
       header { padding: 0 14px; gap: 10px; }
-      .hamburger { display: flex; align-items: center; justify-content: center; }
+      .hamburger { display: block; }
       .header-badge { display: none; }
       .overall-progress-mini { display: none; }
       .logo-sub { display: none; }
       .header-logo .logo-text { font-size: 14px; }
       #user-email-short { display: none; }
 
-      /* Sidebar: hidden off-screen, slides in */
+      /* Sidebar: move off-screen to the left using `left` (more reliable than transform with position:fixed) */
       .sidebar {
-        transform: translateX(-100%);
-        transition: transform .25s ease;
+        left: calc(-1 * var(--sidebar-w));
+        transition: left .25s ease;
         z-index: 100;
-        top: var(--header-h);
+        width: var(--sidebar-w);
         box-shadow: none;
       }
       .sidebar.open {
-        transform: translateX(0);
-        box-shadow: 4px 0 24px rgba(0,0,0,.15);
+        left: 0;
+        box-shadow: 4px 0 24px rgba(0,0,0,.18);
       }
 
-      /* Main: full width on mobile */
+      /* Main: full width — no sidebar offset */
       .main {
-        margin-left: 0;
+        margin-left: 0 !important;
         padding: 16px 14px;
         width: 100%;
+        box-sizing: border-box;
       }
 
       /* Grids → single column */
-      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
       .q-form { grid-template-columns: 1fr; }
       .provas-grid { grid-template-columns: 1fr; }
       .flashcards-grid { grid-template-columns: 1fr; }
@@ -667,12 +669,12 @@
 
       /* Prova chips: full width on mobile */
       #prova-topicos-grid { flex-direction: column; }
-      #prova-topicos-grid > div { min-width: unset; width: 100%; }
+      #prova-topicos-grid > div { min-width: unset !important; width: 100%; box-sizing: border-box; }
 
       /* Upload zone */
-      .upload-zone { padding: 24px 16px; }
+      .upload-zone { padding: 24px 14px; }
 
-      /* Prova progress wrap */
+      /* Prova progress */
       .prova-progress-top { flex-direction: column; align-items: flex-start; gap: 6px; }
       .prova-progress-pct { font-size: 18px; }
 
@@ -680,28 +682,22 @@
       .login-card { padding: 28px 20px; margin: 16px; }
       .login-title { font-size: 18px; }
 
-      /* Buttons row: wrap */
+      /* Nova prova form */
       .nova-prova-form-row { flex-direction: column; }
 
       /* Prova date card */
       .prova-date-card { flex-wrap: wrap; gap: 8px; }
+      .prova-date-card input[type="date"] { width: 100%; }
 
-      /* Drive banner */
+      /* Banners */
       .drive-banner { flex-direction: column; gap: 8px; }
-
-      /* Prova banner */
       .prova-banner { flex-direction: column; gap: 8px; padding: 14px; }
 
-      /* Header user pill */
+      /* Action buttons: stack vertically */
+      .prova-actions-row { flex-direction: column !important; }
+
+      /* User pill compact */
       .user-pill { padding: 4px 8px 4px 4px; }
-
-      /* Bottom action buttons in prova */
-      #prova-topics-section > div > div[style*="display:flex"] {
-        flex-direction: column;
-      }
-
-      /* Sidebar session info */
-      .sidebar > div:last-child { padding: 8px; font-size: 11px; }
     }
   </style>
 </head>
