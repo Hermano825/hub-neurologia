@@ -416,6 +416,54 @@
     .prova-countdown-badge.urgente { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
     .prova-countdown-badge.ok { background: var(--success-light); color: var(--success); border-color: #6ee7b7; }
 
+    /* ── MÓDULOS ── */
+    .modulos-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .modulo-tab {
+      padding: 8px 20px; border-radius: 20px; border: 1.5px solid var(--gray-200);
+      background: #fff; font-size: 13px; font-weight: 600; color: var(--gray-600);
+      cursor: pointer; transition: all .15s;
+    }
+    .modulo-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .modulo-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .modulo-content-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); margin-bottom: 24px; }
+    .modulo-content-tab {
+      padding: 10px 22px; font-size: 14px; font-weight: 600; color: var(--gray-500);
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s;
+    }
+    .modulo-content-tab:hover { color: var(--gray-800); }
+    .modulo-content-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* Resumo */
+    .resumo-body { max-width: 800px; line-height: 1.8; color: var(--gray-800); }
+    .resumo-body h2 { font-size: 18px; font-weight: 800; color: var(--gray-900); margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--primary-light); }
+    .resumo-body h3 { font-size: 15px; font-weight: 700; color: var(--primary-dark); margin: 20px 0 8px; }
+    .resumo-body p { margin-bottom: 12px; font-size: 14px; }
+    .resumo-body ul, .resumo-body ol { padding-left: 20px; margin-bottom: 12px; }
+    .resumo-body li { font-size: 14px; margin-bottom: 4px; }
+    .resumo-body strong { color: var(--gray-900); }
+    .resumo-body table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+    .resumo-body th { background: var(--primary); color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+    .resumo-body td { padding: 7px 12px; border-bottom: 1px solid var(--gray-200); }
+    .resumo-body tr:nth-child(even) td { background: var(--gray-50); }
+    .resumo-body .alert-box { background: #fff8e1; border-left: 4px solid var(--warning); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+    .resumo-body .tip-box { background: var(--success-light); border-left: 4px solid var(--success); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+
+    /* Questões módulo */
+    .questao-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+    .questao-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--primary); margin-bottom: 8px; }
+    .questao-enunciado { font-size: 14px; font-weight: 600; color: var(--gray-800); line-height: 1.6; margin-bottom: 16px; }
+    .questao-alternativas { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .questao-alt {
+      padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gray-200);
+      font-size: 13px; cursor: pointer; transition: all .15s; text-align: left; background: #fff;
+    }
+    .questao-alt:hover { border-color: var(--primary); background: var(--primary-light); }
+    .questao-alt.correta { border-color: var(--success); background: var(--success-light); color: #065f46; font-weight: 600; }
+    .questao-alt.errada { border-color: var(--danger); background: #fee2e2; color: #991b1b; }
+    .questao-comentario { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: 13px; line-height: 1.6; display: none; margin-top: 10px; }
+    .questao-comentario.visible { display: block; }
+
     /* ── PROVAS LIST ── */
     .provas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-top: 20px; }
     .prova-card {
@@ -801,6 +849,11 @@
       <span class="nav-badge" id="badge-questoes">0</span>
     </button>
 
+    <button class="nav-item" onclick="navigate('modulos')" id="nav-modulos">
+      <span class="nav-icon">📚</span> Módulos
+      <span class="nav-badge" id="badge-modulos">1</span>
+    </button>
+
     <div class="sidebar-section-title">Materiais</div>
     <button class="nav-item" onclick="navigate('materiais')" id="nav-materiais">
       <span class="nav-icon">📁</span> Materiais Drive
@@ -1073,6 +1126,35 @@
       <div id="casos-container"></div>
     </section>
 
+    <!-- ══ MÓDULOS ══ -->
+    <section id="section-modulos" class="section">
+      <div class="page-title">📚 Módulos de Estudo</div>
+      <div class="page-subtitle">Resumos, flashcards e questões comentadas — baseados nos materiais do Drive</div>
+
+      <!-- Module selector tabs -->
+      <div class="modulos-tabs" id="modulos-tabs"></div>
+
+      <!-- Content tabs -->
+      <div class="modulo-content-tabs">
+        <button class="modulo-content-tab active" onclick="selectModuloTab('resumo', this)">📄 Resumo</button>
+        <button class="modulo-content-tab" onclick="selectModuloTab('flashcards', this)">🃏 Flashcards</button>
+        <button class="modulo-content-tab" onclick="selectModuloTab('questoes', this)">❓ Questões</button>
+      </div>
+
+      <!-- Content areas -->
+      <div id="modulo-tab-resumo">
+        <div class="resumo-body" id="resumo-body"></div>
+      </div>
+      <div id="modulo-tab-flashcards" style="display:none">
+        <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Clique no card para virar ↕</div>
+        <div class="flashcards-grid" id="modulo-flashcards-grid"></div>
+      </div>
+      <div id="modulo-tab-questoes" style="display:none">
+        <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Clique em uma alternativa para responder</div>
+        <div id="modulo-questoes-list"></div>
+      </div>
+    </section>
+
     <!-- ══ PROVAS ══ -->
     <section id="section-provas" class="section">
       <div class="page-title">📋 Minhas Provas</div>
@@ -1246,8 +1328,942 @@
 <!-- ══ SCRIPT ══ -->
 <script>
 // ─────────────────────────────────────────────
+// MÓDULOS DATA + FUNCTIONS  (injected)
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// MÓDULOS DATA
+// ─────────────────────────────────────────────
+const MODULOS = {
+  'avc': {
+    id: 'avc',
+    titulo: 'Acidentes Vasculares Cerebrais',
+    emoji: '🫀',
+    cor: '#d1fae5',
+    resumoHtml: `<div class="alert-box">⚡ ACIDENTES VASCULARES CEREBRAIS (AVC) - RESUMO PARA RESIDÊNCIA MÉDICA</div>
+
+<div class="alert-box">⚡ INTRODUÇÃO E EPIDEMIOLOGIA</div>
+
+<p>O AVC é uma emergência neurológica definida como o desenvolvimento rápido de sinais clínicos de distúrbios focais da função encefálica, com duração superior a 24 horas ou conduzindo à morte, decorrente de uma causa vascular cerebral.</p>
+
+<p>Classificação:</p>
+<ul>
+<li>AVCs isquêmicos: 85% dos casos</li>
+<li>AVCs hemorrágicos intraparenquimatosos: 10% dos casos</li>
+<li>Hemorragias subaracnóideas (HSA): 5% dos casos</li>
+</ul>
+<p>O AVC representa 15% das questões de provas de neurologia em residência médica.</p>
+
+<div class="alert-box">⚡ DIFERENÇA ENTRE AVC E AIT</div>
+
+<p>AVC: há morte neuronal, confirmada por alterações em exames de neuroimagem (lesão hipodensa na TC ou restrição à difusão na RM).</p>
+
+<p>AIT (Ataque Isquêmico Transitório): déficit neurológico focal súbito que reverte completamente sem evidência de morte neuronal nos exames de imagem. Classicamente, duração inferior a 24 horas, mas a definição atual é baseada na ausência de lesão em neuroimagem.</p>
+
+
+
+<h2>AVC ISQUÊMICO</h2>
+
+<h3>FATORES DE RISCO</h3>
+
+<p><strong>Fatores não modificáveis:</strong></p>
+<ul>
+<li>Idade: risco dobra a cada década após 55 anos; aumenta exponencialmente após 65 anos</li>
+<li>Sexo: masculino tem risco 30% maior</li>
+<li>Etnia: risco 2,4x maior em afrodescendentes; 2x maior em hispânicos e asiáticos</li>
+<li>História familiar: risco 1,9x maior com parentes de primeiro grau com AVC</li>
+</ul>
+<p><strong>Fatores modificáveis:</strong></p>
+<ul>
+<li>Hipertensão arterial: 4x maior (presente em 70% dos AVCs)</li>
+<li>Fibrilação atrial: valvar 17x maior; não valvar 5% ao ano</li>
+<li>Diabetes mellitus: 1,8-6x maior</li>
+<li>Dislipidemia: 1,5x maior</li>
+<li>Tabagismo: 1,9x maior</li>
+<li>Etilismo: 1,6x maior (a partir de 40 g/semana)</li>
+<li>Estenose sintomática de artéria craniana: 4,6% em 2 anos</li>
+<li>Estenose sintomática de artéria cervical: aumento de 24,5%</li>
+<li>Obesidade: aumento de 5% a cada ponto de IMC</li>
+<li>Sedentarismo: 20-30% de aumento</li>
+</ul>
+<p>Dados do estudo EMMA (população brasileira):</p>
+<ul>
+<li>HAS: 70%</li>
+<li>Tabagismo: 37%</li>
+<li>Diabetes: 20,5%</li>
+<li>Dislipidemia: 21,3%</li>
+<li>Fibrilação atrial: 2%</li>
+<li>Obesidade: 13%</li>
+</ul>
+<h3>FISIOPATOLOGIA</h3>
+
+<p><strong>Core e Penumbra Isquêmica:</strong></p>
+
+<p>Core isquêmico: área onde a queda do fluxo sanguíneo cerebral é tão intensa que os neurônios morrem em poucos minutos (4-10 minutos quando fluxo cai a zero). Déficit neurológico irreversível.</p>
+
+<p>Penumbra isquêmica: região em torno do core onde o fluxo é reduzido, mas o tecido permanece viável. Neurônios não funcionam, mas estão vivos. Se o fluxo sanguíneo for restabelecido a tempo, estes neurônios podem recuperar função.</p>
+
+<div class="alert-box">⚡ TEMPO É CÉREBRO: quanto mais cedo a reperfusão, maior chance de salvar penumbra.</div>
+
+<p><strong>Edema Citotóxico:</strong></p>
+<p>Morte neuronal causa edema citotóxico por falha da bomba Na/K. Sódio entra na célula com água, aumentando volume do parênquima. Pode levar a aumento de pressão intracraniana, herniação e óbito.</p>
+
+<h3>ETIOPATOGENIA</h3>
+
+<p><strong>Aterosclerose de Grandes Vasos (15-20% dos AVCs):</strong></p>
+<ul>
+<li>Ruptura de placa com exposição do conteúdo lipídico</li>
+<li>Cascata inflamatória e de coagulação com trombose in situ</li>
+<li>Embolismo arterio-arterial: fragmento de placa desprendido viaja pela circulação até vaso menor</li>
+<li>Infarto hemodinâmico: oclusão proximal com hipotensão/hipofluxo causa infarto em área de fronteira vascular (entre territórios arteriais)</li>
+</ul>
+<p><strong>Aterosclerose de Pequenos Vasos - Lacunas (15-25% dos AVCs):</strong></p>
+<ul>
+<li>Oclusão de pequenos vasos perfurantes</li>
+<li>Lipo-hialinose: degeneração de vasos por diabetes, HAS, dislipidemia</li>
+<li>Lacunas < 1,5 cm de diâmetro</li>
+<li>Localizações típicas: cápsula interna (artérias lenticuloestriadas), coroa radiada, tálamos (artérias talamoperfurantes), ponte, cerebelo</li>
+</ul>
+<p><strong>Cardioembolia (30% dos AVCs):</strong></p>
+<ul>
+<li>Fibrilação atrial: 13-26% de todos os AVCs</li>
+<li>Infarto do miocárdio: 2-3% dos casos primeiros 30 dias; 5% ao ano se aneurisma apical ou áreas hipocinesicas</li>
+<li>Endocardite bacteriana</li>
+<li>Próteses valvares</li>
+<li>Mixomas</li>
+<li>Miocardiopatias</li>
+<li>Forame oval patente (embolia paradoxal)</li>
+</ul>
+
+
+<h2>DIAGNÓSTICO DO AVC ISQUÊMICO</h2>
+
+<h3>ESCALA NIHSS (National Institutes of Health Stroke Scale)</h3>
+
+<p>Avalia 11 itens: nível de consciência, resposta a ordens, resposta ocular, paralisia facial, função motora de membros superiores e inferiores, ataxia cerebelar, sensibilidade, linguagem e disartria. Pontuação 0-42.</p>
+
+<p>Utilidade: indica gravidade do déficit e ajuda prognóstico.</p>
+<ul>
+<li>NIHSS < 5: AVC minor</li>
+<li>NIHSS ≥ 6: potencial indicação para trombolítica e trombectomia</li>
+</ul>
+<h3>ESCALA RANKIN MODIFICADA (mRS)</h3>
+
+<p>Avalia dependência funcional após AVC. Pontuação 0-6.</p>
+<ul>
+<li>0-1: independência</li>
+<li>2: limitação leve</li>
+<li>3: moderada</li>
+<li>4: moderadamente grave</li>
+<li>5: grave</li>
+<li>6: óbito</li>
+</ul>
+<h3>AVALIAÇÃO POR IMAGEM</h3>
+
+<p><strong>Tomografia de Crânio (TC):</strong></p>
+<ul>
+<li>Rápida, amplamente disponível</li>
+<li>Objetivo principal: descartar hemorragia</li>
+<li>Nas primeiras horas de AVC isquêmico, geralmente normal</li>
+<li>Sinais precoces de isquemia: apagamento de espaços subaracnóideos, apagamento da diferenciação cinzenta-branca, hipodensidade</li>
+</ul>
+<p><strong>ESCORE ASPECTS (Alberta Stroke Program Early CT Score):</strong></p>
+<ul>
+<li>Avalia extensão de isquemia precoce na TC</li>
+<li>Pontuação 0-10 (10 = normal)</li>
+<li>ASPECTS ≥ 6: essencial para trombectomia</li>
+<li>Pontos atribuídos para: córtex anterior, córtex insular, córtex posterior (MCA superior, MCA inferior, MCA lentiforme, MCA putâmen, MCA cápsula interna), tálamo</li>
+</ul>
+<p><strong>AngioTC:</strong></p>
+<p>Avalia vasos cervicais e intracranianos para identificação de oclusão de grande vaso (indicação para trombectomia).</p>
+
+<p><strong>Ressonância Magnética (RM):</strong></p>
+<ul>
+<li>Técnica de difusão: detecta isquemia aguda, mais sensível que TC</li>
+<li>FLAIR: detecta isquemia subaguda</li>
+<li>Sequências T1 e T2: anatomia vascular</li>
+</ul>
+<p><strong>Técnicas Avançadas com Mismatch:</strong></p>
+<ul>
+<li>Permite expansão de janela terapêutica até 9 horas em casos selecionados</li>
+<li>Mismatch FLAIR-difusão: importante em wake-up stroke (acordou com déficit)</li>
+</ul>
+
+
+<h2>TRATAMENTO DO AVC ISQUÊMICO AGUDO</h2>
+
+<h3>TRATAMENTO GERAL (ALL CASES)</h3>
+
+<p><strong>Suporte Respiratório:</strong></p>
+<ul>
+<li>Manter SatO2 ≥ 95%</li>
+</ul>
+<p><strong>Posicionamento:</strong></p>
+<ul>
+<li>Elevação da cabeceira 0-30° nas primeiras 24 horas</li>
+</ul>
+<p><strong>Hidratação:</strong></p>
+<ul>
+<li>Corrigir hipotensão e hipovolemia com cristaloides ou coloides</li>
+</ul>
+<p><strong>Glicemia:</strong></p>
+<ul>
+<li>Alvo: 140-180 mg/dL</li>
+<li>Se < 60 mg/dL: administrar glicose 50%</li>
+<li>NÃO manter soro glicosado de manutenção (piora penumbra)</li>
+</ul>
+<p><strong>Pressão Arterial - Tratamento diferenciado:</strong></p>
+<ul>
+<li>NOS QUE RECEBERÃO TROMBÓLISE: manter PAS < 185 mmHg e PAD < 110 mmHg</li>
+<li>NOS QUE NÃO RECEBERÃO TROMBÓLISE: manter PAS < 220 mmHg e PAD < 120 mmHg (medicação só se ultrapassar esses limites)</li>
+<li>APÓS TROMBÓLISE (primeiras 24h): manter PAS < 180 mmHg e PAD < 105 mmHg</li>
+<li>Para controle rápido: nitroprussiato endovenoso (droga de escolha para redução rápida e controlada)</li>
+</ul>
+<p><strong>Temperatura:</strong></p>
+<ul>
+<li>Manter < 37°C</li>
+</ul>
+<h3>TROMBÓLISE ENDOVENOSA</h3>
+
+<p><strong>Trombolítico Aprovado:</strong></p>
+<p>Alteplase (rt-PA - ativador de plasminogênio tecidual recombinante)</p>
+
+<p><strong>Dose:</strong></p>
+<ul>
+<li>0,9 mg/kg (máximo 90 mg)</li>
+<li>10% em bólus seguido de 90% em infusão de 1 hora</li>
+</ul>
+<p><strong>Tenecteplase (TNK):</strong></p>
+<ul>
+<li>0,25 mg/kg em bólus (máximo 25 mg)</li>
+<li>Ainda aguarda aprovação de agências nacionais</li>
+</ul>
+<p><strong>Estreptoquinase:</strong></p>
+<ul>
+<li>NÃO usar (aumenta mortalidade por sangramento)</li>
+</ul>
+<p><strong>JANELA TERAPÊUTICA:</strong></p>
+<ul>
+<li>Até 4,5 horas do início dos sintomas (momento em que paciente foi visto normal)</li>
+</ul>
+<p><strong>EXPANSÃO DE JANELA:</strong></p>
+<ul>
+<li>Até 9 horas em pacientes com mismatch favorável (ainda não incorporado aos guidelines oficiais)</li>
+<li>Até 4,5 horas em wake-up stroke se RM mostra: isquemia < 1/3 do território da ACM na difusão E FLAIR normal</li>
+</ul>
+<p><strong>CRITÉRIOS DE INCLUSÃO:</strong></p>
+<ul>
+<li>Idade > 18 anos</li>
+<li>Tempo até 4,5 horas do início dos sintomas</li>
+<li>Quadro clínico sugestivo de AVC com déficit significativo:</li>
+<li>NIHSS > 5, OU</li>
+<li>Déficit incapacitante (afasia, hemianopsia, plegia)</li>
+</ul>
+<p><strong>CRITÉRIOS DE EXCLUSÃO/CONTRAINDICAÇÕES:</strong></p>
+
+<p>Contraindicações absolutas:</p>
+<ul>
+<li>Idade < 18 anos</li>
+<li>AVC hemorrágico prévio (qualquer tempo)</li>
+<li>Hemorragia no TC atual</li>
+<li>Hipodensidade extensa (> 1/3 do território da ACM)</li>
+<li>Endocardite infecciosa</li>
+<li>Dissecção aórtica</li>
+<li>Neoplasia intracraniana intra-axial</li>
+</ul>
+<p>Contraindicações relativas (exigem análise benefício/risco):</p>
+<ul>
+<li>NIHSS 0-5 (déficit não incapacitante)</li>
+<li>Pressão arterial sustentada: PAS > 185 mmHg OU PAD > 110 mmHg</li>
+<li>AVC isquêmico nos últimos 3 meses</li>
+<li>Trauma grave nos últimos 3 meses</li>
+<li>Cirurgia de grande porte nos últimos 14 dias</li>
+<li>Neurocirurgia ou cirurgia de coluna nos últimos 3 meses</li>
+<li>Doença do trato GI: história de neoplasia ou sangramento nos últimos 21 dias</li>
+<li>Coagulopatias: plaquetas < 100.000, INR > 1,7, TTPA > 40s</li>
+<li>Heparina de baixo peso molecular em dose plena há < 24h</li>
+<li>Anticoagulantes diretos com dose há < 48h</li>
+</ul>
+<p>Pontos especiais:</p>
+<ul>
+<li>Pacientes > 80 anos com NIHSS > 25 e uso prévio de anticoagulantes: taxa de sangramento maior, risco benefício deve ser analisado</li>
+<li>Pacientes com diabetes mellitus e AVC prévio: ainda não há contraindicação absoluta, pode haver benefício</li>
+</ul>
+<p><strong>COMPLICAÇÕES:</strong></p>
+<ul>
+<li>Transformação hemorrágica (sintomática ou assintomática)</li>
+<li>Edema cerebral progressivo</li>
+<li>Recanalização inadequada</li>
+<li>Embolia distante</li>
+</ul>
+
+
+<h3>TROMBECTOMIA MECÂNICA</h3>
+
+<p><strong>Indicações Gerais:</strong></p>
+<ul>
+<li>Oclusão de grande vaso proximal: carótida interna (ACI) OU segmento M1 da artéria cerebral média (ACM)</li>
+<li>NIHSS ≥ 6</li>
+<li>ASPECTS ≥ 6</li>
+<li>mRS < 2 (independência funcional prévia)</li>
+</ul>
+<p><strong>JANELA TEMPORAL:</strong></p>
+
+<p>0-6 horas:</p>
+<ul>
+<li>Basta TC de crânio + angioTC (ou RM + angioRM)</li>
+<li>ASPECTS ≥ 6 suficiente</li>
+</ul>
+<p>6-24 horas:</p>
+<ul>
+<li>Necessário estudo de perfusão (para demonstrar viabilidade tecidual)</li>
+<li>Critérios dos estudos DAWN e DEFUSE-3</li>
+</ul>
+<p><strong>Wake-up stroke (acordou com déficit):</strong></p>
+<ul>
+<li>Considerar último momento visto bem como tempo zero</li>
+<li>Se RM mostra mismatch FLAIR-difusão + oclusão proximal anterior + perfusão permissiva: candidato a trombectomia</li>
+<li>Pode ser indicada mesmo na janela de 4,5-24 horas</li>
+</ul>
+<p><strong>Processo:</strong></p>
+<p>1. Paciente chega à emergência</p>
+<p>2. Avaliação neurológica e TC de crânio</p>
+<p>3. Se NIHSS > 5, TC normal, sem hemorragia, sem hipodensidade extensa, possível oclusão de grande vaso: realiza-se angioTC</p>
+<p>4. Se confirmada oclusão de ACI ou M1: inicia-se trombólise EV (se dentro de 4,5h e sem contraindicações)</p>
+<p>5. Concomitante à trombólise, equipe de hemodinâmica é acionada</p>
+<p>6. Paciente é encaminhado para sala e realiza-se cateterismo arterial</p>
+<p>7. Trombo é removido com stent retriever ou cateter de aspiração</p>
+
+<p><strong>Taxa de recanalização:</strong></p>
+<ul>
+<li>ACI ocluída: 8% com trombólise; > 80% com trombectomia</li>
+<li>M1 proximal: 32% com trombólise; > 80% com trombectomia</li>
+</ul>
+<p><strong>Debate atual:</strong></p>
+<p>Alguns estudos (DIRECT-MT) sugerem que trombectomia isolada pode ser tão eficaz quanto trombólise + trombectomia em oclusão proximal anterior. Porém, guidelines atuais ainda recomendam trombólise precedendo trombectomia.</p>
+
+
+
+<h2>ATAQUE ISQUÊMICO TRANSITÓRIO (AIT)</h2>
+
+<h3>DEFINIÇÃO</h3>
+
+<p>Déficit neurológico focal súbito de causa neurovascular que regride completamente sem evidência de morte neuronal em exames de imagem.</p>
+
+<p>Pela definição clássica: duração < 24 horas. Definição atual: não pode haver evidência de morte neuronal.</p>
+
+<p>Frequência: 70% dos AITs duram < 1 hora.</p>
+
+<h3>AVALIAÇÃO DE RISCO - ESCORE ABCD2</h3>
+
+<p>Prediz risco de AVC isquêmico nos próximos 90 dias após AIT:</p>
+
+<table><thead><tr>
+<th>Critério</th>
+<th>Especificação</th>
+<th>Pontos</th>
+</tr></thead><tbody>
+</tbody></table>
+<p>|----------|---------------|--------|</p>
+<table><thead><tr>
+<th>A (age)</th>
+<th>> 60 anos</th>
+<th>+1</th>
+</tr></thead><tbody>
+<tr>
+<td>B (blood pressure)</td>
+<td>PAS > 140 OR PAD > 90 mmHg</td>
+<td>+1</td>
+</tr>
+<tr>
+<td>C (clínica)</td>
+<td>Hemiparesia</td>
+<td>+2</td>
+</tr>
+<tr>
+<td></td>
+<td>Alteração de fala isolada</td>
+<td>+1</td>
+</tr>
+<tr>
+<td>D (duração)</td>
+<td>10-59 minutos</td>
+<td>+1</td>
+</tr>
+<tr>
+<td></td>
+<td>≥ 60 minutos</td>
+<td>+2</td>
+</tr>
+<tr>
+<td>D (diabetes)</td>
+<td>Presente</td>
+<td>+1</td>
+</tr>
+</tbody></table>
+
+<p><strong>Interpretação:</strong></p>
+<ul>
+<li>Baixo risco: 0-3 pontos</li>
+<li>Risco moderado: 4-5 pontos</li>
+<li>Alto risco: 6-7 pontos</li>
+</ul>
+<p>Pacientes de alto risco devem ser internados para investigação. Baixo/moderado risco podem ser liberados para avaliação ambulatorial em até 48 horas com exames de investigação etiológica.</p>
+
+
+
+<h2>INVESTIGAÇÃO ETIOLÓGICA E PROFILAXIA SECUNDÁRIA</h2>
+
+<h3>CLASSIFICAÇÃO DE TOAST</h3>
+
+<p>Divide AVCs isquêmicos em 5 mecanismos:</p>
+
+<p><strong>1. Aterosclerose de Grandes Vasos (15-20%):</strong></p>
+<ul>
+<li>Repetição de sintomas no mesmo território</li>
+<li>Sopro carotídeo (estenose 70-99% da luz)</li>
+<li>Assimetria de pulsos temporais (oclusão de carótida interna)</li>
+<li>Investigação: Doppler de carótidas/vertebrais, angioTC, angioRM, angiografia</li>
+<li>Profilaxia: AAS + estatina; endarterectomia/stent se estenose 70-99%; endarterectomia em homens com estenose 50-69%</li>
+</ul>
+<p><strong>2. Cardioembolia (30%):</strong></p>
+<ul>
+<li>Territórios arteriais diferentes em eventos recorrentes</li>
+<li>ECG, ecocardiograma (transtorácico > 45 anos; transesofágico em jovens), Holter 24h</li>
+<li>Holter tem sensibilidade de 1% para FA paroxística (monitorização prolongada indicada)</li>
+<li>Investigar: FA, IAM recente, trombo atrial, prótese valvar, mixoma, FEVE reduzida, forame oval patente</li>
+<li>Profilaxia: anticoagulação com NACO, warfarina ou heparina</li>
+</ul>
+<p><strong>3. Ateromatose de Pequenos Vasos/Lacunas (15-25%):</strong></p>
+<ul>
+<li>Infartos lacunares < 1,5 cm</li>
+<li>Localizações: cápsula interna, coroa radiada, tálamos, ponte, cerebelo</li>
+<li>Síndromes lacunares clássicas: hemiplegia pura, síndrome sensitiva pura, disartria-mão desajeitada</li>
+<li>Investigação: RM/TC de encéfalo</li>
+<li>Profilaxia: AAS + estatina + controle de hipertensão e diabetes</li>
+</ul>
+<p><strong>4. Outras Causas (4%):</strong></p>
+<p>Mais comuns em pacientes jovens:</p>
+<ul>
+<li>Dissecção arterial cervical (mais comum em jovens < 45 anos): dor cervical precedendo déficit, síndrome de Horner em dissecção carotídea, imagem em "chama de vela"</li>
+<li>Vasculites: LES, Takayasu, angeíte do SNC, vasoconstrição reversível</li>
+<li>Arteriopatias não inflamatórias: Moyamoya, displasia fibromuscular</li>
+<li>Distúrbios de coagulação: deficiência de proteínas C/S, mutação fator V Leyden, protrombina mutada, antitrombina-III deficiente, SAAF (síndrome antifosfolípide), hiper-homocisteinemia</li>
+<li>Hematológicas: anemia falciforme (principal causa de AVC em crianças), policitemia vera, trombocitose</li>
+<li>CADASIL, MELAS, doença de Fabry (genéticas)</li>
+<li>Investigação: sorologias, reumatograma, hemograma, eletroforese de hemoglobina, pesquisa de Chagas</li>
+</ul>
+<p><strong>5. Mecanismo Indeterminado:</strong></p>
+<ul>
+<li>Investigação incompleta OU negativa OU múltiplas etiologias possíveis</li>
+<li>Até 50% pode ser FA paroxística não detectada</li>
+<li>Indicação: monitorização prolongada, holter prolongado</li>
+</ul>
+<h3>PROFILAXIA SECUNDÁRIA</h3>
+
+<p><strong>Anticoagulação:</strong></p>
+
+<p>Indicada em:</p>
+<ul>
+<li>Fibrilação atrial não valvar (CHADS2VASc ≥ 2 em homens, ≥ 3 em mulheres)</li>
+<li>Fibrilação atrial valvar</li>
+<li>Trombo intracavitário</li>
+<li>FEVE < 35% pós-IAM</li>
+<li>Prótese valvar sintética</li>
+<li>Endocardite (relativa)</li>
+<li>Dissecção arterial cervical: dupla antiagregação 3-6 meses</li>
+</ul>
+<p><strong>Anticoagulantes Diretos (NACO):</strong></p>
+<p>Apenas em FA não valvar. Doses habitualmente:</p>
+<ul>
+<li>Apixabana: 5 mg 12/12h (dose reduzida 2,5 mg se ≥ 80 anos, ≤ 65 kg, ou creatinina ≥ 1,5)</li>
+<li>Rivaroxabana: 20 mg 1x/dia (reduzida para 15 mg se clearance < 50 mL/min; 15 mg se clearance 15-50 mL/min)</li>
+<li>Dabigatrana: 150 mg 12/12h (reduzida para 75 mg se clearance 15-30 mL/min) - único com antídoto (idarucizumab)</li>
+<li>Edoxabana: conforme clearance de creatinina</li>
+</ul>
+<p><strong>Warfarina:</strong></p>
+<ul>
+<li>Dose inicial: 5 mg/dia (pacientes < 50 kg: 2,5 mg/dia)</li>
+<li>Alvo INR: 2,0-3,0</li>
+<li>Requer monitorização regular</li>
+</ul>
+<p><strong>Timing de Anticoagulação pós-AVC:</strong></p>
+<ul>
+<li>3-5 dias para isquemia pequena</li>
+<li>14 dias para isquemia extensa</li>
+<li>Depende da extensão da isquemia e risco de transformação hemorrágica</li>
+</ul>
+<p><strong>Antiagregação Plaquetária:</strong></p>
+
+<p>Monoterapia em:</p>
+<ul>
+<li>AVCs sem indicação de anticoagulação</li>
+<li>AITs</li>
+<li>Mecanismo cardioembólico baixo risco</li>
+</ul>
+<p>Dupla antiagregação (AAS + clopidogrel) por 21-90 dias em:</p>
+<ul>
+<li>AIT com ABCD2 ≥ 4</li>
+<li>AVC com NIHSS ≤ 5 (AVC menor)</li>
+<li>Pós-stent carotídeo: 1 ano</li>
+<li>Oclusão intracraniana: 90 dias</li>
+<li>Dissecção arterial: 3-6 meses</li>
+</ul>
+<p>Monoterapia após período:</p>
+<ul>
+<li>AAS: 100-300 mg, iniciado 24-48h após AVC (ou 24h pós-trombólise)</li>
+<li>Redução de morte cardiovascular: 13-22%</li>
+<li>Redução de novo AVC: 15%</li>
+</ul>
+<p><strong>Revascularização Carotídea:</strong></p>
+
+<p>Endarterectomia/stent indicada em:</p>
+<ul>
+<li>AVC não incapacitante ou AIT com estenose sintomática 70-99%: qualquer sexo</li>
+<li>AVC não incapacitante ou AIT com estenose 50-69%: APENAS HOMENS (endarterectomia preferida)</li>
+<li>Realizada preferencialmente 3-14 dias após AVC</li>
+</ul>
+
+
+<h2>AVC HEMORRÁGICO INTRAPARENQUIMATOSO</h2>
+
+<h3>EPIDEMIOLOGIA</h3>
+
+<p>Representa 10% de todos os AVCs. Mortalidade de 50%, com sequelas graves na maioria dos sobreviventes.</p>
+
+<h3>FATORES DE RISCO</h3>
+
+<ul>
+<li>Hipertensão arterial: 70% dos casos</li>
+<li>Angiopatia amiloide: 5-35%, em idosos, vasos lobares, não relacionada a HAS</li>
+<li>Malformações arteriovenosas</li>
+<li>Coagulopatias</li>
+<li>Tumores</li>
+<li>Drogas (cocaína em jovens)</li>
+</ul>
+<h3>FISIOPATOLOGIA</h3>
+
+<p><strong>Lipo-hialinose:</strong></p>
+<p>Em pacientes com HAS e diabéticos, pequenos vasos perfurantes desenvolvem microaneurismas de Charcot-Bouchard susceptíveis a ruptura. Afeta: núcleos da base (putâmen é local mais comum), tálamos, ponte, cerebelo.</p>
+
+<p><strong>Angiopatia Amiloide:</strong></p>
+<p>Depósito de amiloide em vasos lobares de idosos. Apresentação: hemorragia lobar em paciente idoso com PA normal.</p>
+
+<h3>QUADRO CLÍNICO</h3>
+
+<p>Impossível diferenciar clinicamente de AVC isquêmico. Necessário exame de imagem sempre.</p>
+
+<p>Características:</p>
+<ul>
+<li>Cefaleia</li>
+<li>Náuseas e vômitos</li>
+<li>Rebaixamento de consciência (por aumento de PIC)</li>
+<li>Pressão arterial elevada</li>
+<li>Crises convulsivas</li>
+</ul>
+<h3>DIAGNÓSTICO</h3>
+
+<p>TC de crânio: área hiperdensa no parênquima (sangue contém ferro, que bloqueia radiação).</p>
+
+<p>Localizações mais comuns (ordem):</p>
+<p>1. Putâmen (núcleos da base)</p>
+<p>2. Tálamo</p>
+<p>3. Ponte</p>
+<p>4. Cerebelo</p>
+<p>5. Lobos cerebrais</p>
+
+<h3>TRATAMENTO</h3>
+
+<p><strong>Medidas Gerais:</strong></p>
+<ul>
+<li>Suporte intensivo (ventilatório e circulatório)</li>
+<li>Controle de PIC</li>
+<li>Anticonvulsivantes se crise convulsiva</li>
+</ul>
+<p><strong>Controle Pressórico:</strong></p>
+
+<table><thead><tr>
+<th>PA</th>
+<th>Método</th>
+<th>Alvo</th>
+<th>Observações</th>
+</tr></thead><tbody>
+</tbody></table>
+<p>|----|---------|----- |-------------|</p>
+<table><thead><tr>
+<th>150-220 mmHg</th>
+<th>Agudo</th>
+<th>140 x 90 mmHg</th>
+<th>Redução intensa pode causar lesão renal</th>
+</tr></thead><tbody>
+<tr>
+<td>> 220 mmHg</td>
+<td>Agressivo (nitroprussiato EV)</td>
+<td>140-160 mmHg</td>
+<td>Monitorizar a cada 5 minutos</td>
+</tr>
+</tbody></table>
+
+<p><strong>Indicadores de Risco de Expansão do Hematoma:</strong></p>
+<ul>
+<li>Tempo até neuroimagem</li>
+<li>Volume inicial do hematoma</li>
+<li>Uso de antiplaquetários/anticoagulantes</li>
+<li>Spot sign na angioTC (extravasamento de contraste) = maior risco de expansão</li>
+</ul>
+<p><strong>Tratamento Cirúrgico:</strong></p>
+
+<p>Indicações (não frequentemente cobradas em provas):</p>
+<ul>
+<li>Hemorragia supratentorial:</li>
+<li>Até 8h de início</li>
+<li>Volume 20-50 mL</li>
+<li>GCS 9-12</li>
+<li>Idade 50-69 anos</li>
+<li>Lobar sem inundação ventricular</li>
+<li>Hemorragia cerebelar:</li>
+<li>Volume > 3 cm</li>
+<li>Rebaixamento de consciência</li>
+<li>Compressão de tronco/hidrocefalia obstrutiva</li>
+</ul>
+<h3>PROGNÓSTICO - ESCORE ICH</h3>
+
+<table><thead><tr>
+<th>Achado</th>
+<th>Pontos</th>
+</tr></thead><tbody>
+</tbody></table>
+<p>|--------|--------|</p>
+<table><thead><tr>
+<th>**GCS**</th>
+<th></th>
+</tr></thead><tbody>
+<tr>
+<td>3-4</td>
+<td>2</td>
+</tr>
+<tr>
+<td>5-12</td>
+<td>1</td>
+</tr>
+<tr>
+<td>13-15</td>
+<td>0</td>
+</tr>
+<tr>
+<td>**Idade**</td>
+<td></td>
+</tr>
+<tr>
+<td>≥ 80 anos</td>
+<td>1</td>
+</tr>
+<tr>
+<td>< 80 anos</td>
+<td>0</td>
+</tr>
+<tr>
+<td>**Local**</td>
+<td></td>
+</tr>
+<tr>
+<td>Infratentorial</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Supratentorial</td>
+<td>0</td>
+</tr>
+<tr>
+<td>**Volume**</td>
+<td></td>
+</tr>
+<tr>
+<td>≥ 30 mL</td>
+<td>1</td>
+</tr>
+<tr>
+<td>< 30 mL</td>
+<td>0</td>
+</tr>
+<tr>
+<td>**Hemoventrículo**</td>
+<td></td>
+</tr>
+<tr>
+<td>SIM</td>
+<td>1</td>
+</tr>
+<tr>
+<td>NÃO</td>
+<td>0</td>
+</tr>
+</tbody></table>
+
+<p><strong>Mortalidade em 30 dias por escore:</strong></p>
+<ul>
+<li>0: 0%</li>
+<li>1: 13%</li>
+<li>2: 26%</li>
+<li>3: 72%</li>
+<li>4: 97%</li>
+<li>5-6: 100%</li>
+</ul>
+
+
+<h2>HEMORRAGIA SUBARACNÓIDEA (HSA)</h2>
+
+<h3>EPIDEMIOLOGIA</h3>
+
+<p>5% de todos os AVCs. Porém, 20% das questões sobre AVC em provas de residência. Mortalidade até 30%, com sequelas graves em 50% dos sobreviventes.</p>
+
+<p>Causa mais comum: ruptura de aneurisma sacular (85% em circulação anterior).</p>
+
+<h3>FATORES DE RISCO</h3>
+
+<ul>
+<li>Tabagismo</li>
+<li>Hipertensão arterial</li>
+<li>Idade (6ª década)</li>
+<li>História familiar (risco 4x se ≥ 2 parentes primeiro grau)</li>
+<li>Tamanho do aneurisma:</li>
+<li>< 10 mm: 0,05%/ano de ruptura</li>
+<li>> 10 mm: 0,5%/ano de ruptura</li>
+<li>Doenças do colágeno: Ehlers-Danlos</li>
+<li>Doença renal policística autossômica dominante (ADPKD)</li>
+<li>Sexo feminino</li>
+<li>Afrodescendentes</li>
+<li>Etilismo excessivo</li>
+<li>Esforço físico</li>
+</ul>
+<h3>QUADRO CLÍNICO</h3>
+
+<p><strong>CEFALEIA SÚBITA - THUNDERCLAP HEADACHE</strong></p>
+
+<p>Instala-se e atinge máxima intensidade em poucos segundos. Paciente se lembra do exato momento de início.</p>
+
+<p>Características adicionais:</p>
+<ul>
+<li>Nunca sentida antes (inédita)</li>
+<li>Pior dor da vida</li>
+<li>Em 60% dos casos: associada a náuseas e vômitos</li>
+<li>Em 50% dos casos: episódio de síncope (por aumento agudo de PIC)</li>
+</ul>
+<p><strong>Irritação Meníngea:</strong></p>
+<ul>
+<li>Rigidez de nuca (75% dos casos)</li>
+<li>Sinais de irritação meníngea</li>
+<li>Crises convulsivas (25% dos casos)</li>
+</ul>
+<p><strong>Aneurisma de Artéria Comunicante Posterior:</strong></p>
+<p>Próximo ao nervo oculomotor (III NC). Pode causar:</p>
+<ul>
+<li>Midríase paralítica ipsilateral (anisocoria)</li>
+<li>Estrabismo divergente (olho desviado para baixo e fora)</li>
+<li>Ptose palpebral</li>
+<li>Paralisia completa do III NC</li>
+</ul>
+<p><strong>Hemorragia Sub-hialóide (Síndrome de Terson):</strong></p>
+<p>Hemorragia vítrea uni ou bilateral. Indica ruptura de aneurisma.</p>
+
+<h3>LOCALIZAÇÃO DOS ANEURISMAS</h3>
+
+<p><strong>Circulação Anterior (85%):</strong></p>
+<ul>
+<li>Junção entre comunicante anterior e cerebral anterior (mais em homens)</li>
+<li>Junção entre carótida interna e comunicante posterior (mais em mulheres)</li>
+<li>Bifurcação da artéria cerebral média (M1-M2)</li>
+</ul>
+<p><strong>Circulação Posterior (15%):</strong></p>
+<ul>
+<li>Topo da basilar (10%)</li>
+<li>Artérias vertebrais (5%)</li>
+</ul>
+<h3>DIAGNÓSTICO</h3>
+
+<p><strong>TC de Crânio:</strong></p>
+<p>Sangue aparece como hiperdensidade no espaço subaracnóideo. Margeiam os espaços subaracnóideos.</p>
+
+<p><strong>Regra de Ottawa para investigação de HSA:</strong></p>
+<p>Investigar se o paciente tiver:</p>
+<ul>
+<li>Idade > 40 anos, OU</li>
+<li>Dor ou rigidez cervical, OU</li>
+<li>Limitação de flexão cervical</li>
+</ul>
+<p><strong>RM com Sequência FLAIR:</strong></p>
+<p>Se TC normal mas alta suspeição clínica.</p>
+
+<p><strong>Arteriografia Digital (DSA):</strong></p>
+<p>Gold standard para visualizar aneurisma.</p>
+
+<p><strong>Punção Lombar:</strong></p>
+<p>Se TC normal e HSA ainda é suspeita: detecta xantocromia (coloração amarelada do líquor por degradação de hemoglobina).</p>
+
+<h3>TRATAMENTO</h3>
+
+<p><strong>Medidas Gerais:</strong></p>
+<ul>
+<li>Repouso absoluto em ambiente tranquilo</li>
+<li>Analgésicos</li>
+<li>Antieméticos</li>
+<li>Laxantes (evitar esforço)</li>
+<li>Monitorização contínua</li>
+</ul>
+<p><strong>Manejo Pressórico:</strong></p>
+<ul>
+<li>Manter pressão sistólica entre 140-160 mmHg</li>
+<li>Nimodipino (bloqueador de cálcio): 60 mg 4x/dia VO (dilui para SNG se não conseguir engolir)</li>
+<li>Previne vasoespasmo (complicação tardia)</li>
+</ul>
+<p><strong>Hemodiluição:</strong></p>
+<ul>
+<li>Hidratação venosa para aumentar volume vascular</li>
+<li>Previne isquemia cerebral tardia por vasoespasmo</li>
+</ul>
+<p><strong>Tratamento Definitivo:</strong></p>
+<ul>
+<li>Clipagem cirúrgica do aneurisma, OU</li>
+<li>Embolização endovascular (coils)</li>
+</ul>
+<p><strong>Complicações:</strong></p>
+<ul>
+<li>Ressangramento: risco maior nos primeiros 14 dias (5% por dia)</li>
+<li>Vasoespasmo (isquemia cerebral tardia): dias 4-14 após HSA</li>
+<li>Hidrocefalia: por sangue nos ventrículos</li>
+<li>Hiponatremia: por SIADH</li>
+</ul>
+
+
+<h2>RESUMO - FLUXOGRAMA TERAPÊUTICO</h2>
+
+<p>1. <strong>Paciente com suspeita de AVC:</strong></p>
+<ul>
+<li>TC de crânio urgente (descartar hemorragia)</li>
+<li>Dextro</li>
+<li>Se normal e AVC isquêmico: evaluar para trombolítica</li>
+</ul>
+<p>2. <strong>Se < 4,5h e critérios de inclusão/sem contraindicações:</strong></p>
+<ul>
+<li>Trombolítica (alteplase 0,9 mg/kg)</li>
+<li>Concomitante: avaliar para trombectomia se oclusão proximal anterior</li>
+</ul>
+<p>3. <strong>Se 4,5-24h e oclusão proximal anterior:</strong></p>
+<ul>
+<li>0-6h: apenas TC + ASPECTS ≥ 6</li>
+<li>6-24h: estudo de perfusão necessário</li>
+<li>Trombectomia se critérios atendidos</li>
+</ul>
+<p>4. <strong>Após fase aguda:</strong></p>
+<ul>
+<li>Investigação etiológica (protocolo AVC)</li>
+<li>Profilaxia secundária conforme etiologia</li>
+</ul>
+
+
+<p>Documento compilado a partir do material educativo Estratégia MED Neurologia - Acidentes Vasculares Cerebrais, para uso em preparação para exames de Residência Médica.</p>
+`,
+    flashcards: [{"frente": "O AVC é definido como morte de neurônios em qual contexto temporal?", "verso": "Morte neuronal em território arterial encefálico com déficit neurológico súbito de duração >24h ou que leve à morte, causado por isquemia ou hemorragia vascular cerebral"}, {"frente": "Qual é a diferença fundamental entre AVC e AIT?", "verso": "AVC: há morte neuronal confirmada por alterações em neuroimagem (hipodensidade na TC ou restrição à difusão na RM). AIT: reversão completa de déficit SEM evidência de morte neuronal em imagem"}, {"frente": "Qual artéria causa o déficit de predomínio braquiofacial (hemiparesia facial e de MSD)?", "verso": "Artéria Cerebral Média (ACM/MCA) - porque as fibras do homúnculo de Penfield para face e MSD estão localizadas no terço superior do córtex motor, irrigadas pela ACM"}, {"frente": "Qual artéria causa hemiparesia de predomínio crural (perna)?", "verso": "Artéria Cerebral Anterior (ACA) - porque as fibras para membros inferiores estão localizadas na região medial do córtex motor, irrigadas pela ACA"}, {"frente": "Qual fator de risco não modificável tem maior impacto no AVC?", "verso": "Idade - risco dobra a cada década após 55 anos e aumenta exponencialmente após 65 anos"}, {"frente": "Qual fator de risco modificável mais frequente no Brasil (estudo EMMA) e qual seu risco relativo?", "verso": "Tabagismo (37% de prevalência). Hipertensão é mais importante pelo risco relativo (4x maior, presente em 70% dos AVCs)"}, {"frente": "O que é core isquêmico e qual sua característica temporal?", "verso": "Área de fluxo sanguíneo cerebral extremamente reduzido onde neurônios morrem em 4-10 minutos. Déficit neurológico IRREVERSÍVEL"}, {"frente": "O que é penumbra isquêmica e qual sua característica principal?", "verso": "Tecido hipoperfundido ao redor do core onde neurônios estão vivos mas não funcionando. É TEMPORARIAMENTE viável e pode ser salvado com reperfusão a tempo"}, {"frente": "Qual é o mnemônico para o conceito central do manejo do AVC agudo?", "verso": "TEMPO É CÉREBRO - quanto mais cedo a reperfusão, maiores as chances de salvar a penumbra isquêmica"}, {"frente": "Qual é a dose de alteplase (rt-PA) para trombólise em AVC isquêmico agudo?", "verso": "0,9 mg/kg (máximo 90 mg): 10% em bólus IV, seguido de 90% em infusão contínua durante 1 hora"}, {"frente": "Qual é a janela terapêutica para trombólise endovenosa com rt-PA?", "verso": "Até 4,5 horas do início dos sintomas (último momento em que o paciente foi visto normal)"}, {"frente": "Qual é a pressão arterial-alvo em paciente que receberá trombólise?", "verso": "PAS < 185 mmHg e PAD < 110 mmHg (deve estar abaixo desses valores ANTES de iniciar rt-PA)"}, {"frente": "Qual é a pressão arterial alvo em paciente COM AVC que NÃO receberá trombolítica?", "verso": "Permissiva: tolerar até PAS 220 mmHg e PAD 120 mmHg (só medicar se ultrapassar esses valores)"}, {"frente": "Qual é a droga de escolha para controle pressórico rápido e controlado em AVC?", "verso": "Nitroprussiato de sódio endovenoso (permite redução rápida e titulável da PA)"}, {"frente": "Qual fármaco NÃO deve ser usado para trombólise e por quê?", "verso": "Estreptoquinase - seu primeiro estudo em AVC demonstrou aumento de mortalidade por sangramento"}, {"frente": "Qual é a dose de tenecteplase (TNK) em AVC isquêmico?", "verso": "0,25 mg/kg em bólus IV (máximo 25 mg). Ainda aguarda aprovação de agências nacionais para uso"}, {"frente": "Qual é o NIHSS mínimo indicador de déficit significativo para considerar trombólise?", "verso": "NIHSS > 5 OU déficit incapacitante (afasia, hemianopsia, plegia/paraplegia)"}, {"frente": "Qual é o ASPECTS mínimo essencial para indicação de trombectomia?", "verso": "ASPECTS ≥ 6 (pontuação máxima é 10; valores abaixo de 6 indicam dano extenso)"}, {"frente": "Qual é a janela temporal para trombectomia de 0-6 horas?", "verso": "Necessário apenas TC + angioTC (ou RM + angioRM). Basta ASPECTS ≥ 6 sem necessidade de estudo de perfusão"}, {"frente": "Qual é a janela temporal para trombectomia de 6-24 horas?", "verso": "Necessário estudo de perfusão além da neuroimagem estrutural. Critérios baseados em estudos DAWN e DEFUSE-3 (demonstrar viabilidade tecidual)"}, {"frente": "Qual vaso ocluído é melhor candidato para trombectomia e qual é a taxa de recanalização com o procedimento?", "verso": "Carótida Interna (ACI) ou segmento M1 da ACM. Taxa de recanalização > 80% (comparado a 8% em ACI e 32% em M1 com trombólise apenas)"}, {"frente": "Em paciente que 'acordou com déficit neurológico' (wake-up stroke), como avaliar elegibilidade para trombolítica?", "verso": "RM com FLAIR + Difusão: se isquemia < 1/3 do território da ACM na difusão E FLAIR normal, provavelmente ocorreu há < 4,5h, permitindo trombólise"}, {"frente": "O que é o escore ABCD2 e em qual contexto é utilizado?", "verso": "Escore que prediz risco de AVC isquêmico nos próximos 90 dias após AIT. Avalia: Age (>60 = +1), Blood pressure (>140/90 = +1), Clinical (hemiparesia +2, fala +1), Duration (10-59min +1, ≥60min +2), Diabetes (+1)"}, {"frente": "Qual é a classificação de risco pelo escore ABCD2?", "verso": "Baixo risco: 0-3 pontos; Risco moderado: 4-5 pontos; Alto risco: 6-7 pontos. Alto risco deve ser internado para investigação"}, {"frente": "Qual é a dose de rt-PA para AIT de alto risco (ABCD2 ≥4) ou AVC menor (NIHSS ≤5)?", "verso": "Dupla antiagregação: AAS + clopidogrel por 21 dias, seguida de monoterapia com um deles"}],
+    questoes: [{"enunciado": "Paciente masculino, 65 anos, hipertenso, chega ao PS com quadro de déficit motor à direita que começou há 2 horas. Ao exame: NIHSS 18, PA 178/110 mmHg, TC de crânio normal, sem sinais de hemorragia. Após 15 minutos é realizada angioTC que revela oclusão do segmento M1 da artéria cerebral média esquerda. Qual é a conduta imediata mais apropriada?", "alternativas": ["A) Iniciar nitroprussiato para reduzir PA para 140/90 mmHg e depois considerar trombólise", "B) Iniciar trombólise com rt-PA 0,9 mg/kg (bólus 10%, infusão 90% em 1 hora) e, concomitantemente, preparar para trombectomia mecânica", "C) Realizar apenas observação clínica e aguardar evolução natural", "D) Transferir para centro de referência em neurocirurgia sem qualquer intervenção", "E) Iniciar anticoagulação com heparina não fracionada imediatamente"], "gabarito": "B", "comentario": "O paciente está dentro da janela de 4,5 horas, tem PA permissiva para trombolítica (não ultrapassou 185/110), NIHSS elevado (18), sem contraindicações à trombólise (TC normal, sem hemorragia). A trombólise é indicada como primeira linha. A presença de oclusão proximal anterior (M1 da ACM) identificada já na angioTC significa que, após iniciar a trombólise, ele deve ser encaminhado também para trombectomia mecânica. Ambos os procedimentos (trombólise + trombectomia) são complementares nessa situação e devem ser feitos. A PA de 178/110 é permissiva e não necessita de controle prévio à trombólise"}, {"enunciado": "Mulher, 72 anos, diabética, é trazida ao PS com dificuldade de falar e fraqueza à direita iniciada há 5 horas e 30 minutos. PA 170/95 mmHg, NIHSS 15, TC normal. Após confirmação de oclusão proximal de ACM esquerda pela angioTC, qual é a conduta mais adequada?", "alternativas": ["A) Aguardar 4,5 horas adicionais antes de qualquer intervenção, pois já passou da janela", "B) Realizar trombectomia mecânica apenas, sem trombólise, pois ultrapassou 4,5 horas", "C) Iniciar trombólise apenas, sem considerar trombectomia, devido ao tempo decorrido", "D) Não realizar qualquer intervenção por estar fora da janela de trombólise e não ter critérios de perfusão disponíveis", "E) Considerar trombectomia se estudo de perfusão mostrar viabilidade tecidual, mesmo após 4,5 horas"], "gabarito": "E", "comentario": "Embora a paciente tenha ultrapassado os 4,5 horas (limite tradicional de trombólise), ela ainda está dentro da janela de 24 horas para trombectomia mecânica. Para pacientes com 6-24 horas de sintomas, é necessário um estudo de perfusão (TC de perfusão ou RM) para demonstrar que há tecido cerebral viável (mismatch perfusão-difusão). Se houver viabilidade tecidual (conforme critérios DAWN ou DEFUSE-3), a trombectomia é indicada. Portanto, deve-se realizar estudo de perfusão antes de determinar se ela é candidata"}, {"enunciado": "Homem, 58 anos, sem comorbidades prévias, apresenta déficit neurológico súbito há 50 minutos. Ao exame: NIHSS 4, PA 160/95 mmHg, TC normal. Qual é a estratégia antitrombótica mais apropriada nas próximas 24-48 horas?", "alternativas": ["A) Iniciar AAS 100 mg/dia em monoterapia", "B) Iniciar dupla antiagregação (AAS + clopidogrel) por 21 dias", "C) Não iniciar qualquer antiagregante pois o NIHSS é muito baixo", "D) Aguardar 7 dias para iniciar antiagregação", "E) Iniciar imediatamente anticoagulação com heparina"], "gabarito": "B", "comentario": "O paciente tem NIHSS 4, caracterizando um AVC menor ou AIT. A recomendação para casos de AVC menor (NIHSS ≤5) é realizar DUPLA antiagregação com AAS + clopidogrel por 21 dias, seguida de monoterapia. Essa estratégia foi validada pelo estudo POINT e é superior à monoterapia com AAS nesses casos. Importante iniciar entre 24-48 horas após o AVC em pacientes não trombolisados, ou 24 horas após o término da infusão de rt-PA em trombolisados"}, {"enunciado": "Mulher, 68 anos, com história de fibrilação atrial, apresenta AVC isquêmico agudo. Após investigação etiológica completa, confirma-se que o mecanismo é cardioembólico por FA não valvar. CHADS2VASc = 4. Qual é a profilaxia secundária mais apropriada a iniciar?", "alternativas": ["A) AAS 100 mg/dia indefinidamente", "B) Anticoagulação com NACO ou warfarina entre 4º e 14º dias pós-AVC", "C) Apenas controle pressórico e de fatores de risco, sem antiagregante ou anticoagulante", "D) Dupla antiagregação (AAS + clopidogrel) por 3 meses", "E) Anticoagulação imediata (< 24h) com warfarina"], "gabarito": "B", "comentario": "Paciente com AVC cardioembólico por FA não valvar deve receber anticoagulação. O CHADS2VASc = 4 em uma mulher (de 65-74 anos +1, HAS +1, AVC anterior +2) indica claramente necessidade de anticoagulação. O timing crítico: anticoagulação deve ser iniciada entre o 4º e o 14º dia após AVC (período seguro depende da extensão da isquemia). Anticoagulação precoce (< 24h) aumenta risco de transformação hemorrágica. Deve-se usar NACO ou warfarina conforme disponibilidade"}, {"enunciado": "Paciente com AVC hemorrágico intraparenquimatoso putaminal direito, apresenta PA 220/135 mmHg na chegada. Qual é o alvo pressórico ideal e qual é a droga de primeira escolha?", "alternativas": ["A) PAS 120/80 mmHg com captopril sublingual", "B) PAS 140/90 mmHg com nitroprussiato endovenoso", "C) Manter PA permissiva em 220/135 mmHg sem medicar", "D) PAS 160/100 mmHg com hidralazina endovenosa", "E) PAS 100/60 mmHg com nitroglicerina"], "gabarito": "B", "comentario": "Em AVC hemorrágico intraparenquimatoso, o manejo pressórico diferencia-se do AVC isquêmico. PA > 220 mmHg exige redução agressiva. O alvo deve ser PAS em torno de 140/90 mmHg. O nitroprussiato de sódio é a droga ideal porque permite redução rápida, titulável e controlada. Deve-se evitar reduções muito agressivas (como 120/80) pois podem causar lesão renal. A redução com nitroprussiato permite monitorizar a PA a cada 5 minutos"}, {"enunciado": "Homem, 45 anos, apresenta AVC isquêmico sem fator de risco clássico identificado. Ecocardiograma revela um forame oval patente com diâmetro de 0,8 cm. Estudo de vasos cervicais e intracranianos é normal. RM encefálica mostra pequeno infarto parietal não lacunar. Qual é a profilaxia secundária mais apropriada?", "alternativas": ["A) AAS 100 mg/dia indefinidamente", "B) Anticoagulação com warfarina", "C) Fechamento endovascular do forame oval com AAS após o procedimento", "D) Dupla antiagregação (AAS + clopidogrel) por 90 dias", "E) Apenas observação, pois forame oval patente é achado incidental sem significado clínico"], "gabarito": "C", "comentario": "Paciente jovem (45 anos) com AVC criptogênico (sem causa aparente) associado a forame oval patente é candidato para fechamento do forame. Segundo as diretrizes atuais, pacientes com ≤60 anos cuja estratificação não revelou outra causa e que tiveram AVC não lacunar devem ser considerados para fechamento endovascular do forame oval (especialmente se há aneurisma septal ou forame grande como nesse caso). A presença de AAS após o procedimento é padrão. Isso é mais eficaz do que apenas antiagregação"}, {"enunciado": "Paciente do sexo feminino, 55 anos, com cefaleia súbita em 'trovoada' iniciada há 6 horas, acompanhada de rigidez de nuca, náuseas e vômitos. PA 180/105 mmHg, Glasgow 14. TC de crânio revela hiperdensidade no espaço subaracnóideo. Qual é o diagnóstico e qual medicação deve ser iniciada?", "alternativas": ["A) AVC hemorrágico intraparenquimatoso; iniciar nitroprussiato", "B) Meningite bacteriana; iniciar antibióticos de amplo espectro", "C) Hemorragia subaracnóidea por ruptura aneurismática; iniciar nimodipino", "D) Enxaqueca com aura; iniciar sumatriptano", "E) Trombose de seio dural; iniciar anticoagulação"], "gabarito": "C", "comentario": "A combinação de cefaleia súbita em trovoada + rigidez de nuca + hiperdensidade no espaço subaracnóideo na TC é patognomônica de HSA. O nimodipino (bloqueador de cálcio) é a medicação de escolha no tratamento da HSA para prevenir vasoespasmo (complicação que ocorre entre 4-14 dias). Deve-se iniciar 60 mg 4x/dia VO. Outras medidas incluem: hemodiluição com hidratação venosa, repouso, analgésicos, controle de PA para manter PAS 140-160 mmHg. O tratamento definitivo (clipagem cirúrgica ou embolização endovascular) será feito após avaliação neurorradiológica"}, {"enunciado": "Qual das seguintes afirmações sobre o tratamento do AVC isquêmico está INCORRETA?", "alternativas": ["A) A trombólise com rt-PA está indicada até 4,5 horas do início dos sintomas", "B) A pressão arterial deve ser < 185/110 mmHg ANTES de iniciar trombólise", "C) Em pacientes que NÃO recebem trombólise, a PA deve ser reduzida se ultrapassar 220/120 mmHg", "D) O AAS deve ser iniciado 24 horas APÓS o término da infusão de rt-PA", "E) Glicose 50% deve ser administrada se glicemia < 50 mg/dL, evitando soro glicosado de manutenção"], "gabarito": "D", "comentario": "A alternativa D está INCORRETA. O AAS deve ser iniciado 24-48 HORAS APÓS O INÍCIO DOS SINTOMAS em pacientes não trombolisados, OU 24 HORAS APÓS O TÉRMINO (não início) da INFUSÃO de rt-PA em pacientes trombolisados. A resposta correta seria: 'O AAS deve ser iniciado 24 horas após o TÉRMINO da infusão de rt-PA' ou ainda '24-48 horas após o início dos sintomas em não trombolisados'. Todas as outras alternativas estão corretas"}, {"enunciado": "Homem, 72 anos, hipertenso, chega ao PS acordado com hemiparesia esquerda há 6 horas. Exame neurológico mostra déficit focal. TC de crânio revela pequena lacuna no tálamo esquerdo, sugestiva de AVC lacunar. Qual é a provável etiologia e qual é a investigação mais importante?", "alternativas": ["A) Cardioembolia; solicitar ecocardiograma transtorácico", "B) Aterosclerose de grandes vasos; solicitar angioTC de carótidas", "C) Aterosclerose de pequenos vasos; investigar HAS, diabetes, dislipidemia e controlar esses fatores", "D) Dissecção arterial; solicitar RM de parede vascular", "E) Forame oval patente; solicitar ecocardiograma transesofágico com microbolhas"], "gabarito": "C", "comentario": "AVC lacunar em tálamo (< 1,5 cm) em paciente hipertenso indica aterosclerose de pequenos vasos (doença de pequenos vasos perfurantes). Essa etiologia corresponde a 15-25% dos AVCs. O tálamo é irrigado pelas artérias talamoperfurantes (ramos da artéria cerebral posterior) que sofrem lipo-hialinose em diabéticos e hipertensos. A investigação mais importante não é vascular (como angioTC de carótidas que avalia circulação anterior), mas sim o controle dos fatores de risco: hipertensão arterial, diabetes e dislipidemia. A profilaxia secundária envolve AAS + estatina + controle rigoroso de PA e glicemia"}, {"enunciado": "Mulher, 62 anos, comparece com queixa de perda de força no braço direito e dificuldade de falar com duração de 30 minutos que regressa completamente. Exame neurológico agora é normal. RM encefálica mostra pequena área de restrição à difusão em região parietal. ABCD2 = 6 pontos. Qual é o diagnóstico mais apropriado e o tratamento imediato?", "alternativas": ["A) AIT com risco baixo; iniciar AAS 100 mg/dia", "B) AVC isquêmico minor; iniciar dupla antiagregação com AAS + clopidogrel por 21 dias", "C) Enxaqueca com aura; iniciar sumatriptano", "D) Síncope; investigar causas cardiológicas", "E) Transtorno conversivo; encaminhar para psiquiatria"], "gabarito": "B", "comentario": "Apesar do déficit ter regredido clinicamente (sugestivo de AIT), a RM mostra restrição à difusão (lesão isquêmica real = AVC isquêmico minor). Os guidelines consideram AIT de alto risco (ABCD2 ≥ 4 que nesse caso = 6) e AVC minor (NIHSS < 3) como condições similares que exigem a mesma conduta: DUPLA ANTIAGREGAÇÃO com AAS + clopidogrel por 21 dias, seguida de monoterapia. Isso é superior à monoterapia com AAS e foi validado pelo estudo POINT"}]
+  }
+};
+
+let moduloAtivo = 'avc';
+let moduloTabAtiva = 'resumo';
+let questoesState = {};  // tracks answered questions
+
+function renderModulos() {
+  // Render module tabs
+  const tabsEl = document.getElementById('modulos-tabs');
+  tabsEl.innerHTML = Object.values(MODULOS).map(m => `
+    <button class="modulo-tab ${moduloAtivo === m.id ? 'active' : ''}"
+            onclick="selectModulo('${m.id}')">
+      ${m.emoji} ${m.titulo}
+    </button>
+  `).join('');
+
+  renderModuloContent();
+}
+
+function selectModulo(id) {
+  moduloAtivo = id;
+  questoesState = {};
+  renderModulos();
+}
+
+function selectModuloTab(tab, btn) {
+  moduloTabAtiva = tab;
+  document.querySelectorAll('.modulo-content-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('modulo-tab-resumo').style.display = tab === 'resumo' ? 'block' : 'none';
+  document.getElementById('modulo-tab-flashcards').style.display = tab === 'flashcards' ? 'block' : 'none';
+  document.getElementById('modulo-tab-questoes').style.display = tab === 'questoes' ? 'block' : 'none';
+  renderModuloContent();
+}
+
+function renderModuloContent() {
+  const modulo = MODULOS[moduloAtivo];
+  if (!modulo) return;
+
+  if (moduloTabAtiva === 'resumo') {
+    document.getElementById('resumo-body').innerHTML = modulo.resumoHtml;
+  } else if (moduloTabAtiva === 'flashcards') {
+    const grid = document.getElementById('modulo-flashcards-grid');
+    grid.innerHTML = modulo.flashcards.map((fc, i) => `
+      <div class="flashcard-wrap" onclick="this.classList.toggle('flipped')">
+        <div class="flashcard-inner">
+          <div class="flashcard-face flashcard-front">
+            <div style="font-size:11px;color:var(--gray-400);margin-bottom:6px;font-weight:600">FRENTE</div>
+            ${fc.frente}
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <div style="font-size:11px;opacity:.7;margin-bottom:6px;font-weight:600">VERSO</div>
+            ${fc.verso}
+          </div>
+        </div>
+      </div>
+      <div class="flashcard-hint">Clique para virar</div>
+    `).join('');
+  } else if (moduloTabAtiva === 'questoes') {
+    const list = document.getElementById('modulo-questoes-list');
+    list.innerHTML = modulo.questoes.map((q, qi) => `
+      <div class="questao-card" id="questao-${qi}">
+        <div class="questao-num">Questão ${qi + 1} de ${modulo.questoes.length}</div>
+        <div class="questao-enunciado">${q.enunciado}</div>
+        <div class="questao-alternativas">
+          ${q.alternativas.map((alt, ai) => `
+            <button class="questao-alt" id="alt-${qi}-${ai}"
+                    onclick="responderQuestao(${qi}, '${q.gabarito}', '${alt[0]}')">
+              ${alt}
+            </button>
+          `).join('')}
+        </div>
+        <div class="questao-comentario" id="coment-${qi}">
+          💡 <strong>Comentário:</strong> ${q.comentario}
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function responderQuestao(qi, gabarito, escolha) {
+  if (questoesState[qi]) return; // already answered
+  questoesState[qi] = escolha;
+
+  const modulo = MODULOS[moduloAtivo];
+  modulo.questoes[qi].alternativas.forEach((alt, ai) => {
+    const btn = document.getElementById(`alt-${qi}-${ai}`);
+    btn.disabled = true;
+    if (alt[0] === gabarito) btn.classList.add('correta');
+    else if (alt[0] === escolha && escolha !== gabarito) btn.classList.add('errada');
+  });
+  document.getElementById(`coment-${qi}`).classList.add('visible');
+}
+
+// ─────────────────────────────────────────────
 // DRIVE MATERIALS DATA
 // ─────────────────────────────────────────────
+
 const DRIVE_FOLDER_ROOT = 'https://drive.google.com/drive/u/0/folders/16UQnTvqeCcBfpnr7m1pOFNmAmmrQChFH';
 const DRIVE_CASOS_ROOT  = 'https://drive.google.com/drive/folders/1S31WtEw2t3lbAFmPWxmrQgvxenh7YIxA';
 
@@ -1584,6 +2600,7 @@ function navigate(id) {
   if (id === 'questoes')   renderQuestions();
   if (id === 'materiais')  renderMateriais();
   if (id === 'casos')      renderCasos();
+  if (id === 'modulos')    renderModulos();
   if (id === 'provas')     renderProvasList();
   if (id === 'prova')      initProva();
 }
