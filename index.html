@@ -3994,6 +3994,7 @@ async function carregarTodasProvas() {
   // Try Supabase
   if (currentUser) {
     const { data, error } = await sb.from('provas').select('*').order('criada_em');
+    console.log('[Hub] Supabase provas raw:', JSON.stringify(data), 'error:', error);
     if (!error && data) {
       const dbProvas = data.map(r => ({
         id: r.id, nome: r.nome, data: r.data,
@@ -4035,12 +4036,14 @@ async function carregarTodasProvas() {
 
 async function upsertProvaNoDB(prova) {
   if (!currentUser) return;
-  const { error } = await sb.from('provas').upsert({
+  console.log('[Hub] upsert prova:', prova.id, 'topicos:', prova.topicos);
+  const { data: upsData, error } = await sb.from('provas').upsert({
     id: prova.id, user_id: currentUser.id,
     nome: prova.nome, data: prova.data || null,
     topicos: prova.topicos, concluidos: prova.concluidos,
     criada_em: prova.criadaEm || new Date().toISOString()
-  }, { onConflict: 'id' });
+  }, { onConflict: 'id' }).select();
+  console.log('[Hub] upsert result:', JSON.stringify(upsData), 'error:', error);
   if (error) {
     console.error('upsertProvaNoDB error:', error);
     showToast('⚠️ Erro ao salvar no servidor: ' + (error.message || error.code || 'verifique o console'), 4000);
