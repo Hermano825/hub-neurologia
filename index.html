@@ -4544,25 +4544,18 @@ function renderProvaTopics() {
 
   const grid = document.getElementById('prova-topicos-grid');
   grid.innerHTML = topicos.map((t, i) => {
-    const done      = conc.includes(t);
-    const driveMatch = matchTopicToDrive(t);
-    const moduloId   = matchTopicToModulo(t);
+    const done     = conc.includes(t);
+    const moduloId = matchTopicToModulo(t);
 
-    // Botão de módulo (prioridade: destaque maior)
+    // Botão de módulo quando existe conteúdo pronto
     const moduloBtn = moduloId
       ? `<button onclick="irParaModulo('${moduloId}')"
            style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#7c3aed;padding:3px 10px;border-radius:6px;font-weight:700;background:#ede9fe;border:1.5px solid #c4b5fd;cursor:pointer;white-space:nowrap">
-           📚 Ver módulo: ${MODULOS[moduloId].emoji} ${MODULOS[moduloId].titulo.split(' ').slice(0,2).join(' ')}…
+           📚 Estudar agora: ${MODULOS[moduloId].emoji} ${MODULOS[moduloId].titulo.split(' ').slice(0,2).join(' ')}…
          </button>`
-      : '';
-
-    // Botão Drive (apenas se não tiver módulo, para não poluir)
-    const driveBtn = (!moduloId && driveMatch)
-      ? `<a href="${driveMatch.url}" target="_blank" title="Ver material: ${driveMatch.title}"
-           style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#0891b2;padding:2px 8px;border-radius:6px;text-decoration:none;font-weight:600;background:#e0f2fe;white-space:nowrap">
-           📂 ${driveMatch.num}. ${driveMatch.title.split(' ').slice(0,2).join(' ')}…
-         </a>`
-      : '';
+      : `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#9ca3af;padding:2px 8px;border-radius:6px;background:#f3f4f6;border:1px solid #e5e7eb;white-space:nowrap">
+           🔜 Módulo em breve
+         </span>`;
 
     const toggleLabel = done ? '✅ Concluído' : '⬜ Marcar';
     const toggleStyle = done
@@ -4579,7 +4572,7 @@ function renderProvaTopics() {
           <button onclick="removerTopico(${i})" title="Remover" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--gray-400);padding:2px 4px">✕</button>
         </div>
       </div>
-      ${moduloBtn}${driveBtn}
+      ${moduloBtn}
     </div>`;
   }).join('');
 }
