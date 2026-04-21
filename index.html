@@ -4673,7 +4673,8 @@ async function criarNovaProva() {
   const prova = { id: gerarId(), nome, data, topicos: [], concluidos: [], criadaEm: new Date().toISOString() };
   provas.push(prova);
   try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
-  await upsertProvaNoDB(prova);
+  // DB sync in background — never block navigation
+  upsertProvaNoDB(prova).catch(console.error);
   fecharFormNovaProva();
   abrirProva(prova.id);
 }
