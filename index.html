@@ -4204,9 +4204,6 @@ function deleteNote() {
   if (!state.activeNote) return;
   deleteNoteById(state.activeNote);
 }
-  renderNotes();
-  updateBadges();
-}
 
 function createNoteFor(topicName) {
   const n = { id: Date.now(), title: topicName, body: '', topic: topicName, date: new Date().toLocaleDateString('pt-BR') };
