@@ -4424,6 +4424,53 @@ function normText(s) {
     .replace(/\s+/g, ' ').trim();
 }
 
+// ── Mapeamento tópico → módulo ────────────────
+const MODULO_KEYWORDS = {
+  'avc': [
+    'avc', 'acidente vascular', 'acidente vascular cerebral', 'isquemico', 'isquemica',
+    'trombose cerebral', 'trombólise', 'trombectomia', 'stroke', 'hemorragia cerebral',
+    'hemorragia intraparenquimatosa', 'hic', 'hsa', 'hemorragia subaracnoidea',
+    'hemorragia subaracnóidea', 'ait', 'ataque isquemico transitorio',
+    'doenca cerebrovascular', 'doença cerebrovascular', 'cerebrovascular',
+    'infarto cerebral', 'oclusao arterial', 'tia'
+  ],
+  'cefaleia': [
+    'cefaleia', 'cefaleias', 'enxaqueca', 'migrânea', 'migrania', 'migranea',
+    'cefaleia tensional', 'cluster', 'histaminica', 'dor de cabeca', 'dor de cabeça',
+    'cefalalgia', 'cefaleia secundaria', 'cefaleia primaria', 'cefaleia em trovao',
+    'hemorragia subaracnoidea cefaleia', 'sindrome de horner', 'trigemio', 'trigêmeo',
+    'sumatriptano', 'triptano', 'indometacina', 'topiramate', 'topiramato'
+  ]
+};
+
+function matchTopicToModulo(topicName) {
+  const norm = normText(topicName);
+  for (const [moduloId, keywords] of Object.entries(MODULO_KEYWORDS)) {
+    // Only match if the module actually exists
+    if (!MODULOS[moduloId]) continue;
+    for (const kw of keywords) {
+      const normKw = normText(kw);
+      if (norm.includes(normKw) || normKw.includes(norm)) {
+        return moduloId;
+      }
+    }
+    // Word-by-word fallback
+    const words = norm.split(' ').filter(w => w.length > 3);
+    for (const kw of keywords) {
+      const kwWords = normText(kw).split(' ').filter(w => w.length > 3);
+      const matches = words.filter(w => kwWords.includes(w));
+      if (matches.length >= 2) return moduloId;
+    }
+  }
+  return null;
+}
+
+function irParaModulo(moduloId) {
+  moduloAtivo = moduloId;
+  moduloTabAtiva = 'resumo';
+  navigate('modulos');
+}
+
 // Find the best matching DRIVE_MATERIAIS entry for a topic name
 function matchTopicToDrive(topicName) {
   const norm = normText(topicName);
@@ -4497,12 +4544,23 @@ function renderProvaTopics() {
 
   const grid = document.getElementById('prova-topicos-grid');
   grid.innerHTML = topicos.map((t, i) => {
-    const done  = conc.includes(t);
-    const match = matchTopicToDrive(t);
-    const driveBtn = match
-      ? `<a href="${match.url}" target="_blank" title="Ver material: ${match.title}"
+    const done      = conc.includes(t);
+    const driveMatch = matchTopicToDrive(t);
+    const moduloId   = matchTopicToModulo(t);
+
+    // Botão de módulo (prioridade: destaque maior)
+    const moduloBtn = moduloId
+      ? `<button onclick="irParaModulo('${moduloId}')"
+           style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#7c3aed;padding:3px 10px;border-radius:6px;font-weight:700;background:#ede9fe;border:1.5px solid #c4b5fd;cursor:pointer;white-space:nowrap">
+           📚 Ver módulo: ${MODULOS[moduloId].emoji} ${MODULOS[moduloId].titulo.split(' ').slice(0,2).join(' ')}…
+         </button>`
+      : '';
+
+    // Botão Drive (apenas se não tiver módulo, para não poluir)
+    const driveBtn = (!moduloId && driveMatch)
+      ? `<a href="${driveMatch.url}" target="_blank" title="Ver material: ${driveMatch.title}"
            style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#0891b2;padding:2px 8px;border-radius:6px;text-decoration:none;font-weight:600;background:#e0f2fe;white-space:nowrap">
-           📂 ${match.num}. ${match.title.split(' ').slice(0,2).join(' ')}…
+           📂 ${driveMatch.num}. ${driveMatch.title.split(' ').slice(0,2).join(' ')}…
          </a>`
       : '';
 
@@ -4521,7 +4579,7 @@ function renderProvaTopics() {
           <button onclick="removerTopico(${i})" title="Remover" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--gray-400);padding:2px 4px">✕</button>
         </div>
       </div>
-      ${driveBtn}
+      ${moduloBtn}${driveBtn}
     </div>`;
   }).join('');
 }
