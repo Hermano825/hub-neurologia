@@ -1220,7 +1220,7 @@
           <div style="font-size:48px;margin-bottom:12px">📸</div>
           <div style="font-size:17px;font-weight:700;color:var(--gray-800);margin-bottom:6px">Envie o print do seu edital</div>
           <div style="font-size:14px;color:var(--gray-500);margin-bottom:16px">Arraste e solte aqui ou clique para selecionar</div>
-          <div style="font-size:12px;color:var(--gray-400)">JPG, PNG, WebP · Máx 5MB por imagem · Várias imagens permitidas</div>
+          <div style="font-size:12px;color:var(--gray-400)">JPG, PNG, HEIC · Câmera ou galeria · Várias imagens permitidas</div>
           <input type="file" id="prova-file-input" accept="image/*" multiple style="display:none" onchange="uploadAndExtractMultiple(this.files)">
         </div>
 
@@ -4848,12 +4848,12 @@ async function uploadAndExtractMultiple(files) {
   if (!files || files.length === 0) return;
   const fileList = [...files];
 
-  // Validate sizes
-  const tooBig = fileList.filter(f => f.size > 5 * 1024 * 1024);
+  // Validate sizes — 30MB limit (images are compressed before sending)
+  const tooBig = fileList.filter(f => f.size > 30 * 1024 * 1024);
   if (tooBig.length > 0) {
-    showToast(`${tooBig.length} imagem(ns) acima de 5MB foram ignoradas.`);
+    showToast(`${tooBig.length} imagem(ns) acima de 30MB foram ignoradas.`);
   }
-  const validFiles = fileList.filter(f => f.size <= 5 * 1024 * 1024);
+  const validFiles = fileList.filter(f => f.size <= 30 * 1024 * 1024);
   if (validFiles.length === 0) return;
 
   document.getElementById('prova-upload-area').style.display = 'none';
@@ -4875,7 +4875,7 @@ async function uploadAndExtractMultiple(files) {
 
     try {
       const base64 = await fileToBase64(file);
-      const mediaType = file.type || 'image/jpeg';
+      const mediaType = 'image/jpeg'; // canvas always outputs JPEG
 
       const res = await fetch('/api/extract-topics', {
         method: 'POST',
@@ -4914,11 +4914,32 @@ async function uploadAndExtractMultiple(files) {
 }
 
 function fileToBase64(file) {
+  // Resize + convert to JPEG via canvas — handles HEIC, large mobile photos, etc.
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1600;
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > MAX || h > MAX) {
+        if (w >= h) { h = Math.round(h * MAX / w); w = MAX; }
+        else         { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.88).split(',')[1]);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      // Fallback: send raw base64 (non-image files, unsupported formats)
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    };
+    img.src = url;
   });
 }
 
