@@ -1258,10 +1258,29 @@
           </div>
         </div>
 
+        <!-- Banner de roteiro confirmado -->
+        <div id="prova-confirmado-banner" style="display:none;align-items:center;gap:12px;background:#d1fae5;border:1.5px solid #6ee7b7;border-radius:12px;padding:14px 18px;margin-bottom:16px">
+          <span style="font-size:22px">✅</span>
+          <div>
+            <div style="font-weight:700;color:#065f46;font-size:14px">Roteiro confirmado!</div>
+            <div style="font-size:12px;color:#047857;margin-top:2px">Marque os tópicos conforme for estudando. Você pode adicionar mais imagens a qualquer momento.</div>
+          </div>
+          <button onclick="desconfirmarRoteiro()" style="margin-left:auto;background:none;border:1px solid #6ee7b7;border-radius:6px;padding:4px 10px;font-size:12px;color:#047857;cursor:pointer;white-space:nowrap">✏️ Editar</button>
+        </div>
+
         <div style="margin-bottom:12px">
           <div style="font-size:16px;font-weight:700;color:var(--gray-800);margin-bottom:4px">📋 Tópicos identificados</div>
-          <div style="font-size:12px;color:var(--gray-500);margin-bottom:14px">Marque os tópicos que você já estudou ✅</div>
-          <div id="prova-topicos-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px"></div>
+          <div style="font-size:12px;color:var(--gray-500);margin-bottom:14px">Revise os tópicos abaixo e confirme o roteiro quando estiver pronto ✅</div>
+          <div id="prova-topicos-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px"></div>
+
+          <!-- Botão confirmar (exibido enquanto não confirmado) -->
+          <div id="prova-confirmar-wrap" style="margin-bottom:16px">
+            <button onclick="confirmarRoteiro()" style="width:100%;padding:14px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(16,185,129,.3);letter-spacing:.3px">
+              ✅ Confirmar roteiro de estudos
+            </button>
+            <div style="text-align:center;font-size:12px;color:var(--gray-400);margin-top:6px">Você poderá editar depois se precisar adicionar mais tópicos</div>
+          </div>
+
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
             <button onclick="document.getElementById('prova-add-more-input').click()" style="padding:8px 16px;background:var(--primary-light);color:var(--primary);border:1.5px solid #c7d7f8;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">📸 Adicionar imagens</button>
             <input type="file" id="prova-add-more-input" accept="image/*" multiple style="display:none" onchange="uploadAndExtractMultiple(this.files)">
@@ -3999,6 +4018,7 @@ async function carregarTodasProvas() {
       const dbProvas = data.map(r => ({
         id: r.id, nome: r.nome, data: r.data,
         topicos: parseArr(r.topicos), concluidos: parseArr(r.concluidos),
+        confirmado: r.confirmado || false,
         criadaEm: r.criada_em
       }));
 
@@ -4041,6 +4061,7 @@ async function upsertProvaNoDB(prova) {
     id: prova.id, user_id: currentUser.id,
     nome: prova.nome, data: prova.data || null,
     topicos: prova.topicos, concluidos: prova.concluidos,
+    confirmado: prova.confirmado || false,
     criada_em: prova.criadaEm || new Date().toISOString()
   }, { onConflict: 'id' }).select();
   console.log('[Hub] upsert result:', JSON.stringify(upsData), 'error:', error);
@@ -4435,11 +4456,38 @@ function matchTopicToDrive(topicName) {
   return bestScore >= 2 ? bestMatch : null;
 }
 
+function atualizarEstadoConfirmacao() {
+  const p = provaAtual();
+  const confirmado = p?.confirmado || false;
+  const banner = document.getElementById('prova-confirmado-banner');
+  const wrap   = document.getElementById('prova-confirmar-wrap');
+  if (banner) banner.style.display = confirmado ? 'flex' : 'none';
+  if (wrap)   wrap.style.display   = confirmado ? 'none' : 'block';
+}
+
+function confirmarRoteiro() {
+  const p = provaAtual();
+  if (!p) return;
+  p.confirmado = true;
+  salvarTodosProvas();
+  atualizarEstadoConfirmacao();
+  showToast('✅ Roteiro confirmado! Bons estudos!', 3000);
+}
+
+function desconfirmarRoteiro() {
+  const p = provaAtual();
+  if (!p) return;
+  p.confirmado = false;
+  salvarTodosProvas();
+  atualizarEstadoConfirmacao();
+}
+
 function renderProvaTopics() {
   document.getElementById('prova-upload-area').style.display = 'none';
   document.getElementById('prova-loading').style.display = 'none';
   document.getElementById('prova-topics-section').style.display = 'block';
 
+  atualizarEstadoConfirmacao();
   atualizarProgressBar();
   salvarTodosProvas();
 
