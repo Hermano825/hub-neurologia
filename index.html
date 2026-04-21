@@ -4364,14 +4364,26 @@ let currentUser = null;
 let authMode = 'login'; // 'login' | 'signup'
 
 async function initAuth() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) await onLogin(session.user);
-  else showLoginOverlay();
-
+  // Single source of truth — onAuthStateChange fires immediately with current session,
+  // so we don't call getSession separately (avoids double onLogin on page load)
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN'  && session) await onLogin(session.user);
-    if (event === 'SIGNED_OUT')             showLoginOverlay();
+    if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+      if (!currentUser || currentUser.id !== session.user.id) {
+        await onLogin(session.user);
+      }
+    }
+    if (event === 'SIGNED_OUT') showLoginOverlay();
   });
+
+  // Fallback: if onAuthStateChange doesn't fire within 1s (some environments),
+  // check session manually once
+  setTimeout(async () => {
+    if (!currentUser) {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) await onLogin(session.user);
+      else showLoginOverlay();
+    }
+  }, 1000);
 }
 
 async function authSubmit() {
@@ -4554,13 +4566,20 @@ async function carregarTodasProvas() {
         }
       }
 
+      // Deduplicate by id (safety net against concurrent loads)
+      const seen = new Set();
+      provas = provas.filter(p => seen.has(p.id) ? false : seen.add(p.id));
+
       try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
       return;
     }
   }
 
   // Fallback: use localStorage
-  if (localProvas.length > 0) provas = localProvas;
+  if (localProvas.length > 0) {
+    const seen = new Set();
+    provas = localProvas.filter(p => seen.has(p.id) ? false : seen.add(p.id));
+  }
 }
 
 async function upsertProvaNoDB(prova) {
