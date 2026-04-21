@@ -4138,7 +4138,14 @@ function renderNotes() {
   state.notes.forEach(n => {
     const el = document.createElement('div');
     el.className = `note-list-item ${state.activeNote === n.id ? 'active' : ''}`;
-    el.innerHTML = `<div class="note-list-title">${n.title || '(sem título)'}</div><div class="note-list-date">${n.topic} · ${n.date}</div>`;
+    el.style.position = 'relative';
+    el.innerHTML = `
+      <div class="note-list-title" style="padding-right:24px">${n.title || '(sem título)'}</div>
+      <div class="note-list-date">${n.topic} · ${n.date}</div>
+      <button onclick="event.stopPropagation();deleteNoteById(${n.id})" title="Excluir resumo"
+        style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;
+               font-size:13px;color:var(--gray-300);line-height:1;padding:2px 4px;border-radius:4px"
+        onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--gray-300)'">✕</button>`;
     el.onclick = () => openNote(n.id);
     list.appendChild(el);
   });
@@ -4179,14 +4186,24 @@ function saveNote() {
   showToast('Nota salva!');
 }
 
+function deleteNoteById(id) {
+  if (!confirm('Excluir este resumo?')) return;
+  state.notes = state.notes.filter(n => n.id !== id);
+  if (state.activeNote === id) {
+    state.activeNote = null;
+    document.getElementById('note-empty').style.display = 'block';
+    document.getElementById('note-editor').style.display = 'none';
+  }
+  saveState();
+  renderNotes();
+  updateBadges();
+  showToast('🗑️ Resumo excluído.');
+}
+
 function deleteNote() {
   if (!state.activeNote) return;
-  if (!confirm('Excluir esta nota?')) return;
-  state.notes = state.notes.filter(n => n.id !== state.activeNote);
-  state.activeNote = null;
-  document.getElementById('note-empty').style.display = 'block';
-  document.getElementById('note-editor').style.display = 'none';
-  saveState();
+  deleteNoteById(state.activeNote);
+}
   renderNotes();
   updateBadges();
 }
