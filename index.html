@@ -4549,11 +4549,18 @@ async function carregarTodasProvas() {
         return dbP;
       });
 
-      // Add provas that only exist locally (not yet saved to DB)
+      // Re-sync provas that only exist locally — but ONLY if very recently created
+      // (< 5 min). Older local-only provas were deleted intentionally; don't resurrect them.
+      const FIVE_MIN = 5 * 60 * 1000;
+      const now = Date.now();
       for (const lp of localProvas) {
         if (!dbIds.has(lp.id)) {
-          provas.push(lp);
-          upsertProvaNoDB(lp).catch(e => console.error('Re-sync local-only:', e));
+          const age = lp.criadaEm ? now - new Date(lp.criadaEm).getTime() : Infinity;
+          if (age < FIVE_MIN) {
+            provas.push(lp);
+            upsertProvaNoDB(lp).catch(e => console.error('Re-sync local-only:', e));
+          }
+          // else: absent from DB + older than 5 min = was deleted → ignore
         }
       }
 
