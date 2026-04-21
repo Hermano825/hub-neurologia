@@ -3793,12 +3793,12 @@ function populateTopicSelects() {
 // ─────────────────────────────────────────────
 // TOAST
 // ─────────────────────────────────────────────
-function showToast(msg) {
+function showToast(msg, duration) {
   const t = document.createElement('div');
   t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;z-index:9999;animation:slideUp .2s ease;';
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;z-index:9999;animation:slideUp .2s ease;max-width:340px;word-break:break-word';
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2000);
+  setTimeout(() => t.remove(), duration || 2000);
 }
 
 // ─────────────────────────────────────────────
@@ -3971,46 +3971,81 @@ function provaDataProva() { return (provaAtual() || {}).data || ''; }
 function gerarId() { return 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6); }
 
 // ── Supabase DB ───────────────────────────────
+function parseArr(v) {
+  if (Array.isArray(v)) return v;
+  if (typeof v === 'string' && v.trim()) {
+    try { const p = JSON.parse(v); return Array.isArray(p) ? p : []; } catch(e) { return []; }
+  }
+  return [];
+}
+
 async function carregarTodasProvas() {
-  // Try Supabase first
+  // Always load localStorage first as a baseline
+  let localProvas = [];
+  try {
+    const raw = localStorage.getItem(LS_PROVAS);
+    if (raw) localProvas = JSON.parse(raw).map(p => ({
+      ...p,
+      topicos: parseArr(p.topicos),
+      concluidos: parseArr(p.concluidos)
+    }));
+  } catch(e) {}
+
+  // Try Supabase
   if (currentUser) {
     const { data, error } = await sb.from('provas').select('*').order('criada_em');
     if (!error && data) {
-      provas = data.map(r => {
-        // Defensive parse: handle jsonb array OR text JSON string
-        const parseArr = v => {
-          if (Array.isArray(v)) return v;
-          if (typeof v === 'string' && v.trim()) {
-            try { const p = JSON.parse(v); return Array.isArray(p) ? p : []; } catch(e) { return []; }
-          }
-          return [];
-        };
-        return {
-          id: r.id, nome: r.nome, data: r.data,
-          topicos: parseArr(r.topicos), concluidos: parseArr(r.concluidos),
-          criadaEm: r.criada_em
-        };
+      const dbProvas = data.map(r => ({
+        id: r.id, nome: r.nome, data: r.data,
+        topicos: parseArr(r.topicos), concluidos: parseArr(r.concluidos),
+        criadaEm: r.criada_em
+      }));
+
+      // Merge: prefer whichever has more topicos (local wins on tie-break for topicos)
+      const localMap = Object.fromEntries(localProvas.map(p => [p.id, p]));
+      const dbIds = new Set(dbProvas.map(p => p.id));
+
+      provas = dbProvas.map(dbP => {
+        const loc = localMap[dbP.id];
+        if (loc && loc.topicos.length > dbP.topicos.length) {
+          // Local has more topicos — use local and re-sync to DB
+          const merged = { ...dbP, topicos: loc.topicos, concluidos: loc.concluidos };
+          upsertProvaNoDB(merged).catch(e => console.error('Re-sync failed:', e));
+          return merged;
+        }
+        return dbP;
       });
-      // Update localStorage cache
+
+      // Add provas that only exist locally (not yet saved to DB)
+      for (const lp of localProvas) {
+        if (!dbIds.has(lp.id)) {
+          provas.push(lp);
+          upsertProvaNoDB(lp).catch(e => console.error('Re-sync local-only:', e));
+        }
+      }
+
       try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
       return;
     }
   }
-  // Fallback: localStorage
-  try {
-    const raw = localStorage.getItem(LS_PROVAS);
-    if (raw) provas = JSON.parse(raw);
-  } catch(e) {}
+
+  // Fallback: use localStorage
+  if (localProvas.length > 0) provas = localProvas;
 }
 
 async function upsertProvaNoDB(prova) {
   if (!currentUser) return;
-  await sb.from('provas').upsert({
+  const { error } = await sb.from('provas').upsert({
     id: prova.id, user_id: currentUser.id,
     nome: prova.nome, data: prova.data || null,
     topicos: prova.topicos, concluidos: prova.concluidos,
     criada_em: prova.criadaEm || new Date().toISOString()
   }, { onConflict: 'id' });
+  if (error) {
+    console.error('upsertProvaNoDB error:', error);
+    showToast('⚠️ Erro ao salvar no servidor: ' + (error.message || error.code || 'verifique o console'), 4000);
+    throw error;
+  }
 }
 
 async function deleteProvaFromDB(id) {
