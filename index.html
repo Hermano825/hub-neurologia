@@ -4581,7 +4581,11 @@ async function upsertProvaNoDB(prova) {
 
 async function deleteProvaFromDB(id) {
   if (!currentUser) return;
-  await sb.from('provas').delete().eq('id', id);
+  const { error } = await sb.from('provas').delete().eq('id', id).eq('user_id', currentUser.id);
+  if (error) {
+    showToast('⚠️ Erro ao excluir no servidor: ' + (error.message || error.code || '...'), 4000);
+    throw error;
+  }
 }
 
 function salvarTodosProvas() {
@@ -4705,10 +4709,16 @@ function voltarParaProvas() {
 
 async function deletarProva(id) {
   if (!confirm('Excluir esta prova? Os dados serão perdidos.')) return;
+  try {
+    await deleteProvaFromDB(id);
+  } catch(e) {
+    // DB delete failed — abort so the prova doesn't reappear on reload
+    return;
+  }
   provas = provas.filter(p => p.id !== id);
   try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
-  await deleteProvaFromDB(id);
   renderProvasList();
+  showToast('🗑️ Prova excluída.', 2000);
 }
 
 function salvarDataProva(val) {
