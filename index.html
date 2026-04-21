@@ -3976,11 +3976,21 @@ async function carregarTodasProvas() {
   if (currentUser) {
     const { data, error } = await sb.from('provas').select('*').order('criada_em');
     if (!error && data) {
-      provas = data.map(r => ({
-        id: r.id, nome: r.nome, data: r.data,
-        topicos: r.topicos || [], concluidos: r.concluidos || [],
-        criadaEm: r.criada_em
-      }));
+      provas = data.map(r => {
+        // Defensive parse: handle jsonb array OR text JSON string
+        const parseArr = v => {
+          if (Array.isArray(v)) return v;
+          if (typeof v === 'string' && v.trim()) {
+            try { const p = JSON.parse(v); return Array.isArray(p) ? p : []; } catch(e) { return []; }
+          }
+          return [];
+        };
+        return {
+          id: r.id, nome: r.nome, data: r.data,
+          topicos: parseArr(r.topicos), concluidos: parseArr(r.concluidos),
+          criadaEm: r.criada_em
+        };
+      });
       // Update localStorage cache
       try { localStorage.setItem(LS_PROVAS, JSON.stringify(provas)); } catch(e) {}
       return;
@@ -4041,8 +4051,10 @@ function renderProvasList() {
   });
 
   lista.innerHTML = sorted.map(p => {
-    const total = p.topicos.length;
-    const done  = p.topicos.filter(t => (p.concluidos || []).includes(t)).length;
+    const topArr = Array.isArray(p.topicos) ? p.topicos : [];
+    const concArr = Array.isArray(p.concluidos) ? p.concluidos : [];
+    const total = topArr.length;
+    const done  = topArr.filter(t => concArr.includes(t)).length;
     const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
     const dias  = p.data ? Math.round((new Date(p.data + 'T00:00:00') - new Date().setHours(0,0,0,0)) / 86400000) : null;
 
@@ -4111,7 +4123,7 @@ function abrirProva(id) {
   document.getElementById('section-prova').classList.add('active');
   document.getElementById('nav-provas').classList.add('active');
   // Render state
-  if (p.topicos.length > 0) renderProvaTopics();
+  if (Array.isArray(p.topicos) && p.topicos.length > 0) renderProvaTopics();
   else {
     document.getElementById('prova-upload-area').style.display = 'block';
     document.getElementById('prova-loading').style.display = 'none';
@@ -4220,8 +4232,8 @@ function desmarcarTodos() {
 // ── Progress bar updater ──────────────────────
 function atualizarProgressBar() {
   const p = provaAtual();
-  const topicos = p ? p.topicos : [];
-  const conc    = p ? p.concluidos : [];
+  const topicos = Array.isArray(p?.topicos) ? p.topicos : [];
+  const conc    = Array.isArray(p?.concluidos) ? p.concluidos : [];
   const total = topicos.length;
   const done  = topicos.filter(t => conc.includes(t)).length;
   const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -4241,7 +4253,7 @@ function atualizarProgressBar() {
 
 function initProva() {
   const p = provaAtual();
-  if (p && p.topicos.length > 0) renderProvaTopics();
+  if (p && Array.isArray(p.topicos) && p.topicos.length > 0) renderProvaTopics();
   else if (!p) {
     // No prova open — go back to list
     navigate('provas');
@@ -4394,8 +4406,8 @@ function renderProvaTopics() {
   salvarTodosProvas();
 
   const p = provaAtual();
-  const topicos = p ? p.topicos : [];
-  const conc    = p ? p.concluidos : [];
+  const topicos = Array.isArray(p?.topicos) ? p.topicos : [];
+  const conc    = Array.isArray(p?.concluidos) ? p.concluidos : [];
 
   const grid = document.getElementById('prova-topicos-grid');
   grid.innerHTML = topicos.map((t, i) => {
@@ -4454,8 +4466,10 @@ function resetProva() {
   document.getElementById('prova-upload-area').style.display = 'block';
   document.getElementById('prova-loading').style.display = 'none';
   document.getElementById('prova-topics-section').style.display = 'none';
-  document.getElementById('prova-content-loading').style.display = 'none';
-  document.getElementById('prova-content-panel').style.display = 'none';
+  const _clEl = document.getElementById('prova-content-loading');
+  const _cpEl = document.getElementById('prova-content-panel');
+  if (_clEl) _clEl.style.display = 'none';
+  if (_cpEl) _cpEl.style.display = 'none';
   document.getElementById('prova-topico-manual').value = '';
 }
 
