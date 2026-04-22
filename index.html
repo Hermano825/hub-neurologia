@@ -3,751 +3,1387 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <title>Hub de Estudos · Neurologia · Estratégia Med</title>
+  <title>Hub de Estudos · Neurologia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     :root {
-      --primary: #1a56db;
-      --primary-dark: #1341a8;
-      --primary-light: #e8f0fe;
-      --accent: #0891b2;
-      --accent-light: #e0f2fe;
-      --success: #059669;
-      --success-light: #d1fae5;
-      --warning: #d97706;
-      --warning-light: #fef3c7;
-      --danger: #dc2626;
-      --danger-light: #fee2e2;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
-      --gray-700: #374151;
-      --gray-800: #1f2937;
-      --gray-900: #111827;
-      --sidebar-w: 240px;
+      /* v3 tokens */
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --ink: #0a0b0d;
+      --ink-soft: #1d2024;
+
+      --cobalt: #1d2d6b;
+      --cobalt-dark: #152354;
+      --amber: #b0640f;
+      --terracotta: #b54328;
+      --plum: #5e3a6b;
+      --forest: #2f6b3a;
+      --mustard: #c79434;
+      --scarlet: #c0243a;
+      --teal-ink: #0f6e6a;
+
+      --cobalt-tint: rgba(29, 45, 107, 0.10);
+      --amber-tint: rgba(176, 100, 15, 0.12);
+      --terracotta-tint: rgba(181, 67, 40, 0.11);
+      --plum-tint: rgba(94, 58, 107, 0.12);
+      --forest-tint: rgba(47, 107, 58, 0.11);
+      --mustard-tint: rgba(199, 148, 52, 0.16);
+      --scarlet-tint: rgba(192, 36, 58, 0.10);
+
+      --gray: #6e7278;
+      --gray-soft: #9a9ea3;
+      --gray-softer: #c5c7ca;
+      --hairline: #e4e5e7;
+      --hairline-strong: #d0d2d5;
+
+      /* Compatibility aliases (old class names → new tokens) */
+      --primary: var(--cobalt);
+      --primary-dark: var(--cobalt-dark);
+      --primary-light: var(--cobalt-tint);
+      --accent: var(--teal-ink);
+      --accent-light: rgba(15, 110, 106, 0.10);
+      --success: var(--forest);
+      --success-light: var(--forest-tint);
+      --warning: var(--amber);
+      --warning-light: var(--amber-tint);
+      --danger: var(--scarlet);
+      --danger-light: var(--scarlet-tint);
+      --gray-50: var(--bg);
+      --gray-100: #eeeff1;
+      --gray-200: var(--hairline);
+      --gray-300: var(--hairline-strong);
+      --gray-400: var(--gray-soft);
+      --gray-500: var(--gray);
+      --gray-600: var(--ink-soft);
+      --gray-700: var(--ink-soft);
+      --gray-800: var(--ink);
+      --gray-900: var(--ink);
+
+      --sidebar-w: 234px;
       --header-h: 64px;
-      --radius: 10px;
-      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
-      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 10px 25px rgba(0,0,0,.08);
+      --radius: 3px;
+      --shadow: 0 2px 0 var(--hairline-strong);
+      --shadow-md: 0 2px 0 var(--hairline-strong);
     }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     /* Prevent iOS Safari zoom on input focus */
     input, textarea, select { font-size: 16px !important; }
-    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; display: flex; flex-direction: column; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      font-feature-settings: "tnum", "cv11", "ss01";
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .display { font-family: 'Inter Tight', 'Inter', sans-serif; }
 
-    /* ── LOGIN OVERLAY ── */
+    /* ─────────────── MARK (2×2 grid) ─────────────── */
+    .mark-grid {
+      display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+      gap: 2px; width: 28px; height: 28px; flex-shrink: 0;
+    }
+    .mark-grid span { background: transparent; border: 1.8px solid var(--cobalt); border-radius: 2px; }
+    .mark-grid span.on { background: var(--cobalt); border-color: var(--cobalt); }
+    .mark-grid.lg { width: 52px; height: 52px; gap: 3px; }
+    .mark-grid.lg span { border-width: 2.4px; border-radius: 3px; }
+
+    /* ─────────────── LOGIN OVERLAY ─────────────── */
     #login-overlay {
       position: fixed; inset: 0; z-index: 9999;
-      background: linear-gradient(135deg, #1a56db 0%, #0891b2 100%);
+      background: var(--bg);
       display: flex; align-items: center; justify-content: center;
+      padding: 40px 24px; overflow: hidden;
     }
+    #login-overlay::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--hairline) 1px, transparent 1px),
+        linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+      background-size: 44px 44px; opacity: 0.5;
+      mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+      pointer-events: none;
+    }
+    .login-side {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font-family: 'Inter Tight', sans-serif; font-weight: 900;
+      letter-spacing: -0.05em; line-height: 0.9; font-size: 180px;
+      color: var(--cobalt-tint); z-index: 0; user-select: none; pointer-events: none;
+    }
+    .login-side.l { left: -30px; }
+    .login-side.r { right: -30px; color: var(--amber-tint); }
     .login-card {
-      background: #fff; border-radius: 16px; padding: 40px;
-      width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,.25);
-      display: flex; flex-direction: column; gap: 20px;
+      background: var(--surface); width: 100%; max-width: 440px;
+      padding: 40px 40px 32px; border: 1px solid var(--hairline);
+      border-top: 4px solid var(--cobalt); position: relative; z-index: 2;
+      box-shadow: 0 20px 60px rgba(29, 45, 107, 0.08);
+      display: flex; flex-direction: column; gap: 10px;
+      border-radius: 0;
     }
-    .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
-    .login-logo-icon {
-      width: 44px; height: 44px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px;
+    .login-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px; }
+    .login-title {
+      font-family: 'Inter Tight', sans-serif; font-size: 26px; font-weight: 800;
+      letter-spacing: -0.028em; color: var(--ink); line-height: 1.05;
     }
-    .login-title { font-size: 20px; font-weight: 800; color: var(--gray-900); }
-    .login-sub { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
-    .login-label { font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 5px; display: block; }
+    .login-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--cobalt);
+      text-transform: uppercase; letter-spacing: 0.16em; font-weight: 700;
+      margin-top: 8px;
+    }
+    .login-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink);
+      text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700;
+      margin-bottom: 6px; display: block;
+    }
     .login-input {
-      width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-300);
-      border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box;
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid var(--hairline-strong);
+      background: var(--surface); color: var(--ink);
+      font-family: 'Inter', sans-serif; font-size: 15px !important; font-weight: 500;
+      border-radius: 3px; outline: none; box-sizing: border-box;
       transition: border-color .15s;
     }
-    .login-input:focus { border-color: var(--primary); }
+    .login-input:focus { border-color: var(--cobalt); }
     .login-btn-primary {
-      width: 100%; padding: 12px; background: var(--primary); color: #fff;
-      border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
-      cursor: pointer; transition: background .15s;
+      width: 100%; padding: 14px; background: var(--cobalt); color: #fff;
+      border: none; border-radius: 3px; font-size: 14px; font-weight: 700;
+      letter-spacing: 0.02em; cursor: pointer; transition: background .15s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
     }
-    .login-btn-primary:hover { background: var(--primary-dark); }
-    .login-btn-primary:disabled { background: var(--gray-300); cursor: not-allowed; }
-    .login-toggle { font-size: 13px; color: var(--gray-500); text-align: center; }
-    .login-toggle a { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: none; }
-    .login-toggle a:hover { text-decoration: underline; }
-    .login-error { background: #fee2e2; color: #b91c1c; border-radius: 8px; padding: 10px 14px; font-size: 13px; display: none; }
-    .login-success { background: var(--success-light); color: var(--success); border-radius: 8px; padding: 10px 14px; font-size: 13px; display: none; }
+    .login-btn-primary:hover { background: var(--cobalt-dark); }
+    .login-btn-primary::after { content: "→"; font-weight: 800; }
+    .login-btn-primary:disabled { background: var(--hairline-strong); cursor: not-allowed; }
+    .login-btn-primary:disabled::after { content: ""; }
+    .login-toggle {
+      font-size: 13px; color: var(--gray); text-align: center; margin-top: 16px;
+    }
+    .login-toggle a {
+      color: var(--cobalt); font-weight: 700; cursor: pointer;
+      border-bottom: 1.5px solid currentColor; text-decoration: none;
+    }
+    .login-error, .login-success {
+      border-radius: 3px; padding: 10px 14px; font-size: 13px;
+      font-family: 'JetBrains Mono', monospace; font-weight: 600; display: none;
+      letter-spacing: 0.02em;
+    }
+    .login-error { background: var(--scarlet-tint); color: var(--scarlet); border-left: 3px solid var(--scarlet); }
+    .login-success { background: var(--forest-tint); color: var(--forest); border-left: 3px solid var(--forest); }
 
-    /* User pill in header */
+    /* ─────────────── USER PILL ─────────────── */
     .user-pill {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--gray-100); border-radius: 20px; padding: 4px 12px 4px 6px;
-      font-size: 13px; color: var(--gray-700);
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--ink); font-weight: 600;
     }
     .user-avatar {
-      width: 26px; height: 26px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 700;
+      width: 30px; height: 30px; background: var(--cobalt); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; border-radius: 3px;
     }
     .logout-btn {
-      background: none; border: none; cursor: pointer; font-size: 12px;
-      color: var(--gray-400); padding: 0 0 0 6px; transition: color .15s;
+      background: none; border: none; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--gray);
+      text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;
+      border-bottom: 1px solid transparent; padding: 0 0 1px 10px; transition: all .15s;
     }
-    .logout-btn:hover { color: var(--danger); }
+    .logout-btn:hover { color: var(--scarlet); border-bottom-color: var(--scarlet); }
 
-    /* ── HEADER ── */
+    /* ─────────────── HEADER ─────────────── */
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: var(--header-h); background: #fff; border-bottom: 1px solid var(--gray-200);
-      display: flex; align-items: center; padding: 0 24px; gap: 16px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      height: var(--header-h); background: var(--surface);
+      border-bottom: 1px solid var(--hairline);
+      display: flex; align-items: center; padding: 0 28px; gap: 16px;
     }
-    .header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .header-logo .logo-icon {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px;
+    .brand {
+      display: flex; align-items: center; gap: 13px;
+      text-decoration: none; color: inherit; cursor: pointer;
     }
-    .header-logo .logo-text { font-size: 16px; font-weight: 700; color: var(--gray-900); line-height: 1.1; }
-    .header-logo .logo-sub { font-size: 11px; color: var(--gray-500); font-weight: 400; }
-    .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-    .header-badge {
-      background: var(--primary-light); color: var(--primary);
-      padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #c7d7f8;
+    .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+    .brand-name { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+    .brand-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--gray); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.12em; margin-top: 3px;
     }
-    .overall-progress-mini { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600); }
-    .bar-mini { width: 120px; height: 6px; background: var(--gray-200); border-radius: 99px; overflow: hidden; }
-    .bar-mini-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width .5s; }
+    .module-tag {
+      margin-left: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; color: #fff; background: var(--cobalt);
+      padding: 6px 11px 5px; text-transform: uppercase; letter-spacing: 0.12em;
+      border-radius: 3px; line-height: 1;
+      display: inline-flex; align-items: center; gap: 7px;
+      border: none; cursor: default;
+    }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+    .progress-mini, .overall-progress-mini {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gray);
+      font-variant-numeric: tabular-nums; font-weight: 600;
+    }
+    .progress-mini-label {
+      text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; font-weight: 500;
+    }
+    #header-pct { color: var(--ink); font-weight: 800; font-size: 12px; }
+    .bar-mini {
+      width: 96px; height: 3px; background: var(--hairline); position: relative;
+      border-radius: 2px; overflow: hidden;
+    }
+    .bar-mini-fill { height: 100%; background: var(--cobalt); transition: width .5s ease; }
 
-    /* ── LAYOUT ── */
+    /* ─────────────── LAYOUT ─────────────── */
     .layout { display: flex; margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); }
 
-    /* ── SIDEBAR ── */
+    /* ─────────────── SIDEBAR ─────────────── */
     .sidebar {
-      width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--gray-200);
-      position: fixed; top: var(--header-h); bottom: 0; left: 0; overflow-y: auto;
-      padding: 16px 12px; display: flex; flex-direction: column; gap: 4px;
+      width: var(--sidebar-w); background: var(--surface);
+      border-right: 1px solid var(--hairline);
+      position: fixed; top: var(--header-h); bottom: 0; left: 0;
+      overflow-y: auto; padding: 20px 14px 16px;
+      display: flex; flex-direction: column; gap: 1px;
     }
-    .sidebar-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-400); padding: 8px 8px 4px; margin-top: 8px; }
+    .sidebar-section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.14em; color: var(--gray-soft);
+      padding: 16px 12px 8px; margin-top: 8px;
+    }
+    .sidebar-section-title:first-child { margin-top: 0; padding-top: 4px; }
+
     .nav-item {
-      display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px;
-      cursor: pointer; font-size: 14px; font-weight: 500; color: var(--gray-600);
-      transition: all .15s; user-select: none; border: none; background: none; width: 100%; text-align: left;
+      display: flex; align-items: center; gap: 11px;
+      padding: 10px 10px 10px 12px; font-size: 14px;
+      color: var(--ink-soft); cursor: pointer;
+      border-left: 2.5px solid transparent; transition: background .12s, color .12s;
+      user-select: none; background: none; width: 100%; text-align: left;
+      font-weight: 500; letter-spacing: -0.005em;
+      border-top: none; border-right: none; border-bottom: none;
+      border-radius: 0;
     }
-    .nav-item:hover { background: var(--gray-100); color: var(--gray-900); }
-    .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
-    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-    .nav-badge { margin-left: auto; background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 20px; text-align: center; }
+    .nav-item:hover { background: var(--cobalt-tint); color: var(--ink); }
+    .nav-item.active {
+      background: var(--cobalt-tint); color: var(--cobalt);
+      border-left-color: var(--cobalt); font-weight: 700;
+    }
+    .nav-icon {
+      width: 16px; height: 16px; flex-shrink: 0; display: inline-flex;
+      align-items: center; justify-content: center; color: currentColor;
+    }
+    .nav-icon svg {
+      width: 16px; height: 16px; stroke: currentColor; fill: none;
+      stroke-width: 1.7; stroke-linecap: square; stroke-linejoin: miter;
+    }
+    .nav-item.active .nav-icon svg { stroke-width: 2; }
+    .nav-badge {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gray);
+      letter-spacing: 0.04em; font-weight: 700; font-variant-numeric: tabular-nums;
+      background: none; padding: 0; min-width: auto;
+    }
+    .nav-item.active .nav-badge { color: var(--cobalt); }
 
-    /* ── MAIN ── */
-    .main { margin-left: var(--sidebar-w); flex: 1; padding: 28px 32px; max-width: 1200px; }
+    .sidebar-footer {
+      margin-top: auto; padding: 14px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; line-height: 1.7;
+      border-top: 1px solid var(--hairline);
+      color: var(--gray); letter-spacing: 0.04em; font-weight: 500;
+    }
+    .sidebar-footer .dot { color: var(--forest); font-size: 11px; }
+    .sidebar-footer .status { color: var(--ink); font-weight: 700; display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: 0.08em; }
 
-    /* ── TABS/SECTIONS ── */
+    /* ─────────────── MAIN ─────────────── */
+    .main {
+      margin-left: var(--sidebar-w); flex: 1;
+      padding: 44px 52px 72px; max-width: 1320px;
+    }
+
     .section { display: none; }
-    .section.active { display: block; }
+    .section.active { display: block; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-    /* ── PAGE TITLE ── */
-    .page-title { font-size: 22px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
-    .page-subtitle { font-size: 14px; color: var(--gray-500); margin-bottom: 24px; }
+    /* ─────────────── PAGE HEADERS ─────────────── */
+    .page-kicker {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.2em; color: var(--cobalt);
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .page-kicker::before { content: ""; width: 22px; height: 2px; background: var(--cobalt); }
+    .page-title {
+      font-family: 'Inter Tight', 'Inter', sans-serif;
+      font-size: 42px; font-weight: 800; letter-spacing: -0.032em;
+      color: var(--ink); line-height: 1.02; margin: 4px 0 0;
+    }
+    .page-title .accent { color: var(--cobalt); }
+    .page-subtitle {
+      margin-top: 14px; margin-bottom: 28px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gray); letter-spacing: 0.04em; font-weight: 500;
+    }
+    .page-subtitle .sep { color: var(--hairline-strong); margin: 0 10px; }
 
-    /* ── CARDS ── */
+    /* ─────────────── CARDS / PANELS ─────────────── */
     .card {
-      background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
-      border: 1px solid var(--gray-200); padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: 0;
+      padding: 22px 24px;
+      box-shadow: none;
     }
-    .card-title { font-size: 15px; font-weight: 700; color: var(--gray-800); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .card-title {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink);
+      font-weight: 700; padding-bottom: 16px; margin-bottom: 18px;
+      border-bottom: 1px solid var(--hairline);
+      display: flex; align-items: center; gap: 10px;
+    }
 
-    /* ── GRID ── */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 
-    /* ── PROGRESS BAR ── */
-    .prog-bar { height: 8px; background: var(--gray-200); border-radius: 99px; overflow: hidden; margin-top: 6px; }
-    .prog-fill { height: 100%; border-radius: 99px; transition: width .6s ease; }
-    .prog-fill.blue  { background: linear-gradient(90deg, var(--primary), #3b82f6); }
-    .prog-fill.green { background: linear-gradient(90deg, var(--success), #10b981); }
-    .prog-fill.amber { background: linear-gradient(90deg, var(--warning), #f59e0b); }
-    .prog-fill.teal  { background: linear-gradient(90deg, var(--accent), #06b6d4); }
-    .prog-fill.purple{ background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+    /* ─────────────── STAT CARDS ─────────────── */
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--hairline);
+      border-top: 4px solid var(--cobalt);
+      padding: 20px 22px 20px;
+      display: flex; flex-direction: column;
+      transition: transform .15s, box-shadow .15s;
+      border-radius: 0;
+    }
+    .stat-card:hover { transform: translateY(-1px); box-shadow: 0 2px 0 var(--hairline-strong); }
+    /* Module-colored variants: first-of-type is dashboard ordering */
+    .grid-4 > .stat-card:nth-child(1) { border-top-color: var(--forest); }
+    .grid-4 > .stat-card:nth-child(2) { border-top-color: var(--cobalt); }
+    .grid-4 > .stat-card:nth-child(3) { border-top-color: var(--amber); }
+    .grid-4 > .stat-card:nth-child(4) { border-top-color: var(--plum); }
+    .stat-card .stat-icon { display: none; }
+    .stat-card > div { display: flex; flex-direction: column; gap: 10px; }
+    .stat-num {
+      font-family: 'Inter Tight', 'Inter', sans-serif;
+      font-size: 52px; font-weight: 900; letter-spacing: -0.045em;
+      line-height: 0.95; font-variant-numeric: tabular-nums;
+      order: 2;
+    }
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--ink-soft); font-weight: 600; order: 1;
+    }
+    .stat-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gray); letter-spacing: 0.03em; font-weight: 500;
+      order: 3; margin-top: 4px;
+    }
 
-    /* ── STAT CARD ── */
-    .stat-card { display: flex; flex-direction: column; gap: 8px; }
-    .stat-num { font-size: 32px; font-weight: 800; line-height: 1; }
-    .stat-label { font-size: 13px; color: var(--gray-500); }
-    .stat-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
-    .stat-icon { font-size: 28px; }
+    /* ─────────────── PROGRESS BARS (area bars) ─────────────── */
+    .prog-bar {
+      height: 6px; background: var(--hairline);
+      border-radius: 2px; overflow: hidden; margin-top: 8px;
+    }
+    .prog-fill { height: 100%; transition: width .6s ease; border-radius: 2px; }
+    .prog-fill.blue   { background: var(--cobalt); }
+    .prog-fill.green  { background: var(--forest); }
+    .prog-fill.amber  { background: var(--amber); }
+    .prog-fill.teal   { background: var(--teal-ink); }
+    .prog-fill.purple { background: var(--plum); }
 
-    /* ── TOPIC SECTIONS ── */
-    .topic-group { margin-bottom: 20px; }
+    /* ─────────────── RING ─────────────── */
+    .ring-container { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ring-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+      color: var(--ink); text-align: center;
+      text-transform: uppercase; letter-spacing: 0.16em;
+    }
+    svg.ring { transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: var(--hairline); }
+    .ring-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset .8s ease; }
+
+    /* ─────────────── TOPIC GROUPS ─────────────── */
+    .topic-group {
+      border: 1px solid var(--hairline); background: var(--surface);
+      margin-bottom: 12px; border-radius: 0;
+    }
     .topic-group-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; background: #fff; border: 1px solid var(--gray-200);
-      border-radius: var(--radius); cursor: pointer; user-select: none;
-      transition: all .15s;
+      padding: 16px 20px; display: flex; align-items: center;
+      justify-content: space-between; cursor: pointer;
+      border-left: 4px solid var(--cobalt); transition: background .12s;
+      border-radius: 0;
     }
-    .topic-group-header:hover { background: var(--gray-50); }
-    .topic-group-header.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; }
-    .topic-group-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: var(--gray-800); }
-    .topic-group-emoji { font-size: 18px; }
-    .topic-group-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-500); }
-    .topic-group-prog { font-weight: 700; color: var(--primary); }
-    .chevron { font-size: 12px; transition: transform .2s; }
-    .chevron.open { transform: rotate(90deg); }
+    .topic-group-header:hover { background: var(--cobalt-tint); }
+    .topic-group-header.open { border-bottom: 1px solid var(--hairline); }
+    .topic-group-title {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Inter Tight', sans-serif; font-weight: 800; font-size: 18px;
+      color: var(--ink); letter-spacing: -0.018em;
+    }
+    .topic-group-emoji { display: none; }
+    .topic-group-meta {
+      display: flex; align-items: center; gap: 14px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gray); font-weight: 600; letter-spacing: 0.04em;
+    }
+    .topic-group-prog {
+      font-family: 'JetBrains Mono', monospace; font-weight: 800;
+      color: var(--cobalt); letter-spacing: -0.01em; font-size: 13px;
+    }
+    .chevron {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--gray); transition: transform .2s;
+      font-weight: 700; font-size: 12px;
+    }
+    .chevron.open { transform: rotate(90deg); color: var(--ink); }
+
     .topic-list {
-      border: 1px solid var(--gray-200); border-top: none;
-      border-bottom-left-radius: var(--radius); border-bottom-right-radius: var(--radius);
-      overflow: hidden; display: none;
+      border: 1px solid var(--hairline); border-top: none;
+      overflow: hidden; display: none; background: var(--surface);
+      border-radius: 0;
     }
     .topic-list.open { display: block; }
     .topic-item {
-      display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px;
-      border-bottom: 1px solid var(--gray-100); background: #fff; transition: background .1s;
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 13px 20px 13px 40px;
+      border-bottom: 1px solid var(--hairline);
+      background: var(--surface); transition: background .1s;
     }
     .topic-item:last-child { border-bottom: none; }
-    .topic-item:hover { background: var(--gray-50); }
-    .topic-check { margin-top: 2px; width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; }
+    .topic-item:hover { background: var(--bg); }
+    .topic-check {
+      margin-top: 2px; width: 18px; height: 18px; cursor: pointer;
+      accent-color: var(--cobalt); flex-shrink: 0;
+    }
     .topic-content { flex: 1; }
-    .topic-name { font-size: 14px; font-weight: 500; color: var(--gray-800); }
-    .topic-name.done { text-decoration: line-through; color: var(--gray-400); }
-    .topic-tags { display: flex; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
-    .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-    .tag-alta { background: var(--danger-light); color: var(--danger); }
-    .tag-media { background: var(--warning-light); color: var(--warning); }
-    .tag-baixa { background: var(--success-light); color: var(--success); }
-    .tag-prova { background: var(--primary-light); color: var(--primary); }
-    .tag-base { background: var(--gray-100); color: var(--gray-500); }
+    .topic-name {
+      font-size: 14px; font-weight: 500; color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .topic-name.done { text-decoration: line-through; color: var(--gray); }
+    .topic-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; padding: 3px 8px 2px;
+      border-radius: 3px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .tag-alta  { background: var(--scarlet-tint); color: var(--scarlet); }
+    .tag-media { background: var(--amber-tint);   color: var(--amber); }
+    .tag-baixa { background: var(--forest-tint);  color: var(--forest); }
+    .tag-prova { background: var(--cobalt-tint);  color: var(--cobalt); }
+    .tag-base  { background: #eeeff1;             color: var(--gray); }
     .topic-actions { display: flex; gap: 6px; align-items: center; margin-left: auto; }
-    .btn-icon { border: none; background: none; cursor: pointer; font-size: 16px; padding: 4px; border-radius: 4px; transition: background .1s; opacity: .6; }
-    .btn-icon:hover { background: var(--gray-200); opacity: 1; }
+    .btn-icon {
+      border: none; background: none; cursor: pointer;
+      font-size: 14px; padding: 4px 6px; border-radius: 3px;
+      transition: background .1s; opacity: .7; color: var(--gray);
+    }
+    .btn-icon:hover { background: var(--hairline); opacity: 1; color: var(--ink); }
 
-    /* ── PROGRESS RING ── */
-    .ring-container { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .ring-label { font-size: 12px; font-weight: 600; color: var(--gray-600); text-align: center; }
-    svg.ring { transform: rotate(-90deg); }
-    .ring-bg { fill: none; stroke: var(--gray-200); }
-    .ring-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset .8s ease; }
-
-    /* ── SCHEDULE ── */
+    /* ─────────────── SCHEDULE (cronograma) ─────────────── */
     .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
     .day-col { display: flex; flex-direction: column; gap: 6px; }
-    .day-header { text-align: center; font-size: 12px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; padding-bottom: 6px; border-bottom: 2px solid var(--gray-200); }
-    .day-header.today { color: var(--primary); border-bottom-color: var(--primary); }
+    .day-header {
+      text-align: center; padding-bottom: 8px;
+      border-bottom: 2px solid var(--hairline);
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; color: var(--gray);
+      text-transform: uppercase; letter-spacing: 0.12em;
+    }
+    .day-header.today { color: var(--cobalt); border-bottom-color: var(--cobalt); }
     .session-card {
-      padding: 8px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; border: none;
-      text-align: left; transition: all .15s; line-height: 1.3;
+      padding: 10px 12px; border-radius: 0; font-size: 12px;
+      cursor: pointer; border: none; text-align: left;
+      transition: filter .15s; line-height: 1.35; font-weight: 600;
+      border-left: 3px solid currentColor;
     }
     .session-card:hover { filter: brightness(.95); }
     .session-add {
-      padding: 8px; border-radius: 8px; border: 2px dashed var(--gray-300);
-      background: none; font-size: 12px; color: var(--gray-400); cursor: pointer; width: 100%; transition: all .15s;
+      padding: 10px; border-radius: 0;
+      border: 1.5px dashed var(--hairline-strong);
+      background: none; font-size: 12px; color: var(--gray);
+      cursor: pointer; width: 100%; transition: all .15s;
+      font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+      letter-spacing: 0.08em; font-weight: 600;
     }
-    .session-add:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-    .sc-blue   { background: var(--primary-light); color: var(--primary-dark); }
-    .sc-green  { background: var(--success-light); color: #065f46; }
-    .sc-amber  { background: var(--warning-light); color: #92400e; }
-    .sc-teal   { background: var(--accent-light); color: #0c4a6e; }
-    .sc-purple { background: #ede9fe; color: #4c1d95; }
+    .session-add:hover {
+      border-color: var(--cobalt); color: var(--cobalt); background: var(--cobalt-tint);
+    }
+    .sc-blue   { background: var(--cobalt-tint);     color: var(--cobalt); }
+    .sc-green  { background: var(--forest-tint);     color: var(--forest); }
+    .sc-amber  { background: var(--amber-tint);      color: var(--amber); }
+    .sc-teal   { background: rgba(15,110,106,0.10);  color: var(--teal-ink); }
+    .sc-purple { background: var(--plum-tint);       color: var(--plum); }
 
-    /* ── NOTES ── */
-    .notes-sidebar { min-width: 220px; max-width: 220px; }
+    /* ─────────────── NOTES ─────────────── */
     .notes-layout { display: flex; gap: 20px; }
+    .notes-sidebar { min-width: 220px; max-width: 220px; }
     .note-list-item {
-      padding: 10px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--gray-200);
-      margin-bottom: 6px; background: #fff; transition: all .15s;
+      padding: 12px 14px; border: 1px solid var(--hairline);
+      margin-bottom: 8px; background: var(--surface); cursor: pointer;
+      transition: all .15s; border-left: 3px solid transparent;
+      border-radius: 0;
     }
-    .note-list-item:hover, .note-list-item.active { background: var(--primary-light); border-color: #c7d7f8; }
-    .note-list-title { font-size: 13px; font-weight: 600; color: var(--gray-800); }
-    .note-list-date { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+    .note-list-item:hover { background: var(--bg); border-left-color: var(--cobalt); }
+    .note-list-item.active {
+      background: var(--cobalt-tint); border-color: var(--cobalt);
+      border-left: 3px solid var(--cobalt);
+    }
+    .note-list-title { font-size: 13px; font-weight: 700; color: var(--ink); }
+    .note-list-date {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--gray); margin-top: 3px; letter-spacing: 0.04em; font-weight: 600;
+    }
     .notes-editor { flex: 1; display: flex; flex-direction: column; gap: 12px; }
     .note-title-input {
-      width: 100%; border: 1px solid var(--gray-300); border-radius: 8px;
-      padding: 10px 14px; font-size: 16px; font-weight: 700; outline: none; transition: border .15s;
+      width: 100%; border: 1.5px solid var(--hairline-strong);
+      padding: 12px 14px; font-size: 18px !important; font-weight: 800;
+      color: var(--ink); outline: none; transition: border .15s;
+      font-family: 'Inter Tight', sans-serif; letter-spacing: -0.02em;
+      border-radius: 0; background: var(--surface);
     }
-    .note-title-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px #dbeafe; }
+    .note-title-input:focus { border-color: var(--cobalt); }
     .note-body-input {
-      width: 100%; border: 1px solid var(--gray-300); border-radius: 8px;
-      padding: 14px; font-size: 14px; outline: none; resize: vertical; min-height: 320px;
-      font-family: inherit; line-height: 1.7; transition: border .15s;
+      width: 100%; border: 1.5px solid var(--hairline-strong);
+      padding: 16px; font-size: 14px !important; outline: none;
+      resize: vertical; min-height: 320px;
+      font-family: 'Inter', sans-serif; line-height: 1.75;
+      transition: border .15s; color: var(--ink-soft);
+      border-radius: 0; background: var(--surface);
     }
-    .note-body-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px #dbeafe; }
+    .note-body-input:focus { border-color: var(--cobalt); }
     .note-topic-select {
-      border: 1px solid var(--gray-300); border-radius: 8px; padding: 8px 12px;
-      font-size: 13px; outline: none; background: #fff; color: var(--gray-700); cursor: pointer;
+      border: 1.5px solid var(--hairline-strong);
+      padding: 9px 12px; font-size: 13px !important;
+      outline: none; background: var(--surface);
+      color: var(--ink); cursor: pointer; font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      border-radius: 3px;
     }
-    .note-topic-select:focus { border-color: var(--primary); }
+    .note-topic-select:focus { border-color: var(--cobalt); }
 
-    /* ── QUESTÕES ── */
-    .q-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    /* ─────────────── FORMS ─────────────── */
+    .q-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group.full { grid-column: 1 / -1; }
-    label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
-    input[type="text"], textarea, select {
-      border: 1px solid var(--gray-300); border-radius: 8px; padding: 9px 12px;
-      font-size: 14px; outline: none; font-family: inherit; transition: border .15s; color: var(--gray-800);
+    label {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; color: var(--ink);
+      text-transform: uppercase; letter-spacing: 0.14em;
     }
-    input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px #dbeafe; }
-    .btn {
-      padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px;
-      font-weight: 600; transition: all .15s; display: inline-flex; align-items: center; gap: 6px;
+    input[type="text"], input[type="email"], input[type="password"],
+    input[type="date"], textarea, select {
+      border: 1.5px solid var(--hairline-strong);
+      padding: 10px 13px; font-size: 14px !important;
+      outline: none; font-family: 'Inter', sans-serif;
+      transition: border .15s; color: var(--ink);
+      background: var(--surface); border-radius: 3px; font-weight: 500;
     }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-success { background: var(--success); color: #fff; }
-    .btn-success:hover { background: #047857; }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .btn-danger:hover { background: #b91c1c; }
-    .btn-ghost { background: var(--gray-100); color: var(--gray-700); }
-    .btn-ghost:hover { background: var(--gray-200); }
-    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus,
+    input[type="date"]:focus, textarea:focus, select:focus {
+      border-color: var(--cobalt); box-shadow: 0 0 0 3px var(--cobalt-tint);
+    }
 
-    .q-card {
-      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
-      padding: 14px 16px; margin-bottom: 10px; transition: box-shadow .15s;
+    /* ─────────────── BUTTONS ─────────────── */
+    .btn {
+      padding: 10px 18px; border-radius: 3px; border: none; cursor: pointer;
+      font-size: 13px !important; font-weight: 700; letter-spacing: 0.01em;
+      transition: background .15s, transform .1s;
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Inter', sans-serif;
     }
-    .q-card:hover { box-shadow: var(--shadow-md); }
-    .q-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-    .q-text { font-size: 14px; color: var(--gray-800); line-height: 1.5; font-weight: 500; flex: 1; }
-    .q-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--cobalt); color: #fff; }
+    .btn-primary:hover { background: var(--cobalt-dark); }
+    .btn-success { background: var(--forest); color: #fff; }
+    .btn-success:hover { background: #245730; }
+    .btn-danger { background: var(--scarlet); color: #fff; }
+    .btn-danger:hover { background: #9a1d30; }
+    .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--hairline-strong); }
+    .btn-ghost:hover { background: var(--bg); border-color: var(--cobalt); color: var(--cobalt); }
+    .btn-sm { padding: 6px 14px; font-size: 12px !important; }
+
+    /* ─────────────── Q CARDS (questões banco) ─────────────── */
+    .q-card {
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 18px 22px; margin-bottom: 10px; transition: border-color .15s;
+      border-left: 3px solid transparent; border-radius: 0;
+    }
+    .q-card:hover { border-left-color: var(--cobalt); }
+    .q-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .q-text { font-size: 14.5px; color: var(--ink); line-height: 1.55; font-weight: 500; flex: 1; letter-spacing: -0.005em; }
+    .q-meta { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
     .q-result { display: flex; gap: 8px; margin-left: auto; align-items: center; }
     .q-result-btn {
-      padding: 5px 14px; border-radius: 20px; border: 2px solid; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s;
+      padding: 5px 14px; border-radius: 3px; border: 1.5px solid;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; cursor: pointer; transition: all .15s;
+      text-transform: uppercase; letter-spacing: 0.1em;
     }
-    .q-result-btn.correct { border-color: var(--success); color: var(--success); background: none; }
-    .q-result-btn.correct.active { background: var(--success); color: #fff; }
-    .q-result-btn.wrong { border-color: var(--danger); color: var(--danger); background: none; }
-    .q-result-btn.wrong.active { background: var(--danger); color: #fff; }
+    .q-result-btn.correct { border-color: var(--forest); color: var(--forest); background: none; }
+    .q-result-btn.correct.active { background: var(--forest); color: #fff; }
+    .q-result-btn.wrong { border-color: var(--scarlet); color: var(--scarlet); background: none; }
+    .q-result-btn.wrong.active { background: var(--scarlet); color: #fff; }
 
-    /* ── FILTER BAR ── */
-    .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+    /* ─────────────── FILTER + SEARCH ─────────────── */
+    .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 22px; flex-wrap: wrap; }
     .filter-chip {
-      padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--gray-300);
-      background: #fff; font-size: 13px; font-weight: 500; color: var(--gray-600); cursor: pointer; transition: all .15s;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 9px 14px; border-radius: 3px; cursor: pointer;
+      background: var(--surface); border: 1px solid var(--hairline-strong);
+      color: var(--ink); transition: all .15s;
     }
-    .filter-chip.active, .filter-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .filter-chip:hover { border-color: var(--cobalt); color: var(--cobalt); }
+    .filter-chip.active {
+      background: var(--ink); border-color: var(--ink); color: #fff;
+    }
+    .search-input {
+      border: 1.5px solid var(--hairline-strong);
+      padding: 10px 14px 10px 36px; font-size: 14px !important;
+      outline: none; width: 280px; background: var(--surface)
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236e7278' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E")
+        12px center/16px no-repeat;
+      color: var(--ink); border-radius: 3px; font-weight: 500;
+    }
+    .search-input:focus { border-color: var(--cobalt); }
+    .search-input::placeholder { color: var(--gray-soft); }
 
-    /* ── MODAL ── */
+    /* ─────────────── MODAL ─────────────── */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000;
-      display: flex; align-items: center; justify-content: center; padding: 20px;
-      display: none;
+      position: fixed; inset: 0; background: rgba(10,11,13,.55);
+      z-index: 1000; align-items: center; justify-content: center;
+      padding: 20px; display: none;
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: #fff; border-radius: 14px; padding: 28px; max-width: 480px; width: 100%;
+      background: var(--surface); border-radius: 0;
+      padding: 30px 32px; max-width: 480px; width: 100%;
+      border: 1px solid var(--hairline); border-top: 4px solid var(--cobalt);
       box-shadow: 0 20px 60px rgba(0,0,0,.2); animation: slideUp .2s ease;
     }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; color: var(--gray-900); }
-    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-
-    /* ── DIVIDER ── */
-    .divider { border: none; border-top: 1px solid var(--gray-200); margin: 20px 0; }
-
-    /* ── EMPTY STATE ── */
-    .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-400); }
-    .empty-state .emoji { font-size: 40px; margin-bottom: 10px; }
-    .empty-state p { font-size: 14px; }
-
-    /* ── SEARCH ── */
-    .search-input {
-      border: 1px solid var(--gray-300); border-radius: 8px; padding: 9px 14px 9px 36px;
-      font-size: 14px; outline: none; width: 260px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") 10px center/16px no-repeat;
+    @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-title {
+      font-family: 'Inter Tight', sans-serif; font-size: 22px; font-weight: 800;
+      letter-spacing: -0.025em; margin-bottom: 22px; color: var(--ink);
     }
-    .search-input:focus { border-color: var(--primary); }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
 
-    /* ── TOOLTIP ── */
-    [data-tip] { position: relative; }
-    [data-tip]:hover::after {
-      content: attr(data-tip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
-      background: var(--gray-800); color: #fff; font-size: 11px; padding: 4px 8px;
-      border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 99;
+    /* ─────────────── EMPTY STATE ─────────────── */
+    .empty-state {
+      text-align: center; padding: 60px 24px; color: var(--gray);
+      background: var(--surface); border: 1px solid var(--hairline);
+    }
+    .empty-state .emoji { display: none; }
+    .empty-state p {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+      color: var(--gray);
     }
 
-    /* ── MODO PROVA ── */
+    /* ─────────────── UPLOAD ZONE ─────────────── */
     .upload-zone {
-      border: 2.5px dashed var(--gray-300); border-radius: 14px; padding: 40px 20px;
-      text-align: center; cursor: pointer; transition: all .2s; background: #fff;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
+      border: 2px dashed var(--hairline-strong); padding: 48px 24px;
+      text-align: center; background: var(--surface); cursor: pointer;
+      transition: all .18s;
     }
-    .upload-zone:hover, .upload-zone.dragover { border-color: var(--primary); background: var(--primary-light); }
-    .upload-zone .uz-icon { font-size: 40px; margin-bottom: 10px; }
-    .upload-zone .uz-title { font-size: 16px; font-weight: 700; color: var(--gray-800); margin-bottom: 4px; }
-    .upload-zone .uz-sub { font-size: 13px; color: var(--gray-500); }
-    .upload-preview { width: 100%; max-height: 220px; object-fit: contain; border-radius: 10px; margin-top: 12px; border: 1px solid var(--gray-200); display: none; }
+    .upload-zone:hover, .upload-zone.drag-over, .upload-zone.dragover {
+      border-color: var(--cobalt); background: var(--cobalt-tint);
+    }
+    .upload-zone > div:nth-child(1) { display: none; }
+    .upload-zone > div:nth-child(2) {
+      font-family: 'Inter Tight', sans-serif !important;
+      font-size: 22px !important; font-weight: 800 !important;
+      letter-spacing: -0.02em !important; color: var(--ink) !important;
+      margin-bottom: 8px !important;
+    }
+    .upload-zone > div:nth-child(3) {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 11px !important; color: var(--gray) !important;
+      margin-bottom: 14px !important;
+      letter-spacing: 0.06em !important; text-transform: uppercase; font-weight: 600;
+    }
+    .upload-zone > div:nth-child(4) {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 10px !important; color: var(--gray-soft) !important;
+      letter-spacing: 0.08em !important; text-transform: uppercase; font-weight: 500;
+    }
 
-    .prova-or { text-align: center; font-size: 13px; color: var(--gray-400); margin: 16px 0; position: relative; }
-    .prova-or::before, .prova-or::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: var(--gray-200); }
+    .prova-or {
+      text-align: center; margin: 18px 0; position: relative;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--gray); letter-spacing: 0.14em; font-weight: 700; text-transform: uppercase;
+    }
+    .prova-or::before, .prova-or::after {
+      content: ''; position: absolute; top: 50%;
+      width: 42%; height: 1px; background: var(--hairline);
+    }
     .prova-or::before { left: 0; }
     .prova-or::after { right: 0; }
 
-    .prova-loading { text-align: center; padding: 48px 20px; }
-    .prova-loading .spinner { width: 48px; height: 48px; border: 4px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+    /* ─────────────── PROVA LOADING ─────────────── */
+    .prova-loading {
+      text-align: center; padding: 48px 20px;
+      background: var(--surface); border: 1px solid var(--hairline);
+    }
+    .prova-loading .spinner {
+      width: 44px; height: 44px; border: 3px solid var(--hairline);
+      border-top-color: var(--cobalt); border-radius: 50%;
+      animation: spin .8s linear infinite; margin: 0 auto 16px;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .prova-loading .load-msg { font-size: 15px; font-weight: 600; color: var(--gray-700); }
-    .prova-loading .load-sub { font-size: 13px; color: var(--gray-500); margin-top: 6px; }
+    .prova-loading .load-msg {
+      font-family: 'Inter Tight', sans-serif; font-size: 18px;
+      font-weight: 800; color: var(--ink); letter-spacing: -0.02em;
+    }
+    .prova-loading .load-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gray); margin-top: 6px; letter-spacing: 0.04em; font-weight: 500;
+    }
 
+    /* ─────────────── TOPICOS GRID (prova IA) ─────────────── */
     .topicos-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
     .topico-chip {
-      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
-      padding: 14px 16px; transition: box-shadow .15s, background .2s, border-color .2s;
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 16px 20px; transition: border-color .15s, background .2s;
+      border-left: 4px solid var(--gray-softer); border-radius: 0;
     }
-    .topico-chip:hover { box-shadow: var(--shadow-md); }
+    .topico-chip:hover { border-left-color: var(--cobalt); }
     .topico-chip.concluido {
-      background: #f0fdf4; border-color: #86efac;
+      background: var(--forest-tint); border-left-color: var(--forest);
     }
-    .topico-chip.concluido .chip-name { text-decoration: line-through; color: var(--gray-400); }
-
-    /* Prova progress bar */
-    .prova-progress-wrap {
-      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
-      padding: 16px 20px; margin-bottom: 20px;
-      display: flex; flex-direction: column; gap: 10px;
+    .topico-chip.concluido .chip-name,
+    .topico-chip.concluido .topico-chip-name {
+      text-decoration: line-through; color: var(--gray);
     }
-    .prova-progress-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .prova-progress-label { font-size: 14px; font-weight: 700; color: var(--gray-700); }
-    .prova-progress-pct { font-size: 22px; font-weight: 800; color: var(--success); }
-    .prova-progress-bar-bg { height: 10px; background: var(--gray-200); border-radius: 99px; overflow: hidden; }
-    .prova-progress-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #059669, #34d399); transition: width .5s ease; }
-    .prova-countdown-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--warning-light); color: var(--warning);
-      padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid #fde68a;
-    }
-    .prova-countdown-badge.urgente { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
-    .prova-countdown-badge.ok { background: var(--success-light); color: var(--success); border-color: #6ee7b7; }
-
-    /* ── MÓDULOS ── */
-    .modulos-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
-    .modulo-tab {
-      padding: 8px 20px; border-radius: 20px; border: 1.5px solid var(--gray-200);
-      background: #fff; font-size: 13px; font-weight: 600; color: var(--gray-600);
-      cursor: pointer; transition: all .15s;
-    }
-    .modulo-tab:hover { border-color: var(--primary); color: var(--primary); }
-    .modulo-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-
-    .modulo-content-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); margin-bottom: 24px; }
-    .modulo-content-tab {
-      padding: 10px 22px; font-size: 14px; font-weight: 600; color: var(--gray-500);
-      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s;
-    }
-    .modulo-content-tab:hover { color: var(--gray-800); }
-    .modulo-content-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-    /* Resumo */
-    .resumo-body { max-width: 800px; line-height: 1.8; color: var(--gray-800); }
-    .resumo-body h2 { font-size: 18px; font-weight: 800; color: var(--gray-900); margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--primary-light); }
-    .resumo-body h3 { font-size: 15px; font-weight: 700; color: var(--primary-dark); margin: 20px 0 8px; }
-    .resumo-body p { margin-bottom: 12px; font-size: 14px; }
-    .resumo-body ul, .resumo-body ol { padding-left: 20px; margin-bottom: 12px; }
-    .resumo-body li { font-size: 14px; margin-bottom: 4px; }
-    .resumo-body strong { color: var(--gray-900); }
-    .resumo-body table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
-    .resumo-body th { background: var(--primary); color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
-    .resumo-body td { padding: 7px 12px; border-bottom: 1px solid var(--gray-200); }
-    .resumo-body tr:nth-child(even) td { background: var(--gray-50); }
-    .resumo-body .alert-box { background: #fff8e1; border-left: 4px solid var(--warning); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
-    .resumo-body .tip-box { background: var(--success-light); border-left: 4px solid var(--success); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
-
-    /* Questões módulo */
-    .questao-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
-    .questao-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--primary); margin-bottom: 8px; }
-    .questao-enunciado { font-size: 14px; font-weight: 600; color: var(--gray-800); line-height: 1.6; margin-bottom: 16px; }
-    .questao-alternativas { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-    .questao-alt {
-      padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gray-200);
-      font-size: 13px; cursor: pointer; transition: all .15s; text-align: left; background: #fff;
-    }
-    .questao-alt:hover { border-color: var(--primary); background: var(--primary-light); }
-    .questao-alt.correta { border-color: var(--success); background: var(--success-light); color: #065f46; font-weight: 600; }
-    .questao-alt.errada { border-color: var(--danger); background: #fee2e2; color: #991b1b; }
-    .questao-comentario { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: 13px; line-height: 1.6; display: none; margin-top: 10px; }
-    .questao-comentario.visible { display: block; }
-
-    /* ── PROVAS LIST ── */
-    .provas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-top: 20px; }
-    .prova-card {
-      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
-      padding: 20px; cursor: pointer; transition: box-shadow .15s, border-color .15s;
-      position: relative;
-    }
-    .prova-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary); }
-    .prova-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
-    .prova-card-nome { font-size: 15px; font-weight: 700; color: var(--gray-900); flex: 1; }
-    .prova-card-data { font-size: 11px; color: var(--gray-500); margin-top: 3px; }
-    .prova-card-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
-    .prova-card-delete { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; font-size: 14px; color: var(--gray-300); opacity: 0; transition: opacity .15s; }
-    .prova-card:hover .prova-card-delete { opacity: 1; }
-    .prova-card-delete:hover { color: var(--danger); }
-    .prova-card-bar-bg { height: 6px; background: var(--gray-200); border-radius: 99px; overflow: hidden; margin: 10px 0 8px; }
-    .prova-card-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #059669, #34d399); transition: width .5s; }
-    .prova-card-footer { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--gray-500); }
-    .nova-prova-btn {
-      display: flex; align-items: center; gap: 8px; padding: 12px 20px;
-      background: var(--primary); color: #fff; border: none; border-radius: var(--radius);
-      font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s;
-    }
-    .nova-prova-btn:hover { background: var(--primary-dark); }
-    .nova-prova-form {
-      background: #fff; border: 1.5px solid var(--primary); border-radius: var(--radius);
-      padding: 20px; margin-top: 16px; display: none; flex-direction: column; gap: 12px;
-    }
-    .nova-prova-form.visible { display: flex; }
-    .nova-prova-form input {
-      padding: 10px 14px; border: 1.5px solid var(--gray-300); border-radius: 8px;
-      font-size: 14px; outline: none;
-    }
-    .nova-prova-form input:focus { border-color: var(--primary); }
-    .nova-prova-form-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .prova-detail-back {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: none; border: 1px solid var(--gray-200); border-radius: 8px;
-      padding: 6px 14px; font-size: 13px; color: var(--gray-600); cursor: pointer;
-      margin-bottom: 16px; transition: background .15s;
-    }
-    .prova-detail-back:hover { background: var(--gray-100); }
-    .prova-detail-nome { font-size: 22px; font-weight: 800; color: var(--gray-900); margin-bottom: 2px; }
-
-    /* Exam date card */
-    .prova-date-card {
-      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
-      padding: 14px 18px; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-    }
-    .prova-date-card label { font-size: 13px; font-weight: 600; color: var(--gray-700); white-space: nowrap; }
-    .prova-date-card input[type="date"] {
-      padding: 7px 12px; border: 1.5px solid var(--gray-300); border-radius: 8px;
-      font-size: 14px; color: var(--gray-800); outline: none; cursor: pointer;
-    }
-    .prova-date-card input[type="date"]:focus { border-color: var(--primary); }
-    #prova-countdown-inline { font-size: 13px; font-weight: 600; color: var(--gray-500); }
     .topico-chip-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .topico-chip-name { font-size: 14px; font-weight: 700; color: var(--gray-800); flex: 1; }
+    .topico-chip-name {
+      font-size: 14.5px; font-weight: 700; color: var(--ink);
+      flex: 1; letter-spacing: -0.005em;
+    }
     .topico-chip-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn-gerar {
-      padding: 5px 12px; border-radius: 20px; border: 1.5px solid; font-size: 12px;
-      font-weight: 600; cursor: pointer; transition: all .15s; background: #fff;
+      padding: 5px 11px; border-radius: 3px;
+      border: 1.5px solid; font-size: 10px !important;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      cursor: pointer; transition: all .15s; background: var(--surface);
     }
-    .btn-resumo { border-color: var(--primary); color: var(--primary); }
-    .btn-resumo:hover { background: var(--primary); color: #fff; }
-    .btn-flash { border-color: #f59e0b; color: #92400e; background: #fffbeb; }
-    .btn-flash:hover { background: #f59e0b; color: #fff; }
-    .btn-quest { border-color: var(--success); color: var(--success); }
-    .btn-quest:hover { background: var(--success); color: #fff; }
-    .topico-chip-status { font-size: 11px; color: var(--gray-400); margin-top: 6px; display: none; }
+    .btn-resumo { border-color: var(--cobalt); color: var(--cobalt); }
+    .btn-resumo:hover { background: var(--cobalt); color: #fff; }
+    .btn-flash { border-color: var(--amber); color: var(--amber); background: var(--amber-tint); }
+    .btn-flash:hover { background: var(--amber); color: #fff; }
+    .btn-quest { border-color: var(--forest); color: var(--forest); }
+    .btn-quest:hover { background: var(--forest); color: #fff; }
+    .topico-chip-status {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--gray); margin-top: 8px; display: none; letter-spacing: 0.04em;
+    }
 
-    /* Flashcard */
-    .flashcards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-    .flashcard-wrap { perspective: 1000px; height: 160px; cursor: pointer; }
+    /* ─────────────── PROVA PROGRESS WRAP ─────────────── */
+    .prova-progress-wrap {
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 20px 24px; margin-bottom: 20px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .prova-progress-top {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .prova-progress-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; color: var(--ink);
+      text-transform: uppercase; letter-spacing: 0.14em;
+    }
+    .prova-progress-pct {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 32px; font-weight: 900; color: var(--cobalt);
+      letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .prova-progress-bar-bg {
+      height: 10px; background: var(--hairline);
+      border-radius: 3px; overflow: hidden;
+    }
+    .prova-progress-bar-fill {
+      height: 100%; background: var(--cobalt); transition: width .5s ease;
+    }
+    .prova-countdown-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--amber-tint); color: var(--amber);
+      padding: 5px 11px 4px; border-radius: 3px; font-size: 10px !important;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .prova-countdown-badge.urgente { background: var(--scarlet-tint); color: var(--scarlet); }
+    .prova-countdown-badge.ok { background: var(--forest-tint); color: var(--forest); }
+
+    /* ─────────────── PROVAS LIST ─────────────── */
+    .provas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-top: 20px; }
+    .prova-card {
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 22px 24px; cursor: pointer;
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+      position: relative; border-left: 4px solid var(--cobalt);
+      border-radius: 0;
+    }
+    .prova-card:hover {
+      transform: translateY(-1px); box-shadow: 0 2px 0 var(--hairline-strong);
+      border-color: var(--cobalt);
+    }
+    .prova-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 8px; margin-bottom: 12px;
+    }
+    .prova-card-nome {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 22px; font-weight: 800; color: var(--ink);
+      flex: 1; letter-spacing: -0.022em; line-height: 1.1;
+    }
+    .prova-card-data {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gray); margin-top: 6px; letter-spacing: 0.04em; font-weight: 600;
+    }
+    .prova-card-badge {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; padding: 4px 10px 3px; border-radius: 3px;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      white-space: nowrap; flex-shrink: 0;
+      background: var(--amber-tint); color: var(--amber);
+    }
+    .prova-card-badge.urgente { background: var(--scarlet-tint); color: var(--scarlet); }
+    .prova-card-badge.ok { background: var(--forest-tint); color: var(--forest); }
+    .prova-card-delete {
+      position: absolute; top: 12px; right: 12px;
+      background: none; border: none; cursor: pointer;
+      font-size: 13px; color: var(--gray-softer);
+      opacity: 0; transition: opacity .15s;
+    }
+    .prova-card:hover .prova-card-delete { opacity: 1; }
+    .prova-card-delete:hover { color: var(--scarlet); }
+    .prova-card-bar-bg {
+      height: 6px; background: var(--hairline);
+      border-radius: 2px; overflow: hidden;
+      margin: 14px 0 8px;
+    }
+    .prova-card-bar-fill {
+      height: 100%; background: var(--cobalt); transition: width .5s;
+    }
+    .prova-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gray); letter-spacing: 0.04em; font-weight: 600;
+    }
+    .nova-prova-btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px;
+      background: var(--cobalt); color: #fff; border: none; border-radius: 3px;
+      font-family: 'Inter', sans-serif; font-size: 13px !important; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.01em; transition: background .15s;
+    }
+    .nova-prova-btn:hover { background: var(--cobalt-dark); }
+    .nova-prova-form {
+      background: var(--surface); border: 1px solid var(--hairline);
+      border-top: 4px solid var(--cobalt);
+      padding: 22px; margin-top: 16px;
+      display: none; flex-direction: column; gap: 14px;
+    }
+    .nova-prova-form.visible { display: flex; }
+    .nova-prova-form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .prova-detail-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface); border: 1px solid var(--hairline-strong);
+      border-radius: 3px; padding: 8px 14px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gray); cursor: pointer; margin-bottom: 18px;
+      transition: all .15s; text-transform: uppercase;
+      letter-spacing: 0.08em; font-weight: 700;
+    }
+    .prova-detail-back:hover {
+      background: var(--cobalt); color: #fff; border-color: var(--cobalt);
+    }
+    .prova-detail-nome {
+      font-family: 'Inter Tight', sans-serif; font-size: 40px;
+      font-weight: 800; color: var(--ink); margin-bottom: 8px;
+      letter-spacing: -0.032em; line-height: 1.02;
+    }
+
+    /* Prova date card */
+    .prova-date-card {
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 14px 18px; margin-bottom: 18px;
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .prova-date-card label {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; color: var(--ink);
+      text-transform: uppercase; letter-spacing: 0.14em; white-space: nowrap;
+    }
+    .prova-date-card input[type="date"] {
+      padding: 8px 12px; border: 1.5px solid var(--hairline-strong);
+      border-radius: 3px; font-size: 14px !important; color: var(--ink);
+      outline: none; cursor: pointer; font-family: 'JetBrains Mono', monospace;
+      font-weight: 600; background: var(--surface);
+    }
+    .prova-date-card input[type="date"]:focus { border-color: var(--cobalt); }
+    #prova-countdown-inline {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      font-weight: 700; color: var(--gray);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─────────────── MÓDULOS TABS ─────────────── */
+    .modulos-tabs {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      margin-bottom: 28px; border: 1px solid var(--hairline);
+      background: var(--surface);
+    }
+    .modulo-tab {
+      padding: 18px 20px 16px; border: none;
+      border-right: 1px solid var(--hairline);
+      background: var(--surface); cursor: pointer;
+      transition: background .15s; position: relative;
+      border-top: 4px solid transparent;
+      display: flex; flex-direction: column; gap: 6px;
+      text-align: left; font-family: inherit;
+    }
+    .modulo-tab:last-child { border-right: none; }
+    .modulo-tab:hover { background: var(--cobalt-tint); }
+    .modulo-tab span.mod-name {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 18px; font-weight: 800; letter-spacing: -0.022em;
+      color: var(--ink-soft);
+    }
+    .modulo-tab span.mod-count {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--gray); text-transform: uppercase;
+      letter-spacing: 0.1em; font-weight: 600;
+    }
+    .modulo-tab.active {
+      border-top-color: var(--cobalt);
+      background: var(--cobalt-tint);
+    }
+    .modulo-tab.active span.mod-name { color: var(--cobalt); }
+    /* Module-specific tint variants by data attribute */
+    .modulo-tab[data-mod="avc"].active        { border-top-color: var(--cobalt);      background: var(--cobalt-tint); }
+    .modulo-tab[data-mod="avc"].active span.mod-name { color: var(--cobalt); }
+    .modulo-tab[data-mod="cefaleia"].active   { border-top-color: var(--amber);       background: var(--amber-tint); }
+    .modulo-tab[data-mod="cefaleia"].active span.mod-name { color: var(--amber); }
+    .modulo-tab[data-mod="demencia"].active   { border-top-color: var(--terracotta);  background: var(--terracotta-tint); }
+    .modulo-tab[data-mod="demencia"].active span.mod-name { color: var(--terracotta); }
+    .modulo-tab[data-mod="epilepsia"].active  { border-top-color: var(--plum);        background: var(--plum-tint); }
+    .modulo-tab[data-mod="epilepsia"].active span.mod-name { color: var(--plum); }
+
+    /* Content tabs */
+    .modulo-content-tabs {
+      display: flex; gap: 28px; margin-bottom: 24px;
+      border-bottom: 1px solid var(--hairline); padding: 0 4px;
+    }
+    .modulo-content-tab {
+      padding: 12px 4px 14px; background: none; border: none;
+      border-bottom: 2.5px solid transparent; margin-bottom: -1px;
+      font-family: 'Inter', sans-serif; font-size: 12px !important;
+      font-weight: 700; color: var(--gray);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      cursor: pointer; transition: all .15s;
+    }
+    .modulo-content-tab:hover { color: var(--ink); }
+    .modulo-content-tab.active { color: var(--ink); border-bottom-color: var(--cobalt); }
+
+    /* ─────────────── RESUMO BODY (editorial article) ─────────────── */
+    .resumo-body {
+      max-width: 780px; line-height: 1.75; color: var(--ink-soft);
+      font-size: 15px;
+    }
+    .resumo-body h2 {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 32px; font-weight: 800; letter-spacing: -0.028em;
+      color: var(--ink); margin: 36px 0 14px; line-height: 1.08;
+      padding-bottom: 14px; border-bottom: 1px solid var(--hairline);
+    }
+    .resumo-body h3 {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+      color: var(--ink); margin: 28px 0 10px; line-height: 1.15;
+    }
+    .resumo-body p { margin-bottom: 14px; font-size: 15px; }
+    .resumo-body ul, .resumo-body ol { padding-left: 22px; margin-bottom: 14px; }
+    .resumo-body li { font-size: 15px; margin-bottom: 8px; }
+    .resumo-body strong { color: var(--ink); font-weight: 700; }
+    .resumo-body table {
+      width: 100%; border-collapse: collapse; margin: 18px 0;
+      font-size: 13.5px; border: 1px solid var(--hairline);
+      background: var(--surface);
+    }
+    .resumo-body th {
+      background: var(--bg); color: var(--ink);
+      padding: 12px 14px; text-align: left;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px !important;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .resumo-body td {
+      padding: 12px 14px; border-bottom: 1px solid var(--hairline);
+      color: var(--ink-soft);
+    }
+    .resumo-body tr:last-child td { border-bottom: none; }
+    .resumo-body tr:nth-child(even) td { background: transparent; }
+    .resumo-body .alert-box {
+      background: var(--amber-tint); border-left: 4px solid var(--amber);
+      padding: 14px 20px; margin: 18px 0; font-size: 14px;
+    }
+    .resumo-body .tip-box {
+      background: var(--forest-tint); border-left: 4px solid var(--forest);
+      padding: 14px 20px; margin: 18px 0; font-size: 14px;
+    }
+
+    /* ─────────────── QUESTÃO CARD (módulo) ─────────────── */
+    .questao-card {
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 22px 24px; margin-bottom: 14px;
+      border-left: 3px solid var(--cobalt); border-radius: 0;
+    }
+    .questao-num {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; color: var(--cobalt);
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px;
+    }
+    .questao-enunciado {
+      font-family: 'Inter', sans-serif; font-size: 15px;
+      font-weight: 500; color: var(--ink); line-height: 1.65;
+      margin-bottom: 18px; letter-spacing: -0.005em;
+    }
+    .questao-alternativas, .alternativas {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;
+    }
+    .questao-alt, .alt-btn {
+      padding: 12px 16px; border: 1.5px solid var(--hairline-strong);
+      background: var(--surface); font-size: 13.5px !important;
+      color: var(--ink-soft); cursor: pointer; text-align: left;
+      transition: all .15s; border-radius: 3px; font-weight: 500;
+    }
+    .questao-alt:hover, .alt-btn:hover:not(:disabled) {
+      border-color: var(--cobalt); background: var(--cobalt-tint); color: var(--cobalt);
+    }
+    .questao-alt.correta, .alt-btn.correta {
+      border-color: var(--forest); background: var(--forest-tint);
+      color: var(--forest); font-weight: 700;
+    }
+    .questao-alt.errada, .alt-btn.errada {
+      border-color: var(--scarlet); background: var(--scarlet-tint);
+      color: var(--scarlet);
+    }
+    .questao-comentario, .questao-explicacao {
+      background: var(--cobalt-tint); border-left: 4px solid var(--cobalt);
+      padding: 14px 18px; font-size: 13.5px; line-height: 1.65;
+      color: var(--ink-soft); margin-top: 12px; display: none;
+    }
+    .questao-comentario.visible, .questao-explicacao.visible { display: block; }
+    .gabarito-block {
+      margin-top: 12px; padding: 14px 18px;
+      background: var(--forest-tint); border-left: 4px solid var(--forest);
+      font-size: 13.5px; line-height: 1.65; color: var(--ink-soft);
+    }
+
+    /* ─────────────── RESUMO CARD (simple) ─────────────── */
+    .resumo-card {
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 24px; margin-bottom: 14px;
+    }
+    .resumo-titulo {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 22px; font-weight: 800; color: var(--ink);
+      letter-spacing: -0.022em; margin-bottom: 16px; line-height: 1.15;
+    }
+    .resumo-section-title {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--ink); margin-bottom: 10px; margin-top: 18px;
+    }
+    .pontos-list { display: flex; flex-direction: column; gap: 8px; }
+    .ponto-item {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 14px; color: var(--ink-soft);
+    }
+    .ponto-item::before {
+      content: '✓'; color: var(--forest); font-weight: 800;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .armadilha-item {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 14px; color: var(--ink-soft);
+    }
+    .armadilha-item::before {
+      content: '!'; color: var(--amber); font-weight: 900;
+      flex-shrink: 0; margin-top: 0; font-size: 18px; line-height: 1;
+      width: 14px; text-align: center;
+    }
+    .resumo-texto { font-size: 14px; color: var(--ink-soft); line-height: 1.75; }
+
+    .content-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .content-panel-title {
+      font-family: 'Inter Tight', sans-serif; font-size: 22px;
+      font-weight: 800; letter-spacing: -0.022em; color: var(--ink);
+    }
+    .content-tabs { display: flex; gap: 8px; }
+    .content-tab {
+      padding: 7px 14px; border: 1.5px solid var(--hairline-strong);
+      background: var(--surface); font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; cursor: pointer; color: var(--ink);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      transition: all .15s; border-radius: 3px;
+    }
+    .content-tab.active { background: var(--cobalt); color: #fff; border-color: var(--cobalt); }
+
+    /* ─────────────── PROVA BANNER (IA callout) ─────────────── */
+    .prova-banner {
+      background: linear-gradient(180deg, var(--cobalt) 0%, var(--cobalt-dark) 100%);
+      padding: 22px 26px; margin-bottom: 20px;
+      display: grid; grid-template-columns: auto 1fr; gap: 18px;
+      align-items: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .prova-banner::before {
+      content: ""; position: absolute; top: 0; right: 0;
+      width: 260px; height: 100%;
+      background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 14px);
+      pointer-events: none;
+    }
+    .prova-banner-icon {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 24px; font-weight: 900; color: var(--mustard);
+      width: 44px; height: 44px; display: flex; align-items: center;
+      justify-content: center; border: 2px solid var(--mustard);
+      border-radius: 3px; position: relative; z-index: 1;
+    }
+    .prova-banner-title {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 18px; font-weight: 800; margin-bottom: 3px;
+      letter-spacing: -0.018em; position: relative; z-index: 1;
+    }
+    .prova-banner-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: rgba(255,255,255,.72); letter-spacing: 0.04em; font-weight: 500;
+      position: relative; z-index: 1;
+    }
+
+    /* ─────────────── MATERIALS ─────────────── */
+    .material-topic-card {
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 20px 22px; margin-bottom: 10px;
+      border-left: 3px solid transparent; transition: border-left-color .15s;
+    }
+    .material-topic-card:hover { border-left-color: var(--cobalt); }
+    .material-topic-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .material-num {
+      width: 30px; height: 30px; border-radius: 3px;
+      background: var(--cobalt-tint); color: var(--cobalt);
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      font-weight: 800; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .material-topic-title {
+      font-family: 'Inter Tight', sans-serif; font-size: 16px;
+      font-weight: 800; letter-spacing: -0.018em; color: var(--ink); flex: 1;
+    }
+    .material-files { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mfb {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 3px; border: 1.5px solid;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px !important;
+      font-weight: 700; cursor: pointer; text-decoration: none;
+      transition: all .15s; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .mfb-pdf   { border-color: var(--scarlet); color: var(--scarlet); background: var(--scarlet-tint); }
+    .mfb-pdf:hover   { background: var(--scarlet); color: #fff; }
+    .mfb-slide { border-color: var(--cobalt); color: var(--cobalt); background: var(--cobalt-tint); }
+    .mfb-slide:hover { background: var(--cobalt); color: #fff; }
+    .mfb-map   { border-color: var(--forest); color: var(--forest); background: var(--forest-tint); }
+    .mfb-map:hover   { background: var(--forest); color: #fff; }
+    .mfb-flash { border-color: var(--amber); color: var(--amber); background: var(--amber-tint); }
+    .mfb-flash:hover { background: var(--amber); color: #fff; }
+    .mfb-folder { border-color: var(--hairline-strong); color: var(--gray); background: var(--surface); }
+    .mfb-folder:hover { border-color: var(--cobalt); color: var(--cobalt); background: var(--cobalt-tint); }
+
+    .drive-banner {
+      background: var(--surface); border: 1px solid var(--hairline);
+      border-left: 4px solid var(--teal-ink);
+      padding: 16px 22px; margin-bottom: 22px;
+      display: flex; align-items: center; gap: 14px;
+      font-size: 13px; color: var(--ink-soft);
+    }
+    .drive-banner a {
+      color: var(--cobalt); font-weight: 700; text-decoration: none;
+      border-bottom: 1.5px solid currentColor; padding-bottom: 1px;
+    }
+
+    /* ─────────────── CASOS ─────────────── */
+    .caso-card {
+      background: var(--surface); border: 1px solid var(--hairline);
+      padding: 22px; margin-bottom: 12px;
+      display: flex; align-items: flex-start; gap: 18px;
+      border-left: 3px solid transparent; transition: border-left-color .15s;
+    }
+    .caso-card:hover { border-left-color: var(--cobalt); }
+    .caso-num {
+      width: 48px; height: 48px; border-radius: 3px;
+      background: var(--cobalt); color: #fff;
+      font-family: 'Inter Tight', sans-serif; font-size: 20px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      letter-spacing: -0.03em;
+    }
+    .caso-content { flex: 1; }
+    .caso-title {
+      font-family: 'Inter Tight', sans-serif; font-size: 18px;
+      font-weight: 800; color: var(--ink); margin-bottom: 4px;
+      letter-spacing: -0.02em; line-height: 1.2;
+    }
+    .caso-meta {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gray); margin-bottom: 12px;
+      letter-spacing: 0.04em; font-weight: 600;
+    }
+    .caso-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .caso-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      padding: 3px 9px 2px; border-radius: 3px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      background: var(--cobalt-tint); color: var(--cobalt);
+    }
+    .caso-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ─────────────── FLASHCARDS ─────────────── */
+    .flashcards-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .flashcard-wrap { perspective: 1000px; height: 170px; cursor: pointer; }
     .flashcard-inner {
       width: 100%; height: 100%; position: relative;
       transform-style: preserve-3d; transition: transform .5s ease;
     }
     .flashcard-wrap.flipped .flashcard-inner { transform: rotateY(180deg); }
     .flashcard-face {
-      position: absolute; inset: 0; border-radius: var(--radius);
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      padding: 16px; text-align: center; backface-visibility: hidden;
-      box-shadow: var(--shadow);
+      padding: 22px; text-align: center;
+      backface-visibility: hidden;
+      border: 1px solid var(--hairline); border-radius: 0;
     }
-    .flashcard-front { background: #fff; border: 1px solid var(--gray-200); font-size: 14px; font-weight: 600; color: var(--gray-800); }
-    .flashcard-back { background: var(--primary); color: #fff; font-size: 13px; line-height: 1.5; transform: rotateY(180deg); }
-    .flashcard-hint { font-size: 11px; text-align: center; color: var(--gray-400); margin-top: 4px; }
+    .flashcard-front {
+      background: var(--surface); color: var(--ink);
+      font-family: 'Inter Tight', sans-serif; font-size: 16px;
+      font-weight: 700; letter-spacing: -0.015em; line-height: 1.3;
+      border-top: 3px solid var(--cobalt);
+    }
+    .flashcard-back {
+      background: var(--cobalt); color: #fff; font-size: 13.5px;
+      line-height: 1.55; transform: rotateY(180deg);
+      font-weight: 500;
+    }
+    .flashcard-hint {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      text-align: center; color: var(--gray); margin-top: 6px;
+      letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+    }
 
-    /* Questões */
-    .questao-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
-    .questao-num { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
-    .questao-enunciado { font-size: 14px; color: var(--gray-800); line-height: 1.6; margin-bottom: 14px; }
-    .alternativas { display: flex; flex-direction: column; gap: 8px; }
-    .alt-btn {
-      padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gray-200);
-      background: #fff; font-size: 13px; color: var(--gray-700); cursor: pointer;
-      text-align: left; transition: all .15s;
-    }
-    .alt-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-    .alt-btn.correta { border-color: var(--success); background: var(--success-light); color: #065f46; font-weight: 700; }
-    .alt-btn.errada { border-color: var(--danger); background: var(--danger-light); color: var(--danger); }
-    .alt-btn.alt-gabarito { /* hidden initially — only revealed after click */ }
-    .gabarito-block { margin-top: 12px; padding: 14px 16px; background: var(--success-light); border-radius: 8px; border-left: 4px solid var(--success); }
-    .questao-explicacao { margin-top: 14px; padding: 12px 16px; background: var(--gray-50); border-radius: 8px; font-size: 13px; color: var(--gray-700); line-height: 1.6; border-left: 3px solid var(--primary); display: none; }
-
-    /* Resumo */
-    .resumo-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; }
-    .resumo-titulo { font-size: 18px; font-weight: 800; color: var(--gray-900); margin-bottom: 16px; }
-    .resumo-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-400); margin-bottom: 8px; margin-top: 16px; }
-    .pontos-list { display: flex; flex-direction: column; gap: 6px; }
-    .ponto-item { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--gray-700); }
-    .ponto-item::before { content: '✓'; color: var(--success); font-weight: 800; flex-shrink: 0; margin-top: 1px; }
-    .armadilha-item { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--gray-700); }
-    .armadilha-item::before { content: '⚠️'; flex-shrink: 0; }
-    .resumo-texto { font-size: 14px; color: var(--gray-700); line-height: 1.7; }
-
-    .content-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .content-panel-title { font-size: 17px; font-weight: 800; color: var(--gray-900); }
-    .content-tabs { display: flex; gap: 8px; }
-    .content-tab { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-300); background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray-600); transition: all .15s; }
-    .content-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-
-    .prova-banner {
-      background: linear-gradient(135deg, #1a56db, #0891b2);
-      border-radius: var(--radius); padding: 18px 22px; margin-bottom: 24px;
-      display: flex; align-items: center; gap: 16px; color: #fff;
-    }
-    .prova-banner-icon { font-size: 32px; flex-shrink: 0; }
-    .prova-banner-title { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
-    .prova-banner-sub { font-size: 13px; opacity: .85; }
-
-    /* ── MATERIALS ── */
-    .material-topic-card {
-      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
-      padding: 18px; transition: box-shadow .15s; margin-bottom: 12px;
-    }
-    .material-topic-card:hover { box-shadow: var(--shadow-md); }
-    .material-topic-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .material-num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .material-topic-title { font-size: 15px; font-weight: 700; color: var(--gray-800); flex: 1; }
-    .material-files { display: flex; gap: 8px; flex-wrap: wrap; }
-    .mfb {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 6px 13px; border-radius: 20px; border: 1.5px solid;
-      font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all .15s;
-    }
-    .mfb-pdf   { border-color: #fca5a5; color: #dc2626; background: #fff5f5; }
-    .mfb-pdf:hover   { background: #fee2e2; }
-    .mfb-slide { border-color: #93c5fd; color: #1d4ed8; background: #eff6ff; }
-    .mfb-slide:hover { background: #dbeafe; }
-    .mfb-map   { border-color: #6ee7b7; color: #065f46; background: #f0fdf4; }
-    .mfb-map:hover   { background: #d1fae5; }
-    .mfb-flash { border-color: #fde68a; color: #92400e; background: #fffbeb; }
-    .mfb-flash:hover { background: #fef3c7; }
-    .mfb-folder { border-color: var(--gray-300); color: var(--gray-600); background: var(--gray-50); }
-    .mfb-folder:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-    .drive-banner {
-      background: linear-gradient(135deg, #e8f0fe, #e0f2fe); border: 1px solid #c7d7f8;
-      border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-700);
-    }
-    /* ── CASOS CLÍNICOS ── */
-    .caso-card {
-      background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
-      padding: 20px; transition: box-shadow .15s; margin-bottom: 14px;
-      display: flex; align-items: flex-start; gap: 16px;
-    }
-    .caso-card:hover { box-shadow: var(--shadow-md); }
-    .caso-num { width: 44px; height: 44px; border-radius: 12px; background: var(--primary-light); color: var(--primary); font-size: 18px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .caso-content { flex: 1; }
-    .caso-title { font-size: 16px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
-    .caso-meta { font-size: 13px; color: var(--gray-500); margin-bottom: 12px; }
-    .caso-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-    .caso-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-    .caso-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-
-    /* ── RESPONSIVE ── */
-    /* ── HAMBURGER ── */
+    /* ─────────────── HAMBURGER & BACKDROP ─────────────── */
     .hamburger {
       display: none; background: none; border: none; cursor: pointer;
-      font-size: 24px; color: var(--gray-700); padding: 6px 8px; border-radius: 6px;
-      line-height: 1; flex-shrink: 0;
+      font-size: 22px; color: var(--ink); padding: 6px 8px;
+      border-radius: 3px; line-height: 1; flex-shrink: 0;
     }
-
-    /* Sidebar backdrop overlay (mobile) */
     #sidebar-backdrop {
       display: none; position: fixed; inset: 0; z-index: 99;
-      background: rgba(0,0,0,.4);
+      background: rgba(10,11,13,.4);
     }
     #sidebar-backdrop.visible { display: block; }
 
-    /* ── TABLET (≤ 900px) ── */
+    /* ─────────────── TOOLTIP ─────────────── */
+    [data-tip] { position: relative; }
+    [data-tip]:hover::after {
+      content: attr(data-tip); position: absolute;
+      bottom: 110%; left: 50%; transform: translateX(-50%);
+      background: var(--ink); color: #fff; font-size: 11px;
+      padding: 5px 9px; border-radius: 3px;
+      white-space: nowrap; pointer-events: none; z-index: 99;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.04em; font-weight: 600;
+    }
+
+    .divider { border: none; border-top: 1px solid var(--hairline); margin: 22px 0; }
+
+    /* ─────────────── RESPONSIVE ─────────────── */
+    @media (max-width: 1080px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .modulos-tabs { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: 1fr; }
+      .main { padding: 36px 36px 60px; }
+    }
     @media (max-width: 900px) {
       .grid-4 { grid-template-columns: 1fr 1fr; }
       .grid-3 { grid-template-columns: 1fr 1fr; }
       .q-form  { grid-template-columns: 1fr; }
-      .main { padding: 20px; }
-      .overall-progress-mini .bar-mini { width: 80px; }
+      .main { padding: 28px 24px 48px; }
     }
-
-    /* ── MOBILE (≤ 768px) ── */
     @media (max-width: 768px) {
       :root { --header-h: 56px; }
-
       body { overflow-x: hidden; }
-
-      /* Header */
       header { padding: 0 14px; gap: 10px; }
       .hamburger { display: block; }
-      .header-badge { display: none; }
+      .brand-kicker, .module-tag, .progress-mini { display: none; }
       .overall-progress-mini { display: none; }
-      .logo-sub { display: none; }
-      .header-logo .logo-text { font-size: 14px; }
+      .brand-name { font-size: 14px; }
       #user-email-short { display: none; }
+      .login-side { display: none; }
 
-      /* Sidebar: move off-screen to the left using `left` (more reliable than transform with position:fixed) */
       .sidebar {
         left: calc(-1 * var(--sidebar-w));
-        transition: left .25s ease;
-        z-index: 100;
-        width: var(--sidebar-w);
-        box-shadow: none;
+        transition: left .25s ease; z-index: 100;
+        width: var(--sidebar-w); box-shadow: none;
       }
       .sidebar.open {
-        left: 0;
-        box-shadow: 4px 0 24px rgba(0,0,0,.18);
+        left: 0; box-shadow: 4px 0 24px rgba(0,0,0,.18);
       }
-
-      /* Main: full width — no sidebar offset */
-      .main {
-        margin-left: 0 !important;
-        padding: 16px 14px;
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      /* Grids → single column */
+      .main { margin-left: 0 !important; padding: 20px 14px; width: 100%; box-sizing: border-box; }
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
       .q-form { grid-template-columns: 1fr; }
       .provas-grid { grid-template-columns: 1fr; }
       .flashcards-grid { grid-template-columns: 1fr; }
+      .modulos-tabs { grid-template-columns: 1fr 1fr; }
 
-      /* Page titles */
-      .page-title { font-size: 18px; }
-      .page-subtitle { font-size: 13px; margin-bottom: 16px; }
+      .page-title { font-size: 32px; }
+      .prova-detail-nome { font-size: 28px; }
+      .page-subtitle { font-size: 10px; margin-bottom: 20px; }
 
-      /* Cards */
-      .card { padding: 14px; }
-
-      /* Prova chips: full width on mobile */
+      .card { padding: 18px 16px; }
       #prova-topicos-grid { flex-direction: column; }
       #prova-topicos-grid > div { min-width: unset !important; width: 100%; box-sizing: border-box; }
-
-      /* Upload zone */
-      .upload-zone { padding: 24px 14px; }
-
-      /* Prova progress */
+      .upload-zone { padding: 30px 18px; }
       .prova-progress-top { flex-direction: column; align-items: flex-start; gap: 6px; }
-      .prova-progress-pct { font-size: 18px; }
-
-      /* Login card */
+      .prova-progress-pct { font-size: 28px; }
       .login-card { padding: 28px 20px; margin: 16px; }
-      .login-title { font-size: 18px; }
-
-      /* Nova prova form */
+      .login-title { font-size: 22px; }
       .nova-prova-form-row { flex-direction: column; }
-
-      /* Prova date card */
       .prova-date-card { flex-wrap: wrap; gap: 8px; }
       .prova-date-card input[type="date"] { width: 100%; }
-
-      /* Banners */
-      .drive-banner { flex-direction: column; gap: 8px; }
-      .prova-banner { flex-direction: column; gap: 8px; padding: 14px; }
-
-      /* Action buttons: stack vertically */
+      .drive-banner { flex-direction: column; gap: 10px; align-items: flex-start; }
+      .prova-banner { grid-template-columns: 1fr; gap: 14px; padding: 18px; }
       .prova-actions-row { flex-direction: column !important; }
-
-      /* User pill compact */
-      .user-pill { padding: 4px 8px 4px 4px; }
+      .user-pill { gap: 6px; }
+      .logout-btn { padding-left: 6px; }
     }
   </style>
 </head>
@@ -759,18 +1395,19 @@
 <!-- ══ HEADER ══ -->
 <header>
   <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
-  <a class="header-logo" href="#" onclick="navigate('dashboard')">
-    <div class="logo-icon">🧠</div>
-    <div>
-      <div class="logo-text">Hub de Estudos</div>
-      <div class="logo-sub">Estratégia Med · Ciclo Clínico</div>
+  <a class="brand" href="#" onclick="navigate('dashboard');return false;">
+    <div class="mark-grid"><span class="on"></span><span></span><span></span><span></span></div>
+    <div class="brand-text">
+      <span class="brand-name">Hub de Estudos</span>
+      <span class="brand-kicker">Residência · Ciclo Clínico</span>
     </div>
   </a>
-  <div class="header-badge">📚 Módulo: Neurologia</div>
+  <span class="module-tag">Neurologia</span>
   <div class="header-right">
     <div class="overall-progress-mini">
-      <span id="header-pct">0%</span>
+      <span class="progress-mini-label">Progresso</span>
       <div class="bar-mini"><div class="bar-mini-fill" id="header-bar" style="width:0%"></div></div>
+      <span id="header-pct">0%</span>
     </div>
     <div class="user-pill" id="user-pill" style="display:none">
       <div class="user-avatar" id="user-avatar">?</div>
@@ -782,14 +1419,14 @@
 
 <!-- ══ LOGIN OVERLAY ══ -->
 <div id="login-overlay">
+  <div class="login-side l">HUB</div>
+  <div class="login-side r">2026</div>
   <div class="login-card">
-    <div>
-      <div class="login-logo">
-        <div class="login-logo-icon">🧠</div>
-        <div>
-          <div class="login-title">Hub de Neurologia</div>
-          <div class="login-sub">Estratégia Med · Acesso pessoal</div>
-        </div>
+    <div class="login-head">
+      <div class="mark-grid lg"><span class="on"></span><span></span><span></span><span></span></div>
+      <div>
+        <div class="login-title">Hub de Estudos</div>
+        <div class="login-sub">Residência · Acesso pessoal</div>
       </div>
     </div>
 
@@ -797,8 +1434,7 @@
     <div id="login-success-msg" class="login-success"></div>
 
     <div id="login-form">
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <!-- Nome — só no cadastro -->
+      <div style="display:flex;flex-direction:column;gap:14px">
         <div id="field-nome" style="display:none">
           <label class="login-label" for="auth-nome">Seu nome</label>
           <input class="login-input" type="text" id="auth-nome" placeholder="Ex: Hermano" onkeydown="if(event.key==='Enter') authSubmit()">
@@ -811,13 +1447,12 @@
           <label class="login-label" for="auth-password">Senha</label>
           <input class="login-input" type="password" id="auth-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') authSubmit()">
         </div>
-        <!-- Confirmação de senha — só no cadastro -->
         <div id="field-confirm" style="display:none">
           <label class="login-label" for="auth-confirm">Confirmar senha</label>
           <input class="login-input" type="password" id="auth-confirm" placeholder="••••••••" onkeydown="if(event.key==='Enter') authSubmit()">
         </div>
       </div>
-      <button class="login-btn-primary" id="auth-submit-btn" onclick="authSubmit()" style="margin-top:4px">Entrar</button>
+      <button class="login-btn-primary" id="auth-submit-btn" onclick="authSubmit()" style="margin-top:6px">Entrar</button>
       <div class="login-toggle" id="login-toggle-text">
         Primeira vez? <a onclick="toggleAuthMode()">Criar conta</a>
       </div>
@@ -831,54 +1466,62 @@
   <aside class="sidebar">
     <div class="sidebar-section-title">Principal</div>
     <button class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
-      <span class="nav-icon">🏠</span> Dashboard
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg></span>
+      <span class="nav-label">Dashboard</span>
     </button>
     <button class="nav-item" onclick="navigate('topicos')" id="nav-topicos">
-      <span class="nav-icon">📋</span> Tópicos
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+      <span class="nav-label">Tópicos</span>
       <span class="nav-badge" id="badge-topicos">0</span>
     </button>
     <button class="nav-item" onclick="navigate('cronograma')" id="nav-cronograma">
-      <span class="nav-icon">🗓️</span> Cronograma
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 9h18M8 3v4M16 3v4"/></svg></span>
+      <span class="nav-label">Cronograma</span>
     </button>
 
     <div class="sidebar-section-title">Conteúdo</div>
     <button class="nav-item" onclick="navigate('resumos')" id="nav-resumos">
-      <span class="nav-icon">📝</span> Resumos
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg></span>
+      <span class="nav-label">Resumos</span>
       <span class="nav-badge" id="badge-resumos">0</span>
     </button>
     <button class="nav-item" onclick="navigate('questoes')" id="nav-questoes">
-      <span class="nav-icon">❓</span> Questões
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .8-1 1.7M12 17h.01"/></svg></span>
+      <span class="nav-label">Questões</span>
       <span class="nav-badge" id="badge-questoes">0</span>
     </button>
-
     <button class="nav-item" onclick="navigate('modulos')" id="nav-modulos">
-      <span class="nav-icon">📚</span> Módulos
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg></span>
+      <span class="nav-label">Módulos</span>
       <span class="nav-badge" id="badge-modulos">2</span>
     </button>
 
     <div class="sidebar-section-title">Materiais</div>
     <button class="nav-item" onclick="navigate('materiais')" id="nav-materiais">
-      <span class="nav-icon">📁</span> Materiais Drive
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+      <span class="nav-label">Materiais Drive</span>
       <span class="nav-badge">12</span>
     </button>
     <button class="nav-item" onclick="navigate('casos')" id="nav-casos">
-      <span class="nav-icon">🩺</span> Casos Clínicos
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"/><path d="M9 13h6M9 17h6M9 9h2"/></svg></span>
+      <span class="nav-label">Casos Clínicos</span>
       <span class="nav-badge">3</span>
     </button>
 
     <div class="sidebar-section-title">IA</div>
     <button class="nav-item" onclick="navigate('provas')" id="nav-provas">
-      <span class="nav-icon">📋</span> Provas
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 4h13l3 3v13H4z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg></span>
+      <span class="nav-label">Provas</span>
       <span class="nav-badge" id="badge-provas">0</span>
     </button>
     <button class="nav-item" onclick="navigate('prova')" id="nav-prova" style="display:none">
-      <span class="nav-icon">🎯</span> Modo Prova IA
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span>
+      <span class="nav-label">Modo Prova IA</span>
     </button>
 
-    <div class="sidebar-section-title" style="margin-top:auto">Sessão</div>
-    <div style="padding:12px;font-size:12px;color:var(--gray-400);line-height:1.5">
-      💾 Dados salvos localmente<br>
-      <span id="last-saved">—</span>
+    <div class="sidebar-footer">
+      <div class="status"><span class="dot">●</span> Dados sincronizados</div>
+      <div style="color:var(--gray);font-size:10px;margin-top:3px" id="last-saved">—</div>
     </div>
   </aside>
 
@@ -887,41 +1530,42 @@
 
     <!-- ══ DASHBOARD ══ -->
     <section id="section-dashboard" class="section active">
-      <div class="page-title">Olá, Hermano! 👋</div>
-      <div class="page-subtitle">Módulo de Neurologia · Estratégia Med · <span id="today-date"></span></div>
+      <div class="page-kicker">Overview</div>
+      <div class="page-title">Olá, <span class="accent">Hermano</span></div>
+      <div class="page-subtitle">Módulo Neurologia<span class="sep">·</span>Residência · Ciclo Clínico<span class="sep">·</span><span id="today-date"></span></div>
 
       <!-- STAT CARDS -->
       <div class="grid-4" style="margin-bottom:20px">
         <div class="card stat-card">
-          <div class="stat-icon">✅</div>
+          <div class="stat-icon"></div>
           <div>
-            <div class="stat-num" id="stat-done" style="color:var(--success)">0</div>
-            <div class="stat-label">Tópicos concluídos</div>
+            <div class="stat-label">Concluídos</div>
+            <div class="stat-num" id="stat-done" style="color:var(--forest)">0</div>
             <div class="stat-sub" id="stat-done-pct">de 0 total</div>
           </div>
         </div>
         <div class="card stat-card">
-          <div class="stat-icon">📝</div>
+          <div class="stat-icon"></div>
           <div>
-            <div class="stat-num" id="stat-notes" style="color:var(--primary)">0</div>
-            <div class="stat-label">Resumos salvos</div>
+            <div class="stat-label">Resumos</div>
+            <div class="stat-num" id="stat-notes" style="color:var(--cobalt)">0</div>
             <div class="stat-sub">em todas as matérias</div>
           </div>
         </div>
         <div class="card stat-card">
-          <div class="stat-icon">❓</div>
+          <div class="stat-icon"></div>
           <div>
-            <div class="stat-num" id="stat-q-total" style="color:var(--accent)">0</div>
-            <div class="stat-label">Questões registradas</div>
+            <div class="stat-label">Questões</div>
+            <div class="stat-num" id="stat-q-total" style="color:var(--amber)">0</div>
             <div class="stat-sub" id="stat-q-pct">—</div>
           </div>
         </div>
         <div class="card stat-card">
-          <div class="stat-icon">🗓️</div>
+          <div class="stat-icon"></div>
           <div>
-            <div class="stat-num" id="stat-sessions" style="color:var(--warning)">0</div>
-            <div class="stat-label">Sessões programadas</div>
-            <div class="stat-sub">esta semana</div>
+            <div class="stat-label">Sessões</div>
+            <div class="stat-num" id="stat-sessions" style="color:var(--plum)">0</div>
+            <div class="stat-sub">programadas esta semana</div>
           </div>
         </div>
       </div>
@@ -929,30 +1573,30 @@
       <!-- PROGRESS PER AREA -->
       <div class="grid-2" style="margin-bottom:20px">
         <div class="card">
-          <div class="card-title">📊 Progresso por Área</div>
+          <div class="card-title">Progresso por Área</div>
           <div id="area-progress-list" style="display:flex;flex-direction:column;gap:14px"></div>
         </div>
 
         <div class="card">
-          <div class="card-title">🎯 Progresso Geral</div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 0">
-            <svg class="ring" width="140" height="140" viewBox="0 0 140 140">
-              <circle class="ring-bg" cx="70" cy="70" r="56" stroke-width="12"/>
-              <circle class="ring-fill" cx="70" cy="70" r="56" stroke-width="12"
-                stroke="url(#prog-grad)" stroke-dasharray="351.86"
-                stroke-dashoffset="351.86" id="ring-fill-main"/>
+          <div class="card-title">Progresso Geral</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 0;position:relative">
+            <svg class="ring" width="150" height="150" viewBox="0 0 150 150">
+              <circle class="ring-bg" cx="75" cy="75" r="60" stroke-width="10"/>
+              <circle class="ring-fill" cx="75" cy="75" r="60" stroke-width="10"
+                stroke="url(#prog-grad)" stroke-dasharray="376.99"
+                stroke-dashoffset="376.99" id="ring-fill-main"/>
               <defs>
                 <linearGradient id="prog-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#1a56db"/>
-                  <stop offset="100%" stop-color="#0891b2"/>
+                  <stop offset="0%" stop-color="#1d2d6b"/>
+                  <stop offset="100%" stop-color="#152354"/>
                 </linearGradient>
               </defs>
             </svg>
-            <div style="position:absolute;font-size:24px;font-weight:800;color:var(--gray-900)" id="ring-pct-text">0%</div>
-            <div style="text-align:center;color:var(--gray-500);font-size:13px">dos tópicos estudados</div>
-            <div style="display:flex;gap:20px;font-size:13px">
-              <div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block"></span><span style="color:var(--gray-600)">Concluído</span></div>
-              <div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:var(--gray-300);display:inline-block"></span><span style="color:var(--gray-600)">Pendente</span></div>
+            <div style="position:absolute;top:65px;font-family:'Inter Tight',sans-serif;font-size:34px;font-weight:900;letter-spacing:-0.04em;color:var(--cobalt)" id="ring-pct-text">0%</div>
+            <div class="ring-label">dos tópicos estudados</div>
+            <div style="display:flex;gap:20px;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">
+              <div style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;background:var(--forest);display:inline-block"></span><span style="color:var(--gray)">Concluído</span></div>
+              <div style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;background:var(--hairline-strong);display:inline-block"></span><span style="color:var(--gray)">Pendente</span></div>
             </div>
           </div>
         </div>
@@ -960,22 +1604,23 @@
 
       <!-- PRIORITY TOPICS -->
       <div class="card">
-        <div class="card-title">🔥 Tópicos Prioritários para Provas</div>
+        <div class="card-title">Tópicos Prioritários</div>
         <div id="priority-list" style="display:flex;flex-direction:column;gap:8px"></div>
       </div>
     </section>
 
     <!-- ══ TÓPICOS ══ -->
     <section id="section-topicos" class="section">
-      <div class="page-title">📋 Tópicos de Neurologia</div>
-      <div class="page-subtitle">Marque os tópicos conforme for estudando · Baseado no Estratégia Med</div>
+      <div class="page-kicker">Roteiro</div>
+      <div class="page-title">Tópicos <span class="accent">de Neurologia</span></div>
+      <div class="page-subtitle">Marque os tópicos conforme for estudando<span class="sep">·</span>Baseado no roteiro do ciclo clínico</div>
 
       <div class="filter-bar">
         <input class="search-input" type="text" placeholder="Buscar tópico…" oninput="filterTopics(this.value)"/>
         <button class="filter-chip active" onclick="setFilter('all', this)">Todos</button>
         <button class="filter-chip" onclick="setFilter('pendente', this)">Pendentes</button>
         <button class="filter-chip" onclick="setFilter('feito', this)">Concluídos</button>
-        <button class="filter-chip" onclick="setFilter('alta', this)">🔴 Alta prioridade</button>
+        <button class="filter-chip" onclick="setFilter('alta', this)">Alta prioridade</button>
       </div>
 
       <div id="topics-container"></div>
@@ -983,14 +1628,15 @@
 
     <!-- ══ CRONOGRAMA ══ -->
     <section id="section-cronograma" class="section">
-      <div class="page-title">🗓️ Cronograma Semanal</div>
+      <div class="page-kicker">Agenda</div>
+      <div class="page-title">Cronograma <span class="accent">Semanal</span></div>
       <div class="page-subtitle">Organize suas sessões de estudo da semana</div>
 
       <div class="card" style="margin-bottom:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px">
           <div style="display:flex;align-items:center;gap:12px">
             <button class="btn btn-ghost btn-sm" onclick="moveWeek(-1)">← Anterior</button>
-            <span id="week-label" style="font-weight:700;font-size:15px;color:var(--gray-800)"></span>
+            <span id="week-label" style="font-family:'Inter Tight',sans-serif;font-weight:800;font-size:17px;color:var(--ink);letter-spacing:-0.02em"></span>
             <button class="btn btn-ghost btn-sm" onclick="moveWeek(1)">Próxima →</button>
           </div>
           <button class="btn btn-primary btn-sm" onclick="openSessionModal()">+ Nova Sessão</button>
@@ -999,32 +1645,32 @@
       </div>
 
       <div class="card">
-        <div class="card-title">📈 Horas esta semana</div>
-        <div id="week-hours-display" style="font-size:28px;font-weight:800;color:var(--primary)">0h</div>
-        <div style="font-size:13px;color:var(--gray-500);margin-top:4px">de sessões programadas</div>
+        <div class="card-title">Horas esta semana</div>
+        <div id="week-hours-display" style="font-family:'Inter Tight',sans-serif;font-size:48px;font-weight:900;color:var(--cobalt);letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1">0h</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);margin-top:8px;letter-spacing:0.04em;font-weight:600;text-transform:uppercase">de sessões programadas</div>
       </div>
     </section>
 
     <!-- ══ RESUMOS ══ -->
     <section id="section-resumos" class="section">
-      <div class="page-title">📝 Resumos & Anotações</div>
+      <div class="page-kicker">Notas</div>
+      <div class="page-title">Resumos & <span class="accent">Anotações</span></div>
       <div class="page-subtitle">Suas anotações por tópico, salvas automaticamente</div>
 
       <div class="notes-layout">
         <div class="notes-sidebar">
-          <button class="btn btn-primary" style="width:100%;margin-bottom:12px" onclick="newNote()">+ Nova nota</button>
+          <button class="btn btn-primary" style="width:100%;margin-bottom:14px" onclick="newNote()">+ Nova nota</button>
           <div id="note-list"></div>
         </div>
         <div class="notes-editor card" style="flex:1">
           <div id="note-empty" class="empty-state">
-            <div class="emoji">📝</div>
             <p>Selecione ou crie uma nota</p>
           </div>
-          <div id="note-editor" style="display:none;flex-direction:column;gap:10px">
-            <div style="display:flex;gap:10px;align-items:center">
+          <div id="note-editor" style="display:none;flex-direction:column;gap:12px">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
               <select class="note-topic-select" id="note-topic"></select>
-              <button class="btn btn-danger btn-sm" onclick="deleteNote()">🗑️ Excluir</button>
-              <button class="btn btn-success btn-sm" onclick="saveNote()">💾 Salvar</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteNote()">Excluir</button>
+              <button class="btn btn-success btn-sm" onclick="saveNote()">Salvar</button>
             </div>
             <input class="note-title-input" type="text" placeholder="Título da nota…" id="note-title"/>
             <textarea class="note-body-input" placeholder="Escreva seu resumo aqui…&#10;&#10;Dicas de formatação:&#10;• Use • para listas&#10;• MAIÚSCULAS para ênfase&#10;• → para setas de raciocínio clínico" id="note-body"></textarea>
@@ -1035,12 +1681,13 @@
 
     <!-- ══ QUESTÕES ══ -->
     <section id="section-questoes" class="section">
-      <div class="page-title">❓ Banco de Questões</div>
+      <div class="page-kicker">Banco</div>
+      <div class="page-title">Banco de <span class="accent">Questões</span></div>
       <div class="page-subtitle">Registre questões, erros e pontos para revisar</div>
 
       <!-- FORM -->
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-title">➕ Adicionar Questão</div>
+      <div class="card" style="margin-bottom:22px">
+        <div class="card-title">Adicionar Questão</div>
         <div class="q-form">
           <div class="form-group full">
             <label>Enunciado / Tema da Questão</label>
@@ -1052,15 +1699,15 @@
           </div>
           <div class="form-group">
             <label>Fonte</label>
-            <input type="text" id="q-source" placeholder="Ex: Estratégia Med, Residência USP 2024…"/>
+            <input type="text" id="q-source" placeholder="Ex: Residência USP 2024, SANAR…"/>
           </div>
           <div class="form-group">
             <label>Resultado</label>
             <select id="q-result">
               <option value="">— Selecione —</option>
-              <option value="correct">✅ Acertei</option>
-              <option value="wrong">❌ Errei</option>
-              <option value="blank">⬜ Não respondi</option>
+              <option value="correct">Acertei</option>
+              <option value="wrong">Errei</option>
+              <option value="blank">Não respondi</option>
             </select>
           </div>
           <div class="form-group full">
@@ -1068,22 +1715,28 @@
             <input type="text" id="q-comment" placeholder="Ex: Lembrar critérios de Ottawa, confundi com meningite…"/>
           </div>
         </div>
-        <button class="btn btn-primary" onclick="addQuestion()">➕ Adicionar Questão</button>
+        <button class="btn btn-primary" onclick="addQuestion()">Adicionar Questão</button>
       </div>
 
       <!-- STATS ROW -->
-      <div class="grid-3" style="margin-bottom:20px" id="q-stats-row">
-        <div class="card" style="text-align:center">
-          <div style="font-size:28px;font-weight:800;color:var(--success)" id="q-correct-count">0</div>
-          <div style="font-size:13px;color:var(--gray-500)">✅ Acertos</div>
+      <div class="grid-3" style="margin-bottom:22px" id="q-stats-row">
+        <div class="card stat-card" style="border-top:4px solid var(--forest)">
+          <div>
+            <div class="stat-label">Acertos</div>
+            <div class="stat-num" id="q-correct-count" style="color:var(--forest)">0</div>
+          </div>
         </div>
-        <div class="card" style="text-align:center">
-          <div style="font-size:28px;font-weight:800;color:var(--danger)" id="q-wrong-count">0</div>
-          <div style="font-size:13px;color:var(--gray-500)">❌ Erros</div>
+        <div class="card stat-card" style="border-top:4px solid var(--scarlet)">
+          <div>
+            <div class="stat-label">Erros</div>
+            <div class="stat-num" id="q-wrong-count" style="color:var(--scarlet)">0</div>
+          </div>
         </div>
-        <div class="card" style="text-align:center">
-          <div style="font-size:28px;font-weight:800;color:var(--primary)" id="q-pct-display">—</div>
-          <div style="font-size:13px;color:var(--gray-500)">% de aproveitamento</div>
+        <div class="card stat-card" style="border-top:4px solid var(--cobalt)">
+          <div>
+            <div class="stat-label">Aproveitamento</div>
+            <div class="stat-num" id="q-pct-display" style="color:var(--cobalt)">—</div>
+          </div>
         </div>
       </div>
 
@@ -1091,9 +1744,9 @@
       <div class="filter-bar">
         <input class="search-input" type="text" placeholder="Buscar questão…" oninput="filterQuestions(this.value)"/>
         <button class="filter-chip active" onclick="setQFilter('all', this)">Todas</button>
-        <button class="filter-chip" onclick="setQFilter('correct', this)">✅ Acertos</button>
-        <button class="filter-chip" onclick="setQFilter('wrong', this)">❌ Erros</button>
-        <button class="filter-chip" onclick="setQFilter('blank', this)">⬜ Não respondidas</button>
+        <button class="filter-chip" onclick="setQFilter('correct', this)">Acertos</button>
+        <button class="filter-chip" onclick="setQFilter('wrong', this)">Erros</button>
+        <button class="filter-chip" onclick="setQFilter('blank', this)">Não respondidas</button>
       </div>
 
       <div id="q-list"></div>
@@ -1101,14 +1754,14 @@
 
     <!-- ══ MATERIAIS ══ -->
     <section id="section-materiais" class="section">
-      <div class="page-title">📁 Materiais do Google Drive</div>
-      <div class="page-subtitle">Acervo Estratégia Med 2025 — APOSTILAS Neurologia · Clique nos botões para abrir no Drive</div>
+      <div class="page-kicker">Drive</div>
+      <div class="page-title">Materiais do <span class="accent">Google Drive</span></div>
+      <div class="page-subtitle">Acervo Neurologia<span class="sep">·</span>Clique nos botões para abrir no Drive</div>
       <div class="drive-banner">
-        <span style="font-size:22px">☁️</span>
         <div>
-          <strong>Arquivos hospedados no Google Drive</strong> — nenhum conteúdo é armazenado localmente.<br>
-          Clique em qualquer botão para abrir o arquivo diretamente na sua conta Google.
-          <a href="https://drive.google.com/drive/u/0/folders/16UQnTvqeCcBfpnr7m1pOFNmAmmrQChFH" target="_blank" style="margin-left:8px;color:var(--primary);font-weight:700;text-decoration:none">→ Abrir pasta completa ↗</a>
+          <strong>Arquivos hospedados no Google Drive</strong> — nenhum conteúdo é armazenado localmente.
+          Clique em qualquer botão para abrir o arquivo na sua conta Google.
+          <a href="https://drive.google.com/drive/u/0/folders/16UQnTvqeCcBfpnr7m1pOFNmAmmrQChFH" target="_blank" style="margin-left:8px">→ Abrir pasta completa</a>
         </div>
       </div>
       <div id="materiais-container"></div>
@@ -1116,13 +1769,13 @@
 
     <!-- ══ CASOS CLÍNICOS ══ -->
     <section id="section-casos" class="section">
-      <div class="page-title">🩺 Casos Clínicos — S2T2</div>
-      <div class="page-subtitle">Casos clínicos do ciclo · Abril 2026 · Clique para abrir no Google Drive</div>
+      <div class="page-kicker">Clínica</div>
+      <div class="page-title">Casos <span class="accent">Clínicos — S2T2</span></div>
+      <div class="page-subtitle">Casos clínicos do ciclo<span class="sep">·</span>Abril 2026<span class="sep">·</span>Clique para abrir no Google Drive</div>
       <div class="drive-banner">
-        <span style="font-size:22px">📋</span>
         <div>
-          <strong>3 casos clínicos disponíveis</strong> — Neurologia (Cefaleias e Doença Cerebrovascular).<br>
-          <a href="https://drive.google.com/drive/folders/1S31WtEw2t3lbAFmPWxmrQgvxenh7YIxA" target="_blank" style="color:var(--primary);font-weight:700;text-decoration:none">→ Abrir pasta S2T2 no Drive ↗</a>
+          <strong>3 casos clínicos disponíveis</strong> — Neurologia (Cefaleias e Doença Cerebrovascular).
+          <a href="https://drive.google.com/drive/folders/1S31WtEw2t3lbAFmPWxmrQgvxenh7YIxA" target="_blank">→ Abrir pasta S2T2 no Drive</a>
         </div>
       </div>
       <div id="casos-container"></div>
@@ -1130,17 +1783,18 @@
 
     <!-- ══ MÓDULOS ══ -->
     <section id="section-modulos" class="section">
-      <div class="page-title">📚 Módulos de Estudo</div>
-      <div class="page-subtitle">Resumos, flashcards e questões comentadas — baseados nos materiais do Drive</div>
+      <div class="page-kicker">Conteúdo</div>
+      <div class="page-title">Módulos de <span class="accent">Estudo</span></div>
+      <div class="page-subtitle">Resumos, flashcards e questões comentadas<span class="sep">·</span>baseados nos materiais do Drive</div>
 
       <!-- Module selector tabs -->
       <div class="modulos-tabs" id="modulos-tabs"></div>
 
       <!-- Content tabs -->
       <div class="modulo-content-tabs">
-        <button class="modulo-content-tab active" onclick="selectModuloTab('resumo', this)">📄 Resumo</button>
-        <button class="modulo-content-tab" onclick="selectModuloTab('flashcards', this)">🃏 Flashcards</button>
-        <button class="modulo-content-tab" onclick="selectModuloTab('questoes', this)">❓ Questões</button>
+        <button class="modulo-content-tab active" onclick="selectModuloTab('resumo', this)">Resumo</button>
+        <button class="modulo-content-tab" onclick="selectModuloTab('flashcards', this)">Flashcards</button>
+        <button class="modulo-content-tab" onclick="selectModuloTab('questoes', this)">Questões</button>
       </div>
 
       <!-- Content areas -->
@@ -1148,38 +1802,39 @@
         <div class="resumo-body" id="resumo-body"></div>
       </div>
       <div id="modulo-tab-flashcards" style="display:none">
-        <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Clique no card para virar ↕</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:18px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600">Clique no card para virar</div>
         <div class="flashcards-grid" id="modulo-flashcards-grid"></div>
       </div>
       <div id="modulo-tab-questoes" style="display:none">
-        <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px">Clique em uma alternativa para responder</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:18px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600">Clique em uma alternativa para responder</div>
         <div id="modulo-questoes-list"></div>
       </div>
     </section>
 
     <!-- ══ PROVAS ══ -->
     <section id="section-provas" class="section">
-      <div class="page-title">📋 Minhas Provas</div>
-      <div class="page-subtitle">Acompanhe o progresso de cada prova semestral — tópicos identificados pela IA</div>
+      <div class="page-kicker">Exames</div>
+      <div class="page-title">Minhas <span class="accent">Provas</span></div>
+      <div class="page-subtitle">Acompanhe o progresso de cada prova semestral<span class="sep">·</span>Tópicos identificados pela IA</div>
 
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
         <button class="nova-prova-btn" onclick="mostrarFormNovaProva()">+ Nova Prova</button>
-        <span style="font-size:13px;color:var(--gray-400)">ou abra uma prova salva abaixo</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.04em;font-weight:600;text-transform:uppercase">ou abra uma prova salva abaixo</span>
       </div>
 
       <!-- Formulário nova prova -->
       <div class="nova-prova-form" id="nova-prova-form">
-        <div style="font-size:15px;font-weight:700;color:var(--gray-800)">📋 Nova Prova</div>
-        <input type="text" id="nova-prova-nome" placeholder="Nome da prova  (ex: Residência USP 2026, ENARE, Unifesp...)" maxlength="60">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.022em">Nova Prova</div>
+        <input type="text" id="nova-prova-nome" placeholder="Nome da prova (ex: Residência USP 2026, ENARE, Unifesp…)" maxlength="60">
         <div class="nova-prova-form-row">
-          <div style="display:flex;flex-direction:column;gap:4px;flex:1">
-            <label style="font-size:12px;font-weight:600;color:var(--gray-600)">Data da prova</label>
+          <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+            <label>Data da prova</label>
             <input type="date" id="nova-prova-data">
           </div>
         </div>
-        <div style="display:flex;gap:10px">
-          <button onclick="criarNovaProva()" style="padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Criar e adicionar tópicos</button>
-          <button onclick="fecharFormNovaProva()" style="padding:10px 16px;background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200);border-radius:8px;font-size:14px;cursor:pointer">Cancelar</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="criarNovaProva()">Criar e adicionar tópicos</button>
+          <button class="btn btn-ghost" onclick="fecharFormNovaProva()">Cancelar</button>
         </div>
       </div>
 
@@ -1187,31 +1842,31 @@
       <div class="provas-grid" id="provas-lista"></div>
 
       <!-- Empty state -->
-      <div id="provas-empty" style="display:none;text-align:center;padding:60px 20px;color:var(--gray-400)">
-        <div style="font-size:48px;margin-bottom:12px">📋</div>
-        <div style="font-size:16px;font-weight:600;margin-bottom:6px">Nenhuma prova salva ainda</div>
-        <div style="font-size:13px">Clique em "Nova Prova" para começar</div>
+      <div id="provas-empty" style="display:none" class="empty-state">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:72px;font-weight:900;color:var(--cobalt-tint);letter-spacing:-0.04em;line-height:0.9;margin-bottom:10px">00</div>
+        <div style="font-family:'Inter Tight',sans-serif;font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-0.022em;margin-bottom:10px">Nenhuma prova salva ainda</div>
+        <p>Clique em "Nova Prova" para começar</p>
       </div>
     </section>
 
     <!-- ══ MODO PROVA IA ══ -->
     <section id="section-prova" class="section">
       <button class="prova-detail-back" onclick="voltarParaProvas()">← Voltar para Provas</button>
-      <div class="prova-detail-nome" id="prova-detail-nome">🎯 Modo Prova</div>
-      <div class="page-subtitle">Envie prints do edital — a IA identifica os tópicos automaticamente</div>
+      <div class="page-kicker">Modo Prova IA</div>
+      <div class="prova-detail-nome" id="prova-detail-nome">Modo Prova</div>
+      <div class="page-subtitle">Envie prints do edital<span class="sep">·</span>A IA identifica os tópicos automaticamente</div>
 
       <div class="prova-banner">
-        <span class="prova-banner-icon">🤖</span>
+        <span class="prova-banner-icon">AI</span>
         <div>
-          <div class="prova-banner-title">Powered by Gemini AI</div>
+          <div class="prova-banner-title">Powered by Gemini</div>
           <div class="prova-banner-sub">Tópicos extraídos automaticamente do edital · Marque conforme for estudando</div>
         </div>
       </div>
 
       <!-- Exam Date Card -->
       <div class="prova-date-card">
-        <span style="font-size:20px">📅</span>
-        <label for="prova-data-input">Data da prova:</label>
+        <label for="prova-data-input">Data da prova</label>
         <input type="date" id="prova-data-input" onchange="salvarDataProva(this.value)">
         <span id="prova-countdown-inline">— sem data definida</span>
       </div>
@@ -1219,25 +1874,25 @@
       <!-- Upload Zone -->
       <div id="prova-upload-area">
         <div class="upload-zone" id="upload-zone" onclick="document.getElementById('prova-file-input').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)">
-          <div style="font-size:48px;margin-bottom:12px">📸</div>
-          <div style="font-size:17px;font-weight:700;color:var(--gray-800);margin-bottom:6px">Envie o print do seu edital</div>
-          <div style="font-size:14px;color:var(--gray-500);margin-bottom:16px">Arraste e solte aqui ou clique para selecionar</div>
-          <div style="font-size:12px;color:var(--gray-400)">JPG, PNG, HEIC · Câmera ou galeria · Várias imagens permitidas</div>
+          <div></div>
+          <div>Envie o print do seu edital</div>
+          <div>Arraste e solte aqui ou clique para selecionar</div>
+          <div>JPG, PNG, HEIC · Câmera ou galeria · Várias imagens permitidas</div>
           <input type="file" id="prova-file-input" accept="image/*" multiple style="display:none" onchange="uploadAndExtractMultiple(this.files)">
         </div>
 
         <div class="prova-or">ou</div>
 
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <input type="text" id="prova-topico-manual" placeholder="Digite um tópico manualmente (ex: AVC Isquêmico)" style="flex:1;padding:10px 14px;border:1.5px solid var(--gray-300);border-radius:8px;font-size:14px;outline:none;min-width:220px" onkeydown="if(event.key==='Enter') adicionarTopicoManual()">
-          <button onclick="adicionarTopicoManual()" style="padding:10px 18px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">+ Adicionar</button>
+          <input type="text" id="prova-topico-manual" placeholder="Digite um tópico manualmente (ex: AVC Isquêmico)" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter') adicionarTopicoManual()">
+          <button class="btn btn-primary" onclick="adicionarTopicoManual()">+ Adicionar</button>
         </div>
       </div>
 
       <!-- Loading State -->
       <div id="prova-loading" class="prova-loading" style="display:none">
         <div class="spinner"></div>
-        <div class="load-msg">Analisando o print...</div>
+        <div class="load-msg">Analisando o print…</div>
         <div class="load-sub">A IA está identificando os tópicos da sua prova</div>
       </div>
 
@@ -1247,10 +1902,10 @@
         <div class="prova-progress-wrap" id="prova-progress-wrap">
           <div class="prova-progress-top">
             <div>
-              <div class="prova-progress-label">📚 Progresso de estudo</div>
-              <div style="font-size:12px;color:var(--gray-400);margin-top:2px" id="prova-progress-sub">0 de 0 tópicos concluídos</div>
+              <div class="prova-progress-label">Progresso de estudo</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);margin-top:4px;letter-spacing:0.04em;font-weight:600" id="prova-progress-sub">0 de 0 tópicos concluídos</div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:flex;align-items:center;gap:12px">
               <span id="prova-progress-countdown-badge" class="prova-countdown-badge" style="display:none"></span>
               <span class="prova-progress-pct" id="prova-progress-pct">0%</span>
             </div>
@@ -1261,34 +1916,35 @@
         </div>
 
         <!-- Banner de roteiro confirmado -->
-        <div id="prova-confirmado-banner" style="display:none;align-items:center;gap:12px;background:#d1fae5;border:1.5px solid #6ee7b7;border-radius:12px;padding:14px 18px;margin-bottom:16px">
-          <span style="font-size:22px">✅</span>
-          <div>
-            <div style="font-weight:700;color:#065f46;font-size:14px">Roteiro confirmado!</div>
-            <div style="font-size:12px;color:#047857;margin-top:2px">Marque os tópicos conforme for estudando. Você pode adicionar mais imagens a qualquer momento.</div>
+        <div id="prova-confirmado-banner" style="display:none;align-items:center;gap:14px;background:var(--forest-tint);border-left:4px solid var(--forest);padding:16px 22px;margin-bottom:18px">
+          <div style="flex:1">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:8px">
+              <span>✓</span><span>Roteiro confirmado</span>
+            </div>
+            <div style="font-size:12px;color:var(--ink-soft);margin-top:4px">Marque os tópicos conforme for estudando. Você pode adicionar mais imagens a qualquer momento.</div>
           </div>
-          <button onclick="desconfirmarRoteiro()" style="margin-left:auto;background:none;border:1px solid #6ee7b7;border-radius:6px;padding:4px 10px;font-size:12px;color:#047857;cursor:pointer;white-space:nowrap">✏️ Editar</button>
+          <button onclick="desconfirmarRoteiro()" class="btn btn-ghost btn-sm" style="white-space:nowrap">Editar</button>
         </div>
 
         <div style="margin-bottom:12px">
-          <div style="font-size:16px;font-weight:700;color:var(--gray-800);margin-bottom:4px">📋 Tópicos identificados</div>
-          <div style="font-size:12px;color:var(--gray-500);margin-bottom:14px">Revise os tópicos abaixo e confirme o roteiro quando estiver pronto ✅</div>
+          <div style="font-family:'Inter Tight',sans-serif;font-size:20px;font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:-0.02em">Tópicos identificados</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:18px;letter-spacing:0.04em;font-weight:600">Revise os tópicos abaixo e confirme o roteiro quando estiver pronto</div>
           <div id="prova-topicos-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px"></div>
 
           <!-- Botão confirmar (exibido enquanto não confirmado) -->
-          <div id="prova-confirmar-wrap" style="margin-bottom:16px">
-            <button onclick="confirmarRoteiro()" style="width:100%;padding:14px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(16,185,129,.3);letter-spacing:.3px">
-              ✅ Confirmar roteiro de estudos
+          <div id="prova-confirmar-wrap" style="margin-bottom:18px">
+            <button onclick="confirmarRoteiro()" style="width:100%;padding:16px;background:var(--forest);color:#fff;border:none;border-radius:3px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.02em;display:inline-flex;align-items:center;justify-content:center;gap:10px">
+              ✓ Confirmar roteiro de estudos
             </button>
-            <div style="text-align:center;font-size:12px;color:var(--gray-400);margin-top:6px">Você poderá editar depois se precisar adicionar mais tópicos</div>
+            <div style="font-family:'JetBrains Mono',monospace;text-align:center;font-size:10px;color:var(--gray);margin-top:8px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600">Você poderá editar depois se precisar adicionar mais tópicos</div>
           </div>
 
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-            <button onclick="document.getElementById('prova-add-more-input').click()" style="padding:8px 16px;background:var(--primary-light);color:var(--primary);border:1.5px solid #c7d7f8;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">📸 Adicionar imagens</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('prova-add-more-input').click()">+ Adicionar imagens</button>
             <input type="file" id="prova-add-more-input" accept="image/*" multiple style="display:none" onchange="uploadAndExtractMultiple(this.files)">
-            <button onclick="marcarTodosConluidos()" style="padding:8px 16px;background:var(--success-light);color:var(--success);border:1px solid #6ee7b7;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600">✅ Marcar todos</button>
-            <button onclick="desmarcarTodos()" style="padding:8px 16px;background:var(--gray-100);color:var(--gray-500);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;cursor:pointer">↩ Desmarcar todos</button>
-            <button onclick="resetProva()" style="padding:8px 16px;background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200);border-radius:8px;font-size:13px;cursor:pointer">🗑 Limpar tópicos</button>
+            <button class="btn btn-ghost btn-sm" onclick="marcarTodosConluidos()">✓ Marcar todos</button>
+            <button class="btn btn-ghost btn-sm" onclick="desmarcarTodos()">↩ Desmarcar todos</button>
+            <button class="btn btn-ghost btn-sm" onclick="resetProva()">Limpar tópicos</button>
           </div>
         </div>
       </div>
@@ -1300,8 +1956,8 @@
 <!-- ══ SESSION MODAL ══ -->
 <div class="modal-overlay" id="session-modal">
   <div class="modal">
-    <div class="modal-title">🗓️ Nova Sessão de Estudo</div>
-    <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="modal-title">Nova Sessão de Estudo</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
       <div class="form-group">
         <label>Tópico / Matéria</label>
         <select id="sess-topic"></select>
@@ -1331,11 +1987,11 @@
       <div class="form-group">
         <label>Cor</label>
         <select id="sess-color">
-          <option value="sc-blue">🔵 Azul</option>
-          <option value="sc-teal">🟦 Teal</option>
-          <option value="sc-green">🟢 Verde</option>
-          <option value="sc-amber">🟡 Âmbar</option>
-          <option value="sc-purple">🟣 Roxo</option>
+          <option value="sc-blue">Cobalto</option>
+          <option value="sc-teal">Teal</option>
+          <option value="sc-green">Verde</option>
+          <option value="sc-amber">Âmbar</option>
+          <option value="sc-purple">Ameixa</option>
         </select>
       </div>
     </div>
@@ -2182,7 +2838,7 @@ const MODULOS = {
 </ul>
 
 
-<p>Documento compilado a partir do material educativo Estratégia MED Neurologia - Acidentes Vasculares Cerebrais, para uso em preparação para exames de Residência Médica.</p>
+<p>Resumo de estudo sobre Acidentes Vasculares Cerebrais para preparação para exames de Residência Médica.</p>
 `,
     flashcards: [{"frente": "O AVC é definido como morte de neurônios em qual contexto temporal?", "verso": "Morte neuronal em território arterial encefálico com déficit neurológico súbito de duração >24h ou que leve à morte, causado por isquemia ou hemorragia vascular cerebral"}, {"frente": "Qual é a diferença fundamental entre AVC e AIT?", "verso": "AVC: há morte neuronal confirmada por alterações em neuroimagem (hipodensidade na TC ou restrição à difusão na RM). AIT: reversão completa de déficit SEM evidência de morte neuronal em imagem"}, {"frente": "Qual artéria causa o déficit de predomínio braquiofacial (hemiparesia facial e de MSD)?", "verso": "Artéria Cerebral Média (ACM/MCA) - porque as fibras do homúnculo de Penfield para face e MSD estão localizadas no terço superior do córtex motor, irrigadas pela ACM"}, {"frente": "Qual artéria causa hemiparesia de predomínio crural (perna)?", "verso": "Artéria Cerebral Anterior (ACA) - porque as fibras para membros inferiores estão localizadas na região medial do córtex motor, irrigadas pela ACA"}, {"frente": "Qual fator de risco não modificável tem maior impacto no AVC?", "verso": "Idade - risco dobra a cada década após 55 anos e aumenta exponencialmente após 65 anos"}, {"frente": "Qual fator de risco modificável mais frequente no Brasil (estudo EMMA) e qual seu risco relativo?", "verso": "Tabagismo (37% de prevalência). Hipertensão é mais importante pelo risco relativo (4x maior, presente em 70% dos AVCs)"}, {"frente": "O que é core isquêmico e qual sua característica temporal?", "verso": "Área de fluxo sanguíneo cerebral extremamente reduzido onde neurônios morrem em 4-10 minutos. Déficit neurológico IRREVERSÍVEL"}, {"frente": "O que é penumbra isquêmica e qual sua característica principal?", "verso": "Tecido hipoperfundido ao redor do core onde neurônios estão vivos mas não funcionando. É TEMPORARIAMENTE viável e pode ser salvado com reperfusão a tempo"}, {"frente": "Qual é o mnemônico para o conceito central do manejo do AVC agudo?", "verso": "TEMPO É CÉREBRO - quanto mais cedo a reperfusão, maiores as chances de salvar a penumbra isquêmica"}, {"frente": "Qual é a dose de alteplase (rt-PA) para trombólise em AVC isquêmico agudo?", "verso": "0,9 mg/kg (máximo 90 mg): 10% em bólus IV, seguido de 90% em infusão contínua durante 1 hora"}, {"frente": "Qual é a janela terapêutica para trombólise endovenosa com rt-PA?", "verso": "Até 4,5 horas do início dos sintomas (último momento em que o paciente foi visto normal)"}, {"frente": "Qual é a pressão arterial-alvo em paciente que receberá trombólise?", "verso": "PAS < 185 mmHg e PAD < 110 mmHg (deve estar abaixo desses valores ANTES de iniciar rt-PA)"}, {"frente": "Qual é a pressão arterial alvo em paciente COM AVC que NÃO receberá trombolítica?", "verso": "Permissiva: tolerar até PAS 220 mmHg e PAD 120 mmHg (só medicar se ultrapassar esses valores)"}, {"frente": "Qual é a droga de escolha para controle pressórico rápido e controlado em AVC?", "verso": "Nitroprussiato de sódio endovenoso (permite redução rápida e titulável da PA)"}, {"frente": "Qual fármaco NÃO deve ser usado para trombólise e por quê?", "verso": "Estreptoquinase - seu primeiro estudo em AVC demonstrou aumento de mortalidade por sangramento"}, {"frente": "Qual é a dose de tenecteplase (TNK) em AVC isquêmico?", "verso": "0,25 mg/kg em bólus IV (máximo 25 mg). Ainda aguarda aprovação de agências nacionais para uso"}, {"frente": "Qual é o NIHSS mínimo indicador de déficit significativo para considerar trombólise?", "verso": "NIHSS > 5 OU déficit incapacitante (afasia, hemianopsia, plegia/paraplegia)"}, {"frente": "Qual é o ASPECTS mínimo essencial para indicação de trombectomia?", "verso": "ASPECTS ≥ 6 (pontuação máxima é 10; valores abaixo de 6 indicam dano extenso)"}, {"frente": "Qual é a janela temporal para trombectomia de 0-6 horas?", "verso": "Necessário apenas TC + angioTC (ou RM + angioRM). Basta ASPECTS ≥ 6 sem necessidade de estudo de perfusão"}, {"frente": "Qual é a janela temporal para trombectomia de 6-24 horas?", "verso": "Necessário estudo de perfusão além da neuroimagem estrutural. Critérios baseados em estudos DAWN e DEFUSE-3 (demonstrar viabilidade tecidual)"}, {"frente": "Qual vaso ocluído é melhor candidato para trombectomia e qual é a taxa de recanalização com o procedimento?", "verso": "Carótida Interna (ACI) ou segmento M1 da ACM. Taxa de recanalização > 80% (comparado a 8% em ACI e 32% em M1 com trombólise apenas)"}, {"frente": "Em paciente que 'acordou com déficit neurológico' (wake-up stroke), como avaliar elegibilidade para trombolítica?", "verso": "RM com FLAIR + Difusão: se isquemia < 1/3 do território da ACM na difusão E FLAIR normal, provavelmente ocorreu há < 4,5h, permitindo trombólise"}, {"frente": "O que é o escore ABCD2 e em qual contexto é utilizado?", "verso": "Escore que prediz risco de AVC isquêmico nos próximos 90 dias após AIT. Avalia: Age (>60 = +1), Blood pressure (>140/90 = +1), Clinical (hemiparesia +2, fala +1), Duration (10-59min +1, ≥60min +2), Diabetes (+1)"}, {"frente": "Qual é a classificação de risco pelo escore ABCD2?", "verso": "Baixo risco: 0-3 pontos; Risco moderado: 4-5 pontos; Alto risco: 6-7 pontos. Alto risco deve ser internado para investigação"}, {"frente": "Qual é a dose de rt-PA para AIT de alto risco (ABCD2 ≥4) ou AVC menor (NIHSS ≤5)?", "verso": "Dupla antiagregação: AAS + clopidogrel por 21 dias, seguida de monoterapia com um deles"}],
     questoes: [{"enunciado": "Paciente masculino, 65 anos, hipertenso, chega ao PS com quadro de déficit motor à direita que começou há 2 horas. Ao exame: NIHSS 18, PA 178/110 mmHg, TC de crânio normal, sem sinais de hemorragia. Após 15 minutos é realizada angioTC que revela oclusão do segmento M1 da artéria cerebral média esquerda. Qual é a conduta imediata mais apropriada?", "alternativas": ["A) Iniciar nitroprussiato para reduzir PA para 140/90 mmHg e depois considerar trombólise", "B) Iniciar trombólise com rt-PA 0,9 mg/kg (bólus 10%, infusão 90% em 1 hora) e, concomitantemente, preparar para trombectomia mecânica", "C) Realizar apenas observação clínica e aguardar evolução natural", "D) Transferir para centro de referência em neurocirurgia sem qualquer intervenção", "E) Iniciar anticoagulação com heparina não fracionada imediatamente"], "gabarito": "B", "comentario": "O paciente está dentro da janela de 4,5 horas, tem PA permissiva para trombolítica (não ultrapassou 185/110), NIHSS elevado (18), sem contraindicações à trombólise (TC normal, sem hemorragia). A trombólise é indicada como primeira linha. A presença de oclusão proximal anterior (M1 da ACM) identificada já na angioTC significa que, após iniciar a trombólise, ele deve ser encaminhado também para trombectomia mecânica. Ambos os procedimentos (trombólise + trombectomia) são complementares nessa situação e devem ser feitos. A PA de 178/110 é permissiva e não necessita de controle prévio à trombólise"}, {"enunciado": "Mulher, 72 anos, diabética, é trazida ao PS com dificuldade de falar e fraqueza à direita iniciada há 5 horas e 30 minutos. PA 170/95 mmHg, NIHSS 15, TC normal. Após confirmação de oclusão proximal de ACM esquerda pela angioTC, qual é a conduta mais adequada?", "alternativas": ["A) Aguardar 4,5 horas adicionais antes de qualquer intervenção, pois já passou da janela", "B) Realizar trombectomia mecânica apenas, sem trombólise, pois ultrapassou 4,5 horas", "C) Iniciar trombólise apenas, sem considerar trombectomia, devido ao tempo decorrido", "D) Não realizar qualquer intervenção por estar fora da janela de trombólise e não ter critérios de perfusão disponíveis", "E) Considerar trombectomia se estudo de perfusão mostrar viabilidade tecidual, mesmo após 4,5 horas"], "gabarito": "E", "comentario": "Embora a paciente tenha ultrapassado os 4,5 horas (limite tradicional de trombólise), ela ainda está dentro da janela de 24 horas para trombectomia mecânica. Para pacientes com 6-24 horas de sintomas, é necessário um estudo de perfusão (TC de perfusão ou RM) para demonstrar que há tecido cerebral viável (mismatch perfusão-difusão). Se houver viabilidade tecidual (conforme critérios DAWN ou DEFUSE-3), a trombectomia é indicada. Portanto, deve-se realizar estudo de perfusão antes de determinar se ela é candidata"}, {"enunciado": "Homem, 58 anos, sem comorbidades prévias, apresenta déficit neurológico súbito há 50 minutos. Ao exame: NIHSS 4, PA 160/95 mmHg, TC normal. Qual é a estratégia antitrombótica mais apropriada nas próximas 24-48 horas?", "alternativas": ["A) Iniciar AAS 100 mg/dia em monoterapia", "B) Iniciar dupla antiagregação (AAS + clopidogrel) por 21 dias", "C) Não iniciar qualquer antiagregante pois o NIHSS é muito baixo", "D) Aguardar 7 dias para iniciar antiagregação", "E) Iniciar imediatamente anticoagulação com heparina"], "gabarito": "B", "comentario": "O paciente tem NIHSS 4, caracterizando um AVC menor ou AIT. A recomendação para casos de AVC menor (NIHSS ≤5) é realizar DUPLA antiagregação com AAS + clopidogrel por 21 dias, seguida de monoterapia. Essa estratégia foi validada pelo estudo POINT e é superior à monoterapia com AAS nesses casos. Importante iniciar entre 24-48 horas após o AVC em pacientes não trombolisados, ou 24 horas após o término da infusão de rt-PA em trombolisados"}, {"enunciado": "Mulher, 68 anos, com história de fibrilação atrial, apresenta AVC isquêmico agudo. Após investigação etiológica completa, confirma-se que o mecanismo é cardioembólico por FA não valvar. CHADS2VASc = 4. Qual é a profilaxia secundária mais apropriada a iniciar?", "alternativas": ["A) AAS 100 mg/dia indefinidamente", "B) Anticoagulação com NACO ou warfarina entre 4º e 14º dias pós-AVC", "C) Apenas controle pressórico e de fatores de risco, sem antiagregante ou anticoagulante", "D) Dupla antiagregação (AAS + clopidogrel) por 3 meses", "E) Anticoagulação imediata (< 24h) com warfarina"], "gabarito": "B", "comentario": "Paciente com AVC cardioembólico por FA não valvar deve receber anticoagulação. O CHADS2VASc = 4 em uma mulher (de 65-74 anos +1, HAS +1, AVC anterior +2) indica claramente necessidade de anticoagulação. O timing crítico: anticoagulação deve ser iniciada entre o 4º e o 14º dia após AVC (período seguro depende da extensão da isquemia). Anticoagulação precoce (< 24h) aumenta risco de transformação hemorrágica. Deve-se usar NACO ou warfarina conforme disponibilidade"}, {"enunciado": "Paciente com AVC hemorrágico intraparenquimatoso putaminal direito, apresenta PA 220/135 mmHg na chegada. Qual é o alvo pressórico ideal e qual é a droga de primeira escolha?", "alternativas": ["A) PAS 120/80 mmHg com captopril sublingual", "B) PAS 140/90 mmHg com nitroprussiato endovenoso", "C) Manter PA permissiva em 220/135 mmHg sem medicar", "D) PAS 160/100 mmHg com hidralazina endovenosa", "E) PAS 100/60 mmHg com nitroglicerina"], "gabarito": "B", "comentario": "Em AVC hemorrágico intraparenquimatoso, o manejo pressórico diferencia-se do AVC isquêmico. PA > 220 mmHg exige redução agressiva. O alvo deve ser PAS em torno de 140/90 mmHg. O nitroprussiato de sódio é a droga ideal porque permite redução rápida, titulável e controlada. Deve-se evitar reduções muito agressivas (como 120/80) pois podem causar lesão renal. A redução com nitroprussiato permite monitorizar a PA a cada 5 minutos"}, {"enunciado": "Homem, 45 anos, apresenta AVC isquêmico sem fator de risco clássico identificado. Ecocardiograma revela um forame oval patente com diâmetro de 0,8 cm. Estudo de vasos cervicais e intracranianos é normal. RM encefálica mostra pequeno infarto parietal não lacunar. Qual é a profilaxia secundária mais apropriada?", "alternativas": ["A) AAS 100 mg/dia indefinidamente", "B) Anticoagulação com warfarina", "C) Fechamento endovascular do forame oval com AAS após o procedimento", "D) Dupla antiagregação (AAS + clopidogrel) por 90 dias", "E) Apenas observação, pois forame oval patente é achado incidental sem significado clínico"], "gabarito": "C", "comentario": "Paciente jovem (45 anos) com AVC criptogênico (sem causa aparente) associado a forame oval patente é candidato para fechamento do forame. Segundo as diretrizes atuais, pacientes com ≤60 anos cuja estratificação não revelou outra causa e que tiveram AVC não lacunar devem ser considerados para fechamento endovascular do forame oval (especialmente se há aneurisma septal ou forame grande como nesse caso). A presença de AAS após o procedimento é padrão. Isso é mais eficaz do que apenas antiagregação"}, {"enunciado": "Paciente do sexo feminino, 55 anos, com cefaleia súbita em 'trovoada' iniciada há 6 horas, acompanhada de rigidez de nuca, náuseas e vômitos. PA 180/105 mmHg, Glasgow 14. TC de crânio revela hiperdensidade no espaço subaracnóideo. Qual é o diagnóstico e qual medicação deve ser iniciada?", "alternativas": ["A) AVC hemorrágico intraparenquimatoso; iniciar nitroprussiato", "B) Meningite bacteriana; iniciar antibióticos de amplo espectro", "C) Hemorragia subaracnóidea por ruptura aneurismática; iniciar nimodipino", "D) Enxaqueca com aura; iniciar sumatriptano", "E) Trombose de seio dural; iniciar anticoagulação"], "gabarito": "C", "comentario": "A combinação de cefaleia súbita em trovoada + rigidez de nuca + hiperdensidade no espaço subaracnóideo na TC é patognomônica de HSA. O nimodipino (bloqueador de cálcio) é a medicação de escolha no tratamento da HSA para prevenir vasoespasmo (complicação que ocorre entre 4-14 dias). Deve-se iniciar 60 mg 4x/dia VO. Outras medidas incluem: hemodiluição com hidratação venosa, repouso, analgésicos, controle de PA para manter PAS 140-160 mmHg. O tratamento definitivo (clipagem cirúrgica ou embolização endovascular) será feito após avaliação neurorradiológica"}, {"enunciado": "Qual das seguintes afirmações sobre o tratamento do AVC isquêmico está INCORRETA?", "alternativas": ["A) A trombólise com rt-PA está indicada até 4,5 horas do início dos sintomas", "B) A pressão arterial deve ser < 185/110 mmHg ANTES de iniciar trombólise", "C) Em pacientes que NÃO recebem trombólise, a PA deve ser reduzida se ultrapassar 220/120 mmHg", "D) O AAS deve ser iniciado 24 horas APÓS o término da infusão de rt-PA", "E) Glicose 50% deve ser administrada se glicemia < 50 mg/dL, evitando soro glicosado de manutenção"], "gabarito": "D", "comentario": "A alternativa D está INCORRETA. O AAS deve ser iniciado 24-48 HORAS APÓS O INÍCIO DOS SINTOMAS em pacientes não trombolisados, OU 24 HORAS APÓS O TÉRMINO (não início) da INFUSÃO de rt-PA em pacientes trombolisados. A resposta correta seria: 'O AAS deve ser iniciado 24 horas após o TÉRMINO da infusão de rt-PA' ou ainda '24-48 horas após o início dos sintomas em não trombolisados'. Todas as outras alternativas estão corretas"}, {"enunciado": "Homem, 72 anos, hipertenso, chega ao PS acordado com hemiparesia esquerda há 6 horas. Exame neurológico mostra déficit focal. TC de crânio revela pequena lacuna no tálamo esquerdo, sugestiva de AVC lacunar. Qual é a provável etiologia e qual é a investigação mais importante?", "alternativas": ["A) Cardioembolia; solicitar ecocardiograma transtorácico", "B) Aterosclerose de grandes vasos; solicitar angioTC de carótidas", "C) Aterosclerose de pequenos vasos; investigar HAS, diabetes, dislipidemia e controlar esses fatores", "D) Dissecção arterial; solicitar RM de parede vascular", "E) Forame oval patente; solicitar ecocardiograma transesofágico com microbolhas"], "gabarito": "C", "comentario": "AVC lacunar em tálamo (< 1,5 cm) em paciente hipertenso indica aterosclerose de pequenos vasos (doença de pequenos vasos perfurantes). Essa etiologia corresponde a 15-25% dos AVCs. O tálamo é irrigado pelas artérias talamoperfurantes (ramos da artéria cerebral posterior) que sofrem lipo-hialinose em diabéticos e hipertensos. A investigação mais importante não é vascular (como angioTC de carótidas que avalia circulação anterior), mas sim o controle dos fatores de risco: hipertensão arterial, diabetes e dislipidemia. A profilaxia secundária envolve AAS + estatina + controle rigoroso de PA e glicemia"}, {"enunciado": "Mulher, 62 anos, comparece com queixa de perda de força no braço direito e dificuldade de falar com duração de 30 minutos que regressa completamente. Exame neurológico agora é normal. RM encefálica mostra pequena área de restrição à difusão em região parietal. ABCD2 = 6 pontos. Qual é o diagnóstico mais apropriado e o tratamento imediato?", "alternativas": ["A) AIT com risco baixo; iniciar AAS 100 mg/dia", "B) AVC isquêmico minor; iniciar dupla antiagregação com AAS + clopidogrel por 21 dias", "C) Enxaqueca com aura; iniciar sumatriptano", "D) Síncope; investigar causas cardiológicas", "E) Transtorno conversivo; encaminhar para psiquiatria"], "gabarito": "B", "comentario": "Apesar do déficit ter regredido clinicamente (sugestivo de AIT), a RM mostra restrição à difusão (lesão isquêmica real = AVC isquêmico minor). Os guidelines consideram AIT de alto risco (ABCD2 ≥ 4 que nesse caso = 6) e AVC minor (NIHSS < 3) como condições similares que exigem a mesma conduta: DUPLA ANTIAGREGAÇÃO com AAS + clopidogrel por 21 dias, seguida de monoterapia. Isso é superior à monoterapia com AAS e foi validado pelo estudo POINT"}]
@@ -5234,3 +5890,4 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+                                                                 
