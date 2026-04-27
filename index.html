@@ -1327,6 +1327,283 @@
 
     .divider { border: none; border-top: 1px solid var(--hairline); margin: 22px 0; }
 
+    /* ═══════════════ PAINEL DE CAMPANHA ═══════════════ */
+    .campaign-panel {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: 3px;
+      padding: 26px 30px 24px;
+      display: grid;
+      grid-template-columns: 1.3fr 1.55fr 1.1fr;
+      gap: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    .campaign-panel::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--cobalt);
+    }
+    .campaign-panel.urgent::before { background: var(--scarlet); }
+    .campaign-panel.calm::before   { background: var(--forest); }
+    .campaign-panel.review::before { background: var(--plum); }
+
+    .cp-zone { min-width: 0; }
+    .cp-zone-r {
+      border-right: 1px solid var(--hairline);
+      padding-right: 30px;
+    }
+    .cp-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--gray);
+      margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cp-label .cp-switch {
+      font-size: 9px; color: var(--gray-soft);
+      cursor: pointer; letter-spacing: 0.12em;
+      background: none; border: none; padding: 0;
+      font-family: inherit; text-transform: uppercase;
+    }
+    .cp-label .cp-switch:hover { color: var(--cobalt); }
+
+    .cp-countdown-v {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800; font-size: 78px; line-height: 0.92;
+      letter-spacing: -0.045em; color: var(--ink);
+      margin-bottom: 2px;
+      font-feature-settings: 'tnum';
+    }
+    .cp-countdown-u {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      color: var(--gray); text-transform: uppercase;
+      letter-spacing: 0.16em; margin-bottom: 14px;
+    }
+    .cp-prova-n {
+      font-family: 'Inter Tight', sans-serif;
+      font-weight: 800; font-size: 17px;
+      letter-spacing: -0.012em; line-height: 1.2;
+      color: var(--ink); margin-bottom: 3px;
+    }
+    .cp-prova-d {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px; color: var(--gray);
+    }
+
+    .cp-stat {
+      font-family: 'Inter Tight', sans-serif;
+      font-weight: 800; font-size: 21px;
+      letter-spacing: -0.015em; margin-bottom: 12px;
+      font-feature-settings: 'tnum';
+    }
+    .cp-stat .pn { color: var(--cobalt); }
+    .cp-stat .pc { color: var(--gray-soft); font-weight: 400; padding: 0 4px; }
+    .cp-stat .pt { color: var(--ink-soft); }
+    .cp-stat .ps { color: var(--gray); font-weight: 500; font-size: 16px; padding-left: 6px; }
+    .campaign-panel.urgent .cp-stat .pn { color: var(--scarlet); }
+    .campaign-panel.calm   .cp-stat .pn { color: var(--forest); }
+    .campaign-panel.review .cp-stat .pn { color: var(--plum); }
+
+    .cp-bar {
+      width: 100%; height: 3px;
+      background: var(--hairline);
+      margin-bottom: 12px;
+      position: relative; overflow: hidden;
+    }
+    .cp-bar-f {
+      position: absolute; inset: 0 auto 0 0;
+      background: var(--cobalt);
+      transition: width .6s ease;
+    }
+    .campaign-panel.urgent .cp-bar-f { background: var(--scarlet); }
+    .campaign-panel.calm   .cp-bar-f { background: var(--forest); }
+    .campaign-panel.review .cp-bar-f { background: var(--plum); }
+
+    .cp-msg {
+      font-family: 'Inter', sans-serif;
+      font-style: italic; font-size: 13.5px;
+      font-weight: 500; color: var(--cobalt);
+      line-height: 1.45; letter-spacing: -0.005em;
+      margin-bottom: 14px;
+    }
+    .campaign-panel.urgent .cp-msg { color: var(--scarlet); }
+    .campaign-panel.calm   .cp-msg { color: var(--forest); }
+    .campaign-panel.review .cp-msg { color: var(--plum); }
+
+    .cp-meta {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; gap: 16px;
+    }
+    .cp-meta-t {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; font-weight: 500;
+      color: var(--gray); text-transform: uppercase;
+      letter-spacing: 0.12em; line-height: 1.7;
+    }
+    .cp-meta-t strong { color: var(--ink); font-weight: 700; }
+    .cp-spark { flex-shrink: 0; }
+
+    .cp-next-list {
+      list-style: none;
+      display: flex; flex-direction: column;
+      gap: 9px; margin: 2px 0 12px;
+      padding: 0;
+    }
+    .cp-next-item {
+      display: flex; align-items: center; gap: 9px;
+      cursor: pointer;
+    }
+    .cp-next-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%; flex-shrink: 0;
+    }
+    .cp-next-dot.cobalt     { background: var(--cobalt); }
+    .cp-next-dot.amber      { background: var(--amber); }
+    .cp-next-dot.terracotta { background: var(--terracotta); }
+    .cp-next-dot.plum       { background: var(--plum); }
+    .cp-next-dot.gray       { background: var(--gray-soft); }
+    .cp-next-text { flex: 1; min-width: 0; }
+    .cp-next-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600; font-size: 12.5px;
+      letter-spacing: -0.005em; color: var(--ink);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cp-next-mod {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; font-weight: 500;
+      color: var(--gray); text-transform: uppercase;
+      letter-spacing: 0.12em; margin-top: 1px;
+    }
+    .cp-next-conf {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; color: var(--gray-soft);
+      flex-shrink: 0; letter-spacing: 0.04em;
+    }
+    .cp-next-link {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px; font-weight: 600;
+      color: var(--cobalt); text-decoration: none;
+      display: block; padding-top: 10px;
+      border-top: 1px solid var(--hairline);
+    }
+    .cp-next-link:hover { text-decoration: underline; }
+
+    .cp-empty {
+      grid-column: 1 / -1;
+      padding: 28px 8px;
+      text-align: center;
+    }
+    .cp-empty-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--gray); margin-bottom: 8px;
+    }
+    .cp-empty-msg {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; color: var(--gray);
+      line-height: 1.5;
+    }
+    .cp-empty-msg a {
+      color: var(--cobalt); font-weight: 600; text-decoration: none;
+    }
+    .cp-empty-msg a:hover { text-decoration: underline; }
+    .campaign-panel:has(.cp-empty) {
+      grid-template-columns: 1fr;
+    }
+
+    .grid-3-stats > .stat-card:nth-child(1) { border-top-color: var(--cobalt); }
+    .grid-3-stats > .stat-card:nth-child(2) { border-top-color: var(--amber); }
+    .grid-3-stats > .stat-card:nth-child(3) { border-top-color: var(--plum); }
+
+    @media (max-width: 919px) {
+      .campaign-panel {
+        padding: 22px 24px 20px;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 20px 24px;
+      }
+      .campaign-panel .cp-zone-countdown {
+        grid-column: 1; grid-row: 1;
+        padding-right: 24px;
+        border-right: 1px solid var(--hairline);
+      }
+      .campaign-panel .cp-zone-pace {
+        grid-column: 2; grid-row: 1;
+        padding-right: 0; border-right: none;
+      }
+      .campaign-panel .cp-zone-next {
+        grid-column: 1 / span 2; grid-row: 2;
+        padding-top: 18px; border-top: 1px solid var(--hairline);
+      }
+      .cp-countdown-v { font-size: 76px; }
+      .cp-prova-n { font-size: 16px; }
+      .cp-stat { font-size: 20px; }
+      .cp-stat .ps { font-size: 15px; }
+      .cp-msg { font-size: 13px; margin-bottom: 12px; }
+      .cp-next-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 24px;
+        margin: 2px 0 10px;
+      }
+      .cp-next-link { padding-top: 12px; margin-top: 10px; }
+    }
+
+    @media (max-width: 559px) {
+      .campaign-panel {
+        padding: 18px 18px 16px;
+        display: flex !important;
+        flex-direction: column;
+        grid-template-columns: none;
+      }
+      .campaign-panel .cp-zone-countdown {
+        padding: 0 0 16px;
+        border: none;
+        border-bottom: 1px solid var(--hairline);
+      }
+      .campaign-panel .cp-zone-pace {
+        padding: 16px 0;
+        border: none;
+        border-bottom: 1px solid var(--hairline);
+      }
+      .campaign-panel .cp-zone-next {
+        padding: 16px 0 0;
+        border: none;
+      }
+      .cp-zone-countdown-row {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 18px;
+        align-items: end;
+      }
+      .cp-zone-countdown-row .cp-countdown-v {
+        font-size: 64px; margin-bottom: 0; line-height: 0.9;
+      }
+      .cp-zone-countdown-row .cp-countdown-u {
+        font-size: 9.5px; margin-bottom: 0; margin-top: 2px;
+      }
+      .cp-zone-countdown-row .cp-side { padding-bottom: 4px; }
+      .cp-zone-countdown-row .cp-prova-n {
+        font-size: 15px; margin-top: 8px; margin-bottom: 2px;
+      }
+      .cp-zone-countdown-row .cp-prova-d { font-size: 11px; }
+      .cp-stat { font-size: 19px; margin-bottom: 10px; }
+      .cp-stat .ps { font-size: 14px; }
+      .cp-msg { font-size: 13px; line-height: 1.4; margin-bottom: 12px; }
+      .cp-meta { gap: 12px; }
+      .cp-meta-t { font-size: 9px; line-height: 1.6; }
+      .cp-spark { width: 78px; height: 24px; }
+      .cp-next-list { gap: 11px; }
+      .cp-next-title { font-size: 13px; }
+      .cp-next-link { font-size: 12px; padding-top: 12px; margin-top: 11px; }
+      .cp-next-list li:nth-child(n+4) { display: none; }
+    }
+
     /* ─────────────── RESPONSIVE ─────────────── */
     @media (max-width: 1080px) {
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
@@ -1536,16 +1813,16 @@
       <div class="page-title">Olá, <span class="accent">Hermano</span></div>
       <div class="page-subtitle">Módulo Neurologia<span class="sep">·</span>Residência · Ciclo Clínico<span class="sep">·</span><span id="today-date"></span></div>
 
-      <!-- STAT CARDS -->
-      <div class="grid-4" style="margin-bottom:20px">
-        <div class="card stat-card">
-          <div class="stat-icon"></div>
-          <div>
-            <div class="stat-label">Concluídos</div>
-            <div class="stat-num" id="stat-done" style="color:var(--forest)">0</div>
-            <div class="stat-sub" id="stat-done-pct">de 0 total</div>
-          </div>
+      <!-- ══ PAINEL DE CAMPANHA ══ -->
+      <div class="campaign-panel" id="campaign-panel" style="margin-bottom:20px">
+        <div class="cp-empty">
+          <div class="cp-empty-label">Próxima prova</div>
+          <div class="cp-empty-msg">Cadastre uma prova em <a href="#" onclick="navigate('provas');return false;">Provas</a> para acompanhar o countdown.</div>
         </div>
+      </div>
+
+      <!-- STAT CARDS (3) -->
+      <div class="grid-3 grid-3-stats" style="margin-bottom:20px">
         <div class="card stat-card">
           <div class="stat-icon"></div>
           <div>
@@ -1573,41 +1850,9 @@
       </div>
 
       <!-- PROGRESS PER AREA -->
-      <div class="grid-2" style="margin-bottom:20px">
-        <div class="card">
-          <div class="card-title">Progresso por Área</div>
-          <div id="area-progress-list" style="display:flex;flex-direction:column;gap:14px"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Progresso Geral</div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 0;position:relative">
-            <svg class="ring" width="150" height="150" viewBox="0 0 150 150">
-              <circle class="ring-bg" cx="75" cy="75" r="60" stroke-width="10"/>
-              <circle class="ring-fill" cx="75" cy="75" r="60" stroke-width="10"
-                stroke="url(#prog-grad)" stroke-dasharray="376.99"
-                stroke-dashoffset="376.99" id="ring-fill-main"/>
-              <defs>
-                <linearGradient id="prog-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#1d2d6b"/>
-                  <stop offset="100%" stop-color="#152354"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            <div style="position:absolute;top:65px;font-family:'Inter Tight',sans-serif;font-size:34px;font-weight:900;letter-spacing:-0.04em;color:var(--cobalt)" id="ring-pct-text">0%</div>
-            <div class="ring-label">dos tópicos estudados</div>
-            <div style="display:flex;gap:20px;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">
-              <div style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;background:var(--forest);display:inline-block"></span><span style="color:var(--gray)">Concluído</span></div>
-              <div style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;background:var(--hairline-strong);display:inline-block"></span><span style="color:var(--gray)">Pendente</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PRIORITY TOPICS -->
       <div class="card">
-        <div class="card-title">Tópicos Prioritários</div>
-        <div id="priority-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div class="card-title">Progresso por Área</div>
+        <div id="area-progress-list" style="display:flex;flex-direction:column;gap:14px"></div>
       </div>
     </section>
 
@@ -4960,14 +5205,238 @@ function updateBadges() {
 // ─────────────────────────────────────────────
 const COLOR_FILLS = { blue: 'blue', teal: 'teal', amber: 'amber', green: 'green', purple: 'purple' };
 
+// ─────────────────────────────────────────────
+// PAINEL DE CAMPANHA — pace log (localStorage)
+// ─────────────────────────────────────────────
+const PACE_LOG_KEY = 'hub_pace_log';
+
+function paceTodayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function paceLoadLog() {
+  try { return JSON.parse(localStorage.getItem(PACE_LOG_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+function paceSaveLog(log) {
+  try { localStorage.setItem(PACE_LOG_KEY, JSON.stringify(log)); } catch(e) {}
+}
+function paceTrack(delta) {
+  const log = paceLoadLog();
+  const k = paceTodayKey();
+  log[k] = Math.max(0, (log[k] || 0) + delta);
+  paceSaveLog(log);
+}
+function paceLast7Days() {
+  const log = paceLoadLog();
+  const points = [];
+  let total = 0;
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const v = log[k] || 0;
+    points.push(v);
+    total += v;
+  }
+  return { points, total, avg: total / 7 };
+}
+function paceSparklineSVG(points, color, w, h) {
+  if (!points || points.length === 0) return '';
+  const max = Math.max(...points, 1);
+  const stepX = (w - 4) / Math.max(1, points.length - 1);
+  const padBottom = 4;
+  const usableH = h - padBottom - 4;
+  const coords = points.map((v, i) => {
+    const x = 2 + i * stepX;
+    const y = (h - padBottom) - (v / max) * usableH;
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  });
+  const last = coords[coords.length - 1].split(',');
+  return '<svg class="cp-spark" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">' +
+    '<polyline points="' + coords.join(' ') + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<circle cx="' + last[0] + '" cy="' + last[1] + '" r="2" fill="' + color + '"/></svg>';
+}
+
+function getNextProva() {
+  if (!Array.isArray(provas) || provas.length === 0) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const withDate = provas.filter(p => p && p.data);
+  const future = withDate.filter(p => {
+    const d = new Date(p.data + 'T00:00:00');
+    return d.getTime() >= today.getTime();
+  });
+  const sortByDate = arr => arr.slice().sort((a,b) => new Date(a.data) - new Date(b.data));
+  const confirmadas = sortByDate(future.filter(p => p.confirmado));
+  if (confirmadas.length) return confirmadas[0];
+  const naoConfirmadas = sortByDate(future);
+  if (naoConfirmadas.length) return naoConfirmadas[0];
+  return sortByDate(withDate).pop() || null;
+}
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr + 'T00:00:00');
+  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+function formatProvaDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const days = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+  return d.getDate() + ' ' + months[d.getMonth()] + ' · ' + days[d.getDay()];
+}
+
+const MODULO_COLOR_CLASS = { avc: 'cobalt', cefaleia: 'amber', demencia: 'terracotta', epilepsia: 'plum' };
+const MODULO_LABEL = { avc: 'AVC', cefaleia: 'CEFALEIA', demencia: 'DEMÊNCIA', epilepsia: 'EPILEPSIA' };
+
+function pendingTopicsFor(prova, limit) {
+  if (!prova || !Array.isArray(prova.topicos)) return [];
+  const concSet = new Set(Array.isArray(prova.concluidos) ? prova.concluidos : []);
+  const pending = prova.topicos.filter(t => !concSet.has(t));
+  return pending.slice(0, limit || 4).map(t => {
+    const mod = (typeof matchTopicToModulo === 'function') ? matchTopicToModulo(t) : null;
+    return {
+      title: t,
+      moduloId: mod,
+      colorClass: MODULO_COLOR_CLASS[mod] || 'gray',
+      moduloLabel: MODULO_LABEL[mod] || ''
+    };
+  });
+}
+
+function paceStatus(daysLeft, totalTopicos, doneTopicos, avgPerDay) {
+  const pending = Math.max(0, totalTopicos - doneTopicos);
+  if (totalTopicos > 0 && pending === 0) {
+    return { status: 'review', neededPerDay: 0, message: 'Roteiro fechado. Modo revisão — foco nos pendentes com menor confiança.' };
+  }
+  if (daysLeft <= 0) {
+    return { status: 'urgent', neededPerDay: pending, message: 'A prova é hoje ou já passou. Foco no que estiver fresco.' };
+  }
+  const needed = pending / daysLeft;
+  const neededRound = Math.round(needed * 10) / 10;
+  const avgRound = Math.round(avgPerDay * 10) / 10;
+  if (avgPerDay > 0 && needed <= avgPerDay * 0.5) {
+    return { status: 'calm', neededPerDay: neededRound, message: 'Sobrando tempo — ' + formatNum(neededRound) + ' tópicos por dia até a prova. Aprofunda nos pendentes.' };
+  }
+  if (avgPerDay > 0 && needed > avgPerDay * 1.2) {
+    return { status: 'urgent', neededPerDay: neededRound, message: 'Precisa acelerar — ' + formatNum(neededRound) + ' tópicos por dia, e seu ritmo médio é ' + formatNum(avgRound) + '.' };
+  }
+  if (avgPerDay === 0 && needed > 0) {
+    return { status: 'cobalt', neededPerDay: neededRound, message: formatNum(neededRound) + ' tópicos por dia até a prova. Comece pelos prioritários.' };
+  }
+  return { status: 'cobalt', neededPerDay: neededRound, message: 'Você está no ritmo. ' + formatNum(neededRound) + ' tópicos por dia bastam até a prova.' };
+}
+function formatNum(n) { return String(n).replace('.', ','); }
+
+let cpProvaOverride = null;
+function _getNextProvaInternal() {
+  if (cpProvaOverride && Array.isArray(provas)) {
+    const found = provas.find(p => p.id === cpProvaOverride);
+    if (found) return found;
+    cpProvaOverride = null;
+  }
+  return getNextProva();
+}
+
+function trocarProvaCampanha() {
+  if (!Array.isArray(provas) || provas.length < 2) return;
+  const comData = provas.filter(p => p.data).slice().sort((a,b) => new Date(a.data) - new Date(b.data));
+  if (comData.length < 2) return;
+  const atual = _getNextProvaInternal();
+  const idxAtual = comData.findIndex(p => p.id === atual?.id);
+  const proxima = comData[(idxAtual + 1) % comData.length];
+  cpProvaOverride = proxima.id;
+  renderCampaignPanel();
+}
+
+function escapeHTML(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderCampaignPanel() {
+  const root = document.getElementById('campaign-panel');
+  if (!root) return;
+
+  const prova = _getNextProvaInternal();
+  if (!prova) {
+    root.className = 'campaign-panel';
+    root.innerHTML = '<div class="cp-empty"><div class="cp-empty-label">Próxima prova</div><div class="cp-empty-msg">Cadastre uma prova em <a href="#" onclick="navigate(\'provas\');return false;">Provas</a> para acompanhar o countdown.</div></div>';
+    return;
+  }
+
+  const dLeft = daysUntil(prova.data);
+  const total = Array.isArray(prova.topicos) ? prova.topicos.length : 0;
+  const done  = Array.isArray(prova.concluidos) ? prova.concluidos.length : 0;
+  const pct   = total ? Math.round((done / total) * 100) : 0;
+  const last7 = paceLast7Days();
+  const status = paceStatus(dLeft, total, done, last7.avg);
+
+  const cssColorMap = { cobalt: '#1d2d6b', urgent: '#c0243a', calm: '#2f6b3a', review: '#5e3a6b' };
+  const sparkColor = cssColorMap[status.status] || cssColorMap.cobalt;
+  const isMobile = window.matchMedia && window.matchMedia('(max-width: 559px)').matches;
+  const sparkSVG = paceSparklineSVG(last7.points, sparkColor, isMobile ? 78 : 92, isMobile ? 24 : 26);
+
+  const pending = pendingTopicsFor(prova, 4);
+  const totalPendentes = total - done;
+  const verLink = totalPendentes > 0 ? ('ver os ' + totalPendentes + ' pendentes →') : 'ver tópicos →';
+  const labelPendentes = (status.status === 'review') ? 'Para revisar' : 'Pendentes priorizados';
+  const labelRitmo = (status.status === 'review') ? 'Revisão ativa' : 'Ritmo';
+
+  const proximas = (provas || []).filter(p => p.data && p.id !== prova.id);
+  const switcherHTML = proximas.length > 0
+    ? '<button class="cp-switch" type="button" onclick="trocarProvaCampanha()">trocar →</button>'
+    : '';
+
+  root.className = 'campaign-panel ' + (status.status !== 'cobalt' ? status.status : '');
+  let html = '';
+  html += '<div class="cp-zone cp-zone-r cp-zone-countdown">';
+  html += '<div class="cp-label"><span>Próxima prova</span>' + switcherHTML + '</div>';
+  html += '<div class="cp-zone-countdown-row">';
+  html += '<div class="cp-countdown-v">' + Math.max(0, dLeft) + '</div>';
+  html += '<div class="cp-side">';
+  html += '<div class="cp-countdown-u">' + (dLeft === 1 ? 'dia até' : 'dias até') + '</div>';
+  html += '<div class="cp-prova-n">' + escapeHTML(prova.nome || 'Prova') + '</div>';
+  html += '<div class="cp-prova-d">' + formatProvaDate(prova.data) + '</div>';
+  html += '</div></div></div>';
+
+  html += '<div class="cp-zone cp-zone-r cp-zone-pace">';
+  html += '<div class="cp-label"><span>' + labelRitmo + '</span></div>';
+  html += '<div class="cp-stat"><span class="pn">' + done + '</span><span class="pc">de</span><span class="pt">' + total + '</span><span class="ps">' + (total === 1 ? 'tópico' : 'tópicos') + '</span></div>';
+  html += '<div class="cp-bar"><div class="cp-bar-f" style="width:' + pct + '%"></div></div>';
+  html += '<div class="cp-msg">' + escapeHTML(status.message) + '</div>';
+  html += '<div class="cp-meta"><div class="cp-meta-t">ÚLTIMOS 7 DIAS<br><strong>' + last7.total + ' ' + (last7.total === 1 ? 'tópico' : 'tópicos') + '</strong> · ' + formatNum(Math.round(last7.avg * 10) / 10) + '/dia</div>' + sparkSVG + '</div></div>';
+
+  html += '<div class="cp-zone cp-zone-next">';
+  html += '<div class="cp-label"><span>' + labelPendentes + '</span></div>';
+  if (pending.length > 0) {
+    html += '<ul class="cp-next-list">';
+    pending.forEach(function(p) {
+      html += '<li class="cp-next-item" onclick="navigate(\'provas\')">';
+      html += '<span class="cp-next-dot ' + p.colorClass + '"></span>';
+      html += '<div class="cp-next-text"><div class="cp-next-title">' + escapeHTML(p.title) + '</div>';
+      if (p.moduloLabel) html += '<div class="cp-next-mod">' + p.moduloLabel + '</div>';
+      html += '</div></li>';
+    });
+    html += '</ul>';
+  } else {
+    html += '<div class="cp-msg" style="font-style:normal;font-size:13px;color:var(--gray);font-weight:500">Tudo concluído.</div>';
+  }
+  html += '<a href="#" class="cp-next-link" onclick="navigate(\'provas\');return false;">' + verLink + '</a>';
+  html += '</div>';
+
+  root.innerHTML = html;
+}
+
 function renderDashboard() {
-  // date
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-  // stats
-  const { done, total, pct } = totalProgress();
-  document.getElementById('stat-done').textContent = done;
-  document.getElementById('stat-done-pct').textContent = `de ${total} total`;
   document.getElementById('stat-notes').textContent = state.notes.length;
   const qs = state.questions;
   document.getElementById('stat-q-total').textContent = qs.length;
@@ -4978,16 +5447,8 @@ function renderDashboard() {
   const sessions = state.sessions;
   document.getElementById('stat-sessions').textContent = sessions.length;
 
-  // ring
-  const circumference = 351.86;
-  const offset = circumference - (pct / 100) * circumference;
-  document.getElementById('ring-fill-main').style.strokeDashoffset = offset;
-  const ringPctEl = document.getElementById('ring-pct-text');
-  ringPctEl.textContent = pct + '%';
-  // position ring text absolutely in center
-  const ringParent = document.getElementById('ring-fill-main').closest('div');
+  renderCampaignPanel();
 
-  // area progress
   const apl = document.getElementById('area-progress-list');
   apl.innerHTML = '';
   TOPICS_DATA.forEach(g => {
@@ -5002,21 +5463,6 @@ function renderDashboard() {
         <div class="prog-bar"><div class="prog-fill ${COLOR_FILLS[g.color]}" style="width:${p}%"></div></div>
       </div>`;
   });
-
-  // priority list
-  const pl = document.getElementById('priority-list');
-  const priority = getAllTopics().filter(t => t.tags.includes('alta') && t.tags.includes('prova') && !state.checked[t.id]).slice(0, 6);
-  if (priority.length === 0) {
-    pl.innerHTML = '<div style="color:var(--success);font-weight:600;padding:10px">🎉 Todos os tópicos prioritários foram estudados!</div>';
-  } else {
-    pl.innerHTML = priority.map(t => `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100)">
-        <span style="font-size:18px">🔴</span>
-        <span style="font-size:14px;font-weight:500;color:var(--gray-800)">${t.name}</span>
-        <span style="margin-left:auto;font-size:12px;color:var(--gray-500)">${TOPICS_DATA.find(g=>g.id===t.group)?.title}</span>
-        <button class="btn btn-primary btn-sm" onclick="navigate('topicos')">Estudar</button>
-      </div>`).join('');
-  }
 }
 
 // ─────────────────────────────────────────────
@@ -5441,19 +5887,7 @@ updateHeaderProgress();
 updateBadges();
 renderDashboard();
 
-// ring text centering (manual overlay)
-const ringWrap = document.querySelector('#section-dashboard svg.ring').parentElement;
-ringWrap.style.position = 'relative';
-const overlay = document.createElement('div');
-overlay.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px;font-weight:800;color:var(--gray-900);pointer-events:none;';
-overlay.id = 'ring-pct-text-2';
-ringWrap.appendChild(overlay);
-// sync overlay
-function syncRingText() {
-  document.getElementById('ring-pct-text-2').textContent = document.getElementById('ring-pct-text').textContent;
-}
-const origRenderDash = renderDashboard;
-window.renderDashboard = function() { origRenderDash(); syncRingText(); };
+// (anel de progresso removido na v3 — Painel de Campanha cobre o mesmo papel)
 
 // ─────────────────────────────────────────────
 // MODO PROVA IA
@@ -5907,24 +6341,37 @@ function atualizarCountdown() {
 function toggleConluido(topico) {
   const p = provaAtual(); if (!p) return;
   const idx = p.concluidos.indexOf(topico);
-  if (idx >= 0) p.concluidos.splice(idx, 1);
-  else p.concluidos.push(topico);
+  if (idx >= 0) {
+    p.concluidos.splice(idx, 1);
+    if (typeof paceTrack === 'function') paceTrack(-1);
+  } else {
+    p.concluidos.push(topico);
+    if (typeof paceTrack === 'function') paceTrack(+1);
+  }
   salvarTodosProvas();
   renderProvaTopics();
+  if (typeof renderCampaignPanel === 'function') renderCampaignPanel();
 }
 
 function marcarTodosConluidos() {
   const p = provaAtual(); if (!p) return;
+  const before = p.concluidos.length;
   p.concluidos = [...p.topicos];
+  const delta = p.concluidos.length - before;
+  if (delta > 0 && typeof paceTrack === 'function') paceTrack(delta);
   salvarTodosProvas();
   renderProvaTopics();
+  if (typeof renderCampaignPanel === 'function') renderCampaignPanel();
 }
 
 function desmarcarTodos() {
   const p = provaAtual(); if (!p) return;
+  const before = p.concluidos.length;
   p.concluidos = [];
+  if (before > 0 && typeof paceTrack === 'function') paceTrack(-before);
   salvarTodosProvas();
   renderProvaTopics();
+  if (typeof renderCampaignPanel === 'function') renderCampaignPanel();
 }
 
 // ── Progress bar updater ──────────────────────
