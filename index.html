@@ -5258,10 +5258,14 @@ function paceSparklineSVG(points, color, w, h) {
     '<circle cx="' + last[0] + '" cy="' + last[1] + '" r="2" fill="' + color + '"/></svg>';
 }
 
+function _safeProvas() {
+  try { return Array.isArray(provas) ? provas : []; } catch(e) { return []; }
+}
 function getNextProva() {
-  if (!Array.isArray(provas) || provas.length === 0) return null;
+  const _provas = _safeProvas();
+  if (_provas.length === 0) return null;
   const today = new Date(); today.setHours(0,0,0,0);
-  const withDate = provas.filter(p => p && p.data);
+  const withDate = _provas.filter(p => p && p.data);
   const future = withDate.filter(p => {
     const d = new Date(p.data + 'T00:00:00');
     return d.getTime() >= today.getTime();
@@ -5331,8 +5335,9 @@ function formatNum(n) { return String(n).replace('.', ','); }
 
 let cpProvaOverride = null;
 function _getNextProvaInternal() {
-  if (cpProvaOverride && Array.isArray(provas)) {
-    const found = provas.find(p => p.id === cpProvaOverride);
+  const _provas = _safeProvas();
+  if (cpProvaOverride && _provas.length > 0) {
+    const found = _provas.find(p => p.id === cpProvaOverride);
     if (found) return found;
     cpProvaOverride = null;
   }
@@ -5340,8 +5345,9 @@ function _getNextProvaInternal() {
 }
 
 function trocarProvaCampanha() {
-  if (!Array.isArray(provas) || provas.length < 2) return;
-  const comData = provas.filter(p => p.data).slice().sort((a,b) => new Date(a.data) - new Date(b.data));
+  const _provas = _safeProvas();
+  if (_provas.length < 2) return;
+  const comData = _provas.filter(p => p.data).slice().sort((a,b) => new Date(a.data) - new Date(b.data));
   if (comData.length < 2) return;
   const atual = _getNextProvaInternal();
   const idxAtual = comData.findIndex(p => p.id === atual?.id);
@@ -5389,7 +5395,7 @@ function renderCampaignPanel() {
   const labelPendentes = (status.status === 'review') ? 'Para revisar' : 'Pendentes priorizados';
   const labelRitmo = (status.status === 'review') ? 'Revisão ativa' : 'Ritmo';
 
-  const proximas = (provas || []).filter(p => p.data && p.id !== prova.id);
+  const proximas = _safeProvas().filter(p => p.data && p.id !== prova.id);
   const switcherHTML = proximas.length > 0
     ? '<button class="cp-switch" type="button" onclick="trocarProvaCampanha()">trocar →</button>'
     : '';
