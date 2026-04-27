@@ -869,8 +869,27 @@
       font-size: 13px; color: var(--gray-softer);
       opacity: 0; transition: opacity .15s;
     }
-    .prova-card:hover .prova-card-delete { opacity: 1; }
+    .prova-card:hover .prova-card-delete,
+    .prova-card:hover .prova-card-arq { opacity: 1; }
     .prova-card-delete:hover { color: var(--scarlet); }
+    .prova-card-actions {
+      position: absolute; top: 12px; right: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .prova-card-arq {
+      background: none; border: none; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; color: var(--forest);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      opacity: 0; transition: opacity .15s, color .15s;
+      padding: 4px 8px; border: 1px solid var(--forest);
+      border-radius: 3px; background: var(--forest-tint);
+    }
+    .prova-card-arq:hover { background: var(--forest); color: #fff; }
+    .prova-card.arquivada {
+      opacity: 0.65; border-left-color: var(--forest);
+    }
+    .prova-card.arquivada .prova-card-arq { opacity: 1; }
     .prova-card-bar-bg {
       height: 6px; background: var(--hairline);
       border-radius: 2px; overflow: hidden;
@@ -1368,6 +1387,9 @@
       font-family: inherit; text-transform: uppercase;
     }
     .cp-label .cp-switch:hover { color: var(--cobalt); }
+    .cp-label .cp-conclude { color: var(--forest); margin-left: 8px; }
+    .cp-label .cp-conclude:hover { color: var(--forest); }
+    .cp-label > :first-child + .cp-switch { margin-left: auto; }
 
     .cp-countdown-v {
       font-family: 'JetBrains Mono', monospace;
@@ -5261,8 +5283,37 @@ function paceSparklineSVG(points, color, w, h) {
 function _safeProvas() {
   try { return Array.isArray(provas) ? provas : []; } catch(e) { return []; }
 }
+
+// ── Provas arquivadas (concluídas/escondidas do painel) ──────
+const PROVAS_ARQ_KEY = 'hub_provas_arquivadas';
+function _provasArquivadasSet() {
+  try {
+    const raw = localStorage.getItem(PROVAS_ARQ_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch(e) { return new Set(); }
+}
+function isProvaArquivada(id) {
+  return _provasArquivadasSet().has(id);
+}
+function arquivarProva(id) {
+  const set = _provasArquivadasSet();
+  set.add(id);
+  try { localStorage.setItem(PROVAS_ARQ_KEY, JSON.stringify([...set])); } catch(e) {}
+  if (typeof renderProvasList === 'function') renderProvasList();
+  if (typeof renderCampaignPanel === 'function') renderCampaignPanel();
+  if (typeof showToast === 'function') showToast('Prova marcada como concluída.', 2000);
+}
+function desarquivarProva(id) {
+  const set = _provasArquivadasSet();
+  set.delete(id);
+  try { localStorage.setItem(PROVAS_ARQ_KEY, JSON.stringify([...set])); } catch(e) {}
+  if (typeof renderProvasList === 'function') renderProvasList();
+  if (typeof renderCampaignPanel === 'function') renderCampaignPanel();
+  if (typeof showToast === 'function') showToast('Prova reaberta.', 2000);
+}
+
 function getNextProva() {
-  const _provas = _safeProvas();
+  const _provas = _safeProvas().filter(p => !isProvaArquivada(p.id));
   if (_provas.length === 0) return null;
   const today = new Date(); today.setHours(0,0,0,0);
   const withDate = _provas.filter(p => p && p.data);
@@ -5345,7 +5396,7 @@ function _getNextProvaInternal() {
 }
 
 function trocarProvaCampanha() {
-  const _provas = _safeProvas();
+  const _provas = _safeProvas().filter(p => !isProvaArquivada(p.id));
   if (_provas.length < 2) return;
   const comData = _provas.filter(p => p.data).slice().sort((a,b) => new Date(a.data) - new Date(b.data));
   if (comData.length < 2) return;
@@ -5395,10 +5446,12 @@ function renderCampaignPanel() {
   const labelPendentes = (status.status === 'review') ? 'Para revisar' : 'Pendentes priorizados';
   const labelRitmo = (status.status === 'review') ? 'Revisão ativa' : 'Ritmo';
 
-  const proximas = _safeProvas().filter(p => p.data && p.id !== prova.id);
-  const switcherHTML = proximas.length > 0
-    ? '<button class="cp-switch" type="button" onclick="trocarProvaCampanha()">trocar →</button>'
-    : '';
+  const proximas = _safeProvas().filter(p => p.data && p.id !== prova.id && !isProvaArquivada(p.id));
+  let switcherHTML = '';
+  if (proximas.length > 0) {
+    switcherHTML += '<button class="cp-switch" type="button" onclick="trocarProvaCampanha()">trocar →</button>';
+  }
+  switcherHTML += '<button class="cp-switch cp-conclude" type="button" onclick="arquivarProva(\'' + prova.id + '\')" title="Marcar prova como concluída">✓ concluir</button>';
 
   root.className = 'campaign-panel ' + (status.status !== 'cobalt' ? status.status : '');
   let html = '';
@@ -6022,6 +6075,10 @@ async function onLogin(user) {
   renderProvasList();
   const badge = document.getElementById('badge-provas');
   if (badge) badge.textContent = provas.length;
+  // Now that provas are loaded, refresh dashboard panel
+  if (typeof renderDashboard === 'function') {
+    try { renderDashboard(); } catch(e) { console.warn('renderDashboard skipped:', e); }
+  }
 }
 
 async function signOut() {
@@ -6199,15 +6256,23 @@ function renderProvasList() {
 
     const dataLabel = p.data ? new Date(p.data + 'T00:00:00').toLocaleDateString('pt-BR') : 'Sem data definida';
 
+    const arquivada = isProvaArquivada(p.id);
+    const arqBtn = arquivada
+      ? `<button class="prova-card-arq" onclick="event.stopPropagation();desarquivarProva('${p.id}')" title="Reabrir prova">↻ reabrir</button>`
+      : `<button class="prova-card-arq" onclick="event.stopPropagation();arquivarProva('${p.id}')" title="Marcar como concluída e remover do dashboard">✓ concluir</button>`;
+    const arqClass = arquivada ? ' arquivada' : '';
     return `
-    <div class="prova-card" onclick="abrirProva('${p.id}')">
-      <button class="prova-card-delete" onclick="event.stopPropagation();deletarProva('${p.id}')" title="Excluir prova">✕</button>
+    <div class="prova-card${arqClass}" onclick="abrirProva('${p.id}')">
+      <div class="prova-card-actions">
+        ${arqBtn}
+        <button class="prova-card-delete" onclick="event.stopPropagation();deletarProva('${p.id}')" title="Excluir prova">✕</button>
+      </div>
       <div class="prova-card-header">
         <div>
           <div class="prova-card-nome">${p.nome}</div>
           <div class="prova-card-data">📅 ${dataLabel}</div>
         </div>
-        ${badgeText ? `<span class="prova-card-badge" style="background:${badgeColor}">${badgeText}</span>` : ''}
+        ${arquivada ? '<span class="prova-card-badge" style="background:var(--forest-tint);color:var(--forest)">✓ Concluída</span>' : (badgeText ? `<span class="prova-card-badge" style="background:${badgeColor}">${badgeText}</span>` : '')}
       </div>
       <div class="prova-card-bar-bg"><div class="prova-card-bar-fill" style="width:${pct}%"></div></div>
       <div class="prova-card-footer">
