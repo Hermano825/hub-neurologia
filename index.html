@@ -890,6 +890,7 @@
       opacity: 0.65; border-left-color: var(--forest);
     }
     .prova-card.arquivada .prova-card-arq { opacity: 1; }
+    .prova-card.arquivada .prova-card-header > div:first-child { padding-right: 90px; }
     .prova-card-bar-bg {
       height: 6px; background: var(--hairline);
       border-radius: 2px; overflow: hidden;
@@ -6272,7 +6273,7 @@ function renderProvasList() {
           <div class="prova-card-nome">${p.nome}</div>
           <div class="prova-card-data">📅 ${dataLabel}</div>
         </div>
-        ${arquivada ? '<span class="prova-card-badge" style="background:var(--forest-tint);color:var(--forest)">✓ Concluída</span>' : (badgeText ? `<span class="prova-card-badge" style="background:${badgeColor}">${badgeText}</span>` : '')}
+        ${arquivada ? '' : (badgeText ? `<span class="prova-card-badge" style="background:${badgeColor}">${badgeText}</span>` : '')}
       </div>
       <div class="prova-card-bar-bg"><div class="prova-card-bar-fill" style="width:${pct}%"></div></div>
       <div class="prova-card-footer">
